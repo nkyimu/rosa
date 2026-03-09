@@ -1,0 +1,22 @@
+{
+  "name": "intent-circles-agent",
+  "version": "0.1.0",
+  "description": "Offchain agent for IntentCircles — intent-matched ROSCA manager on Celo",
+  "module": "src/index.ts",
+  "main": "src/index.ts",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "dev":   "bun --watch src/index.ts",
+    "start": "bun src/index.ts",
+    "check": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@types/bun": "latest",
+    "typescript": "^5"
+  },
+  "dependencies": {
+    "@types/node": "^25.3.5",
+    "viem": "^2.47.0"
+  }
+}
