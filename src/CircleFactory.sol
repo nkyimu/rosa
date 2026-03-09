@@ -25,7 +25,8 @@ contract CircleFactory {
         address indexed circleAddress,
         address indexed agent,
         address trustContract,
-        address yieldVault,
+        address lendingPool,
+        address aToken,
         uint256 minTrustScore,
         uint256 roundDuration
     );
@@ -43,7 +44,8 @@ contract CircleFactory {
      * @dev Create a new SaveCircle instance
      * @param agent The agent managing this circle
      * @param trustContract Address of CircleTrust contract
-     * @param yieldVault Address where yield is deposited (Moola)
+     * @param lendingPool Address of Moola lending pool (for deposit/withdraw)
+     * @param aToken Address of the corresponding aToken (for balance checks)
      * @param minTrustScore Minimum trust score to join
      * @param roundDuration Duration of each round in seconds
      * @return circleAddress Address of the new SaveCircle
@@ -51,13 +53,15 @@ contract CircleFactory {
     function createCircle(
         address agent,
         address trustContract,
-        address yieldVault,
+        address lendingPool,
+        address aToken,
         uint256 minTrustScore,
         uint256 roundDuration
     ) external returns (address circleAddress) {
         require(agent != address(0), "Invalid agent");
         require(trustContract != address(0), "Invalid trust contract");
-        require(yieldVault != address(0), "Invalid yield vault");
+        require(lendingPool != address(0), "Invalid lending pool");
+        require(aToken != address(0), "Invalid aToken");
         require(roundDuration > 0, "Round duration must be > 0");
 
         uint256 circleId = circleCounter++;
@@ -66,7 +70,8 @@ contract CircleFactory {
             circleId,
             agent,
             trustContract,
-            yieldVault,
+            lendingPool,
+            aToken,
             minTrustScore,
             roundDuration
         );
@@ -80,7 +85,8 @@ contract CircleFactory {
             circleAddress,
             agent,
             trustContract,
-            yieldVault,
+            lendingPool,
+            aToken,
             minTrustScore,
             roundDuration
         );

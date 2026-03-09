@@ -26,7 +26,8 @@ contract SaveCircleTest is Test {
     address public member1 = address(0x2222);
     address public member2 = address(0x3333);
     address public member3 = address(0x4444);
-    address public yieldVault = address(0x5555); // Mock yield vault
+    address public lendingPool = address(0x5555); // Mock Moola lending pool
+    address public aToken = address(0x6666);     // Mock aToken
 
     uint256 constant CONTRIBUTION_AMOUNT = 100e18;
     uint256 constant MIN_TRUST_SCORE = 1;
@@ -40,7 +41,8 @@ contract SaveCircleTest is Test {
             1,
             agent,
             address(trustContract),
-            yieldVault,
+            lendingPool,
+            aToken,
             MIN_TRUST_SCORE,
             ROUND_DURATION
         );
@@ -76,7 +78,7 @@ contract SaveCircleTest is Test {
 
     function testMemberJoin() public {
         vm.prank(member1);
-        circle.join(1);
+        circle.join();
 
         assertEq(circle.isMember(member1), true);
         assertEq(circle.getMemberCount(), 1);
@@ -88,12 +90,12 @@ contract SaveCircleTest is Test {
 
         vm.prank(noTrust);
         vm.expectRevert("Insufficient trust score");
-        circle.join(1);
+        circle.join();
     }
 
     function testStartCircle() public {
         vm.prank(member1);
-        circle.join(1);
+        circle.join();
 
         vm.prank(agent);
         circle.startCircle();
@@ -105,7 +107,7 @@ contract SaveCircleTest is Test {
     function testContribute() public {
         // Setup
         vm.prank(member1);
-        circle.join(1);
+        circle.join();
 
         vm.prank(agent);
         circle.startCircle();
@@ -124,13 +126,13 @@ contract SaveCircleTest is Test {
     function testFullCircleLifecycle() public {
         // Join members
         vm.prank(member1);
-        circle.join(1);
+        circle.join();
 
         vm.prank(member2);
-        circle.join(2);
+        circle.join();
 
         vm.prank(member3);
-        circle.join(3);
+        circle.join();
 
         // Start circle
         vm.prank(agent);
@@ -178,7 +180,7 @@ contract SaveCircleTest is Test {
     function testPenaltyMechanism() public {
         // Join and start
         vm.prank(member1);
-        circle.join(1);
+        circle.join();
 
         vm.prank(agent);
         circle.startCircle();
@@ -202,7 +204,7 @@ contract SaveCircleTest is Test {
 
     function testEjectionAfterThreePenalties() public {
         vm.prank(member1);
-        circle.join(1);
+        circle.join();
 
         vm.prank(agent);
         circle.startCircle();
@@ -224,10 +226,10 @@ contract SaveCircleTest is Test {
 
     function testDissolveCircle() public {
         vm.prank(member1);
-        circle.join(1);
+        circle.join();
 
         vm.prank(member2);
-        circle.join(2);
+        circle.join();
 
         vm.prank(agent);
         circle.startCircle();
@@ -250,10 +252,10 @@ contract SaveCircleTest is Test {
 
     function testGetMembers() public {
         vm.prank(member1);
-        circle.join(1);
+        circle.join();
 
         vm.prank(member2);
-        circle.join(2);
+        circle.join();
 
         address[] memory members = circle.getMembers();
         assertEq(members.length, 2);
@@ -265,7 +267,7 @@ contract SaveCircleTest is Test {
         // This test verifies that reentrancy guard is in place
         // The nonReentrant modifier should prevent reentrancy attacks
         vm.prank(member1);
-        circle.join(1);
+        circle.join();
 
         vm.prank(agent);
         circle.startCircle();
@@ -282,10 +284,10 @@ contract SaveCircleTest is Test {
 
     function testClaimRotationOnlyOnYourTurn() public {
         vm.prank(member1);
-        circle.join(1);
+        circle.join();
 
         vm.prank(member2);
-        circle.join(2);
+        circle.join();
 
         vm.prank(agent);
         circle.startCircle();

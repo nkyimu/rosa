@@ -26,7 +26,8 @@ contract SaveCircle is ReentrancyGuard {
     uint256 public circleId;
     address public agent;
     address public trustContract;
-    address public yieldVault;
+    address public lendingPool;
+    address public aToken;
     address public tokenAddress;
     uint256 public minTrustScore;
     uint256 public roundDuration;
@@ -76,14 +77,16 @@ contract SaveCircle is ReentrancyGuard {
         uint256 _circleId,
         address _agent,
         address _trustContract,
-        address _yieldVault,
+        address _lendingPool,
+        address _aToken,
         uint256 _minTrustScore,
         uint256 _roundDuration
     ) {
         circleId = _circleId;
         agent = _agent;
         trustContract = _trustContract;
-        yieldVault = _yieldVault;
+        lendingPool = _lendingPool;
+        aToken = _aToken;
         minTrustScore = _minTrustScore;
         roundDuration = _roundDuration;
 
@@ -112,7 +115,7 @@ contract SaveCircle is ReentrancyGuard {
      * @dev Join a circle (trust-gated)
      * User must meet minimum trust score from CircleTrust contract
      */
-    function join(uint256 intentId) external inState(CircleState.FORMING) nonReentrant {
+    function join() external inState(CircleState.FORMING) nonReentrant {
         require(!isMember[msg.sender], "Already a member");
         require(members.length < 50, "Circle is full");
 
@@ -241,8 +244,8 @@ contract SaveCircle is ReentrancyGuard {
         require(token.balanceOf(address(this)) >= amount, "Insufficient balance");
 
         // Approve Moola and deposit (forceApprove handles USDT-style tokens)
-        token.forceApprove(yieldVault, amount);
-        IMoolaLendingPool(yieldVault).deposit(
+        token.forceApprove(lendingPool, amount);
+        IMoolaLendingPool(lendingPool).deposit(
             tokenAddress,
             amount,
             address(this),
@@ -254,18 +257,18 @@ contract SaveCircle is ReentrancyGuard {
 
     /**
      * @dev Harvest yield from Moola Market and compound (only agent)
+     * Agent earns KEEPER_FEE_BPS (1%) of yield for calling this
      */
     function harvestYield() external onlyAgent inState(CircleState.ACTIVE) nonReentrant {
-        IMoolaLendingPool pool = IMoolaLendingPool(yieldVault);
+        IMoolaLendingPool pool = IMoolaLendingPool(lendingPool);
 
-        // Get current balance of aToken
-        // This is a simplified version - in production would track aToken balance
+        // Get current balance of aToken from the dedicated aToken address
         uint256 normalizedIncome = pool.getReserveNormalizedIncome(tokenAddress);
         require(normalizedIncome > 0, "Invalid reserve");
 
-        // Withdraw all to claim yield
-        IERC20 aToken = IERC20(yieldVault);
-        uint256 aTokenBalance = aToken.balanceOf(address(this));
+        // Withdraw all to claim yield — use aToken address for balance check
+        IERC20 aTokenContract = IERC20(aToken);
+        uint256 aTokenBalance = aTokenContract.balanceOf(address(this));
 
         if (aTokenBalance > 0) {
             pool.withdraw(tokenAddress, aTokenBalance, address(this));
@@ -277,7 +280,14 @@ contract SaveCircle is ReentrancyGuard {
 
             if (tokenBalance > expectedBalance) {
                 uint256 yieldEarned = tokenBalance - expectedBalance;
-                totalYieldGenerated += yieldEarned;
+
+                // Pay keeper fee to agent for harvesting
+                uint256 keeperFee = (yieldEarned * KEEPER_FEE_BPS) / 10_000;
+                if (keeperFee > 0) {
+                    token.safeTransfer(agent, keeperFee);
+                }
+
+                totalYieldGenerated += (yieldEarned - keeperFee);
 
                 emit YieldHarvested(yieldEarned);
             }
@@ -301,6 +311,11 @@ contract SaveCircle is ReentrancyGuard {
                 if (perMember > 0) {
                     token.safeTransfer(members[i], perMember);
                 }
+            }
+            // Send any remaining dust to agent (avoids token stranding from integer division)
+            uint256 remaining = token.balanceOf(address(this));
+            if (remaining > 0) {
+                token.safeTransfer(agent, remaining);
             }
         }
 
