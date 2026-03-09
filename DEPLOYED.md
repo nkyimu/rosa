@@ -1,54 +1,28 @@
-# IntentCircles — Celo Sepolia Deployment
+# IntentCircles — Deployed Contracts
 
-**Date**: 2026-03-09
-**Network**: Celo Sepolia (chain ID 11142220)
-**Status**: ✅ ALL CONTRACTS DEPLOYED
+**Network**: Celo Sepolia (Chain ID: 11142220)
+**RPC**: `https://forno.celo-sepolia.celo-testnet.org`
+**Explorer**: `https://celo-sepolia.blockscout.com`
+**Deployer**: `0xa62C2EA1Aa2Ae36C9dFb329E3B194Dc6125758eB`
 
-## Deployed Contracts
+## Contracts
 
-| Contract | Address | Purpose |
-|----------|---------|---------|
-| **IntentRegistry** | `0x6Bddd66698206c9956e5ac65F9083A132B574844` | Intent submission & agent fulfillment |
-| **CircleTrust** | `0x58C26bA12128e68B203442AC081656b525892B83` | Trust edges & vouch system |
-| **CircleFactory** | `0x87cd271485E7838607D19Bc5B33Dc0DC6297F1E3` | Circle creation factory |
-| **DemoCircle** | `0x7D938c7326eC34fB26F3aF4A61259D2a0D19D8e4` | Demo SaveCircle (5min rounds, 0 minTrust, 1 cUSD) |
+| Contract | Address | Status |
+|----------|---------|--------|
+| **IntentRegistry** | `0x6Bddd66698206c9956e5ac65F9083A132B574844` | ✅ Deployed |
+| **CircleTrust** | `0x0c2098e90A078b2183b765eFB38Bd912FcDBb8Ba` | ✅ Deployed |
+| **DemoCircle (SaveCircle)** | `0xfaDA25f4CD0f311d7F512B748E3242976e7AD3CF` | ✅ Deployed |
+| **AgentRegistry8004** | `0xDaCE1481D99fb8184196e5Db28A16d7FcF006CA7` | ✅ Deployed |
+| **AgentPayment** | `0x5F1fD5655C42f77253E17Ec1FB9F65AC86400Ed4` | ✅ Deployed |
 
-## Not Yet Deployed (need additional faucet funds)
+## Tokens
 
-| Contract | Purpose | Notes |
-|----------|---------|-------|
-| **AgentRegistry8004** | ERC-8004 agent identity + reputation | 23 tests passing |
-| **AgentPayment** | x402 fee collection in cUSD | Tests passing |
+| Token | Address |
+|-------|---------|
+| **cUSD** | `0xEF4d55D6dE8e8d73232827Cd1e9b2F2dBb45bC80` |
 
-## Network Configuration
-
-- **Chain ID**: 11142220
-- **RPC**: `https://forno.celo-sepolia.celo-testnet.org`
-- **Block Explorer**: `https://celo-sepolia.blockscout.com`
-- **Celoscan**: `https://sepolia.celoscan.io`
-- **cUSD Token**: `0xEF4d55D6dE8e8d73232827Cd1e9b2F2dBb45bC80`
-
-## Deployer Wallet
-
-- **Address**: `0xa62C2EA1Aa2Ae36C9dFb329E3B194Dc6125758eB`
-- **Remaining Balance**: ~0.082 CELO
-- **Note**: Testnet only — no real funds
-
-## Deploy Commands
-
-```bash
-# Deploy remaining contracts (AgentRegistry8004, AgentPayment)
-cd /Users/cerebro/.openclaw/workspace/intent-circles
-source .env
-# Write a new deploy script for the remaining contracts
-forge script script/DeployAll.s.sol --rpc-url celo_sepolia --broadcast --legacy
-```
-
-## Test Status
-
-- **60 tests passing** across 5 test suites
-- IntentRegistry: 11 tests
-- SaveCircle: 11 tests
-- CircleTrust: 13 tests
-- AgentRegistry8004: 23 tests
-- Counter: 2 tests
+## Notes
+- CircleFactory exceeded 24KB size limit — deployed SaveCircle directly instead
+- Agent registered as "IntentCircles Keeper" on AgentRegistry8004
+- AgentPayment fee: 0.01 cUSD per intent
+- DemoCircle config: circleId=1, 7-day rounds, no yield vault, min trust=0
