@@ -42,5 +42,5 @@ export const CONTRACT_ADDRESSES = {
   demoCircle:        (env["VITE_DEMO_CIRCLE"]        ?? "0xfaDA25f4CD0f311d7F512B748E3242976e7AD3CF") as `0x${string}`,
   agentRegistry8004: (env["VITE_AGENT_REGISTRY"]     ?? "0xDaCE1481D99fb8184196e5Db28A16d7FcF006CA7") as `0x${string}`,
   agentPayment:      (env["VITE_AGENT_PAYMENT"]      ?? "0x5F1fD5655C42f77253E17Ec1FB9F65AC86400Ed4") as `0x${string}`,
-  cUSD:              "0xEF4d55D6dE8e8d73232827Cd1e9b2F2dBb45bC80" as `0x${string}`,
+  cUSD:              "0xB3567F61d19506A023ae7216a27848B13e5c331B" as `0x${string}`,
 } as const;

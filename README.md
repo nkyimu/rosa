@@ -102,7 +102,7 @@ The agent exposes an **x402-compliant HTTP endpoint**. Clients that want to subm
 | DemoCircle | `0xfaDA25f4CD0f311d7F512B748E3242976e7AD3CF` |
 | AgentRegistry8004 | `0xDaCE1481D99fb8184196e5Db28A16d7FcF006CA7` |
 | AgentPayment | `0x5F1fD5655C42f77253E17Ec1FB9F65AC86400Ed4` |
-| cUSD | `0xEF4d55D6dE8e8d73232827Cd1e9b2F2dBb45bC80` |
+| cUSD | `0xB3567F61d19506A023ae7216a27848B13e5c331B` |
 
 **RPC Endpoint**: `https://forno.celo-sepolia.celo-testnet.org`
 **Chain ID**: `11142220`
@@ -161,7 +161,7 @@ NIGHTFALL_CLIENT_URL=http://localhost:3001  # Nightfall client endpoint
 ```bash
 VITE_CELO_RPC=https://forno.celo-sepolia.celo-testnet.org
 VITE_INTENT_REGISTRY=0x...
-VITE_cUSD=0xEF4d55D6dE8e8d73232827Cd1e9b2F2dBb45bC80
+VITE_cUSD=0xB3567F61d19506A023ae7216a27848B13e5c331B
 ```
 
 ## Demo

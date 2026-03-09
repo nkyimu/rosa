@@ -17,7 +17,7 @@ Explorer: https://celo-sepolia.blockscout.com
 ## Token Addresses
 | Token | Address |
 |-------|---------|
-| cUSD | `0xEF4d55D6dE8e8d73232827Cd1e9b2F2dBb45bC80` |
+| cUSD (Mock) | `0xB3567F61d19506A023ae7216a27848B13e5c331B` |
 
 ## Deployer
 Address: `0xa62C2EA1Aa2Ae36C9dFb329E3B194Dc6125758eB`

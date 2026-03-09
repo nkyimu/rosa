@@ -17,7 +17,7 @@ export const CONTRACT_ADDRESSES = {
   circleTrust:     (process.env.CIRCLE_TRUST_ADDRESS     ?? "0x0c2098e90A078b2183b765eFB38Bd912FcDBb8Ba") as `0x${string}`,
   demoCircle:      (process.env.DEMO_CIRCLE_ADDRESS      ?? "0xfaDA25f4CD0f311d7F512B748E3242976e7AD3CF") as `0x${string}`,
   // Celo Sepolia cUSD
-  cUSD:            (process.env.CUSD_ADDRESS             ?? "0xEF4d55D6dE8e8d73232827Cd1e9b2F2dBb45bC80") as `0x${string}`,
+  cUSD:            (process.env.CUSD_ADDRESS             ?? "0xB3567F61d19506A023ae7216a27848B13e5c331B") as `0x${string}`,
   // Agent registry (ERC-8004)
   agentRegistry8004: (process.env.AGENT_REGISTRY_8004_ADDRESS ?? "0xDaCE1481D99fb8184196e5Db28A16d7FcF006CA7") as `0x${string}`,
   // x402 Payment collection contract
