@@ -1,11 +1,12 @@
 import { useState } from "react";
-import { useAccount, useConnect, useDisconnect } from "wagmi";
+import { useAccount, useConnect, useDisconnect, useBalance } from "wagmi";
 import { injected } from "wagmi/connectors";
+import { formatUnits } from "viem";
 import { MiniPayDetector } from "./components/MiniPayDetector";
 import { IntentForm }       from "./components/IntentForm";
 import { CircleDashboard }  from "./components/CircleDashboard";
 import { TrustPanel }       from "./components/TrustPanel";
-import { checkMiniPay }     from "./config/wagmi";
+import { checkMiniPay, CONTRACT_ADDRESSES, celoSepolia }     from "./config/wagmi";
 
 type Tab = "intent" | "circles" | "trust";
 
@@ -44,10 +45,29 @@ function WalletStatus() {
   const { address, isConnected } = useAccount();
   const { disconnect } = useDisconnect();
   const isMiniPay = checkMiniPay();
+
+  // Read CELO balance
+  const { data: celoBalance } = useBalance({
+    address,
+    chainId: celoSepolia.id,
+    query: { enabled: !!address },
+  });
+
+  // Read cUSD balance
+  const { data: cUSDBalance } = useBalance({
+    address,
+    token: CONTRACT_ADDRESSES.cUSD,
+    chainId: celoSepolia.id,
+    query: { enabled: !!address },
+  });
+
   if (!isConnected) return null;
   const shortAddr = address ? `${address.slice(0, 6)}...${address.slice(-4)}` : "";
+  const celoDisplay = celoBalance ? Number(formatUnits(celoBalance.value, 18)).toFixed(2) : "0.00";
+  const cUSDDisplay = cUSDBalance ? Number(formatUnits(cUSDBalance.value, 18)).toFixed(2) : "0.00";
+
   return (
-    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+    <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--dt-space-2)' }}>
       {isMiniPay && (
         <span style={{
           fontSize: 'var(--dt-text-xs)', fontWeight: 600,
@@ -56,9 +76,19 @@ function WalletStatus() {
           border: '1px solid rgba(212,175,55,0.3)'
         }}>MiniPay</span>
       )}
+      <div style={{
+        display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 2,
+        fontSize: 'var(--dt-text-xs)', fontFamily: 'var(--dt-font-mono)',
+        color: 'var(--dt-text-secondary)'
+      }}>
+        <div>{celoDisplay} CELO</div>
+        <div>{cUSDDisplay} cUSD</div>
+      </div>
       <span style={{
         fontSize: 'var(--dt-text-xs)', fontFamily: 'var(--dt-font-mono)',
-        color: 'var(--dt-text-secondary)', letterSpacing: '0.02em'
+        color: 'var(--dt-text-secondary)', letterSpacing: '0.02em',
+        borderLeft: '1px solid var(--dt-border-subtle)',
+        paddingLeft: 'var(--dt-space-2)'
       }}>{shortAddr}</span>
       <button
         onClick={() => disconnect()}

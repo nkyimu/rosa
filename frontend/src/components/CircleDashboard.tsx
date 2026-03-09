@@ -1,57 +1,156 @@
-import { useAccount } from 'wagmi'
+import { useAccount, useReadContract, useWriteContract, useWaitForTransactionReceipt } from 'wagmi'
+import { formatUnits, erc20Abi, maxUint256 } from 'viem'
+import { CONTRACT_ADDRESSES } from '../config/wagmi'
+import { SaveCircleABI } from '../abis/SaveCircle'
+import { useState } from 'react'
 
-interface MockCircle {
-  id: number
-  members: number
-  maxMembers: number
-  currentRound: number
-  totalRounds: number
-  contribution: string
-  cycle: string
-  yourTurn: boolean
-  contributed: boolean
-  yieldEarned: string
-}
+const cUSDabi = erc20Abi
 
-const MOCK_CIRCLES: MockCircle[] = [
-  {
-    id: 1,
-    members: 8,
-    maxMembers: 10,
-    currentRound: 3,
-    totalRounds: 10,
-    contribution: '5.00',
-    cycle: 'Weekly',
-    yourTurn: false,
-    contributed: true,
-    yieldEarned: '0.42',
-  },
-  {
-    id: 2,
-    members: 5,
-    maxMembers: 5,
-    currentRound: 1,
-    totalRounds: 5,
-    contribution: '20.00',
-    cycle: 'Monthly',
-    yourTurn: true,
-    contributed: false,
-    yieldEarned: '1.15',
-  },
-]
+function CircleCard() {
+  const { address, isConnected } = useAccount()
+  const [isApproving, setIsApproving] = useState(false)
+  const [showError, setShowError] = useState('')
 
-function CircleCard({ circle }: { circle: MockCircle }) {
-  const progress = (circle.currentRound / circle.totalRounds) * 100
-  const isActive = circle.yourTurn
+  // Read circle data from DemoCircle
+  useReadContract({
+    address: CONTRACT_ADDRESSES.demoCircle,
+    abi: SaveCircleABI,
+    functionName: 'state',
+    query: { enabled: isConnected },
+  })
+
+  const { data: memberCount } = useReadContract({
+    address: CONTRACT_ADDRESSES.demoCircle,
+    abi: SaveCircleABI,
+    functionName: 'getMemberCount',
+    query: { enabled: isConnected },
+  })
+
+  const { data: contributionAmount } = useReadContract({
+    address: CONTRACT_ADDRESSES.demoCircle,
+    abi: SaveCircleABI,
+    functionName: 'contributionAmount',
+    query: { enabled: isConnected },
+  })
+
+  const { data: roundDuration } = useReadContract({
+    address: CONTRACT_ADDRESSES.demoCircle,
+    abi: SaveCircleABI,
+    functionName: 'roundDuration',
+    query: { enabled: isConnected },
+  })
+
+  const { data: currentRound } = useReadContract({
+    address: CONTRACT_ADDRESSES.demoCircle,
+    abi: SaveCircleABI,
+    functionName: 'currentRound',
+    query: { enabled: isConnected },
+  })
+
+  const { data: rotationIndex } = useReadContract({
+    address: CONTRACT_ADDRESSES.demoCircle,
+    abi: SaveCircleABI,
+    functionName: 'rotationIndex',
+    query: { enabled: isConnected },
+  })
+
+  const { data: hasContributed } = useReadContract({
+    address: CONTRACT_ADDRESSES.demoCircle,
+    abi: SaveCircleABI,
+    functionName: 'hasClaimedThisRound',
+    args: address ? [address] : undefined,
+    query: { enabled: !!address },
+  })
+
+  const { data: isMember } = useReadContract({
+    address: CONTRACT_ADDRESSES.demoCircle,
+    abi: SaveCircleABI,
+    functionName: 'isMember',
+    args: address ? [address] : undefined,
+    query: { enabled: !!address },
+  })
+
+  // Contribute via write contract
+  const { writeContract: doContribute, isPending: isContributing } = useWriteContract()
+  const { isLoading: isConfirming } = useWaitForTransactionReceipt({
+    hash: isContributing ? undefined : undefined,
+  })
+
+  // cUSD approval
+  const { writeContract: approveToken, isPending: isApprovingToken } = useWriteContract()
+
+  async function handleContribute() {
+    if (!address || !contributionAmount) return
+    setShowError('')
+
+    try {
+      // Step 1: Approve cUSD
+      setIsApproving(true)
+      approveToken(
+        {
+          address: CONTRACT_ADDRESSES.cUSD,
+          abi: cUSDabi,
+          functionName: 'approve',
+          args: [CONTRACT_ADDRESSES.demoCircle, maxUint256],
+        },
+        {
+          onSuccess: () => {
+            // Step 2: After approval, contribute
+            setTimeout(() => {
+              doContribute({
+                address: CONTRACT_ADDRESSES.demoCircle,
+                abi: SaveCircleABI,
+                functionName: 'contribute',
+              })
+              setIsApproving(false)
+            }, 500)
+          },
+          onError: (err: any) => {
+            setShowError('Approval failed: ' + (err.message || 'Unknown error'))
+            setIsApproving(false)
+          },
+        }
+      )
+    } catch (err: any) {
+      setShowError('Error: ' + (err.message || 'Unknown error'))
+      setIsApproving(false)
+    }
+  }
+
+  if (!isConnected || !isMember) {
+    return (
+      <div style={{
+        background: 'var(--dt-surface-raised)',
+        border: '1px dashed var(--dt-border-default)',
+        borderRadius: 'var(--dt-radius-xl)',
+        padding: 'var(--dt-space-5)',
+        textAlign: 'center',
+        color: 'var(--dt-text-muted)',
+        fontSize: 'var(--dt-text-sm)',
+      }}>
+        {!isConnected ? 'Connect wallet to join a circle' : 'Submit an intent to get matched into a circle'}
+      </div>
+    )
+  }
+
+  const members = Number(memberCount ?? 0n)
+  const contribution = contributionAmount ? Number(formatUnits(contributionAmount, 18)) : 0
+  const round = Number(currentRound ?? 0n)
+  const rotation = Number(rotationIndex ?? 0n)
+  const yourTurn = rotation === Number(address ? BigInt(address) % BigInt(members || 1) : 0)
+
+  const cycleSeconds = Number(roundDuration ?? 604800) // default 7 days
+  const cycleDays = Math.round(cycleSeconds / 86400)
+  const cycleLabel = cycleDays === 7 ? 'Weekly' : cycleDays === 14 ? 'Biweekly' : cycleDays === 30 ? 'Monthly' : `${cycleDays}d`
 
   return (
     <div style={{
-      background: isActive ? 'rgba(14,11,7,0.85)' : 'var(--dt-surface-raised)',
-      backdropFilter: isActive ? 'blur(24px) saturate(180%)' : 'none',
-      border: `1px solid ${isActive ? 'var(--dt-accent)' : 'var(--dt-border-default)'}`,
+      background: yourTurn ? 'rgba(14,11,7,0.85)' : 'var(--dt-surface-raised)',
+      backdropFilter: yourTurn ? 'blur(24px) saturate(180%)' : 'none',
+      border: `1px solid ${yourTurn ? 'var(--dt-accent)' : 'var(--dt-border-default)'}`,
       borderRadius: 'var(--dt-radius-xl)',
       padding: 'var(--dt-space-5)',
-      boxShadow: isActive ? 'var(--dt-shadow-glow-gold)' : 'var(--dt-shadow-sm)',
+      boxShadow: yourTurn ? 'var(--dt-shadow-glow-gold)' : 'var(--dt-shadow-sm)',
       transition: 'all 0.3s ease',
       position: 'relative',
       overflow: 'hidden'
@@ -71,12 +170,12 @@ function CircleCard({ circle }: { circle: MockCircle }) {
               fontSize: 'var(--dt-text-xl)', fontWeight: 400,
               color: 'var(--dt-text-primary)',
               margin: 0
-            }}>Circle #{circle.id}</h3>
+            }}>Demo Circle</h3>
             <p style={{
               color: 'var(--dt-text-muted)', fontSize: 'var(--dt-text-xs)', marginTop: 'var(--dt-space-1)',
               margin: 0
             }}>
-              {circle.members}/{circle.maxMembers} members · {circle.cycle}
+              {members} members · {cycleLabel}
             </p>
           </div>
           <div style={{ textAlign: 'right' }}>
@@ -84,21 +183,9 @@ function CircleCard({ circle }: { circle: MockCircle }) {
               fontFamily: 'var(--dt-font-mono)',
               color: 'var(--dt-trust-community)', fontWeight: 600,
               fontSize: 'var(--dt-text-sm)'
-            }}>+{circle.yieldEarned} cUSD</span>
-            <p style={{ color: 'var(--dt-text-muted)', fontSize: 'var(--dt-text-xs)', margin: 0, marginTop: 2 }}>yield</p>
+            }}>Live</span>
+            <p style={{ color: 'var(--dt-text-muted)', fontSize: 'var(--dt-text-xs)', margin: 0, marginTop: 2 }}>status</p>
           </div>
-        </div>
-
-        {/* Progress bar */}
-        <div style={{
-          width: '100%', height: 6, borderRadius: 'var(--dt-radius-full)',
-          background: 'var(--dt-surface-overlay)', marginBottom: 'var(--dt-space-2)', overflow: 'hidden'
-        }}>
-          <div style={{
-            width: `${progress}%`, height: '100%', borderRadius: 'inherit',
-            background: 'linear-gradient(90deg, var(--dt-trust-reliability) 0%, var(--dt-trust-community) 100%)',
-            transition: 'width 0.5s cubic-bezier(0.4,0,0.2,1)'
-          }} />
         </div>
 
         <p style={{
@@ -106,22 +193,38 @@ function CircleCard({ circle }: { circle: MockCircle }) {
           margin: 0,
           marginTop: 'var(--dt-space-1)'
         }}>
-          Round {circle.currentRound} of {circle.totalRounds} · {circle.contribution} cUSD/cycle
+          Round {round} · {contribution.toFixed(2)} cUSD/cycle
         </p>
+
+        {showError && (
+          <div style={{
+            background: 'rgba(239,68,68,0.08)',
+            border: '1px solid rgba(239,68,68,0.2)',
+            borderRadius: 'var(--dt-radius-md)',
+            padding: 'var(--dt-space-2) var(--dt-space-3)',
+            color: 'var(--dt-state-error)',
+            fontSize: 'var(--dt-text-xs)',
+            marginBottom: 'var(--dt-space-3)'
+          }}>
+            {showError}
+          </div>
+        )}
 
         {/* Actions */}
         <div style={{ display: 'flex', gap: 'var(--dt-space-2)' }}>
-          {!circle.contributed && (
-            <button style={{
-              flex: 1, padding: 'var(--dt-space-3) var(--dt-space-4)', borderRadius: 'var(--dt-radius-lg)',
-              background: 'var(--dt-trust-community)', color: '#0A0804',
-              fontWeight: 600, fontSize: 'var(--dt-text-sm)', border: 'none', cursor: 'pointer',
-              transition: 'all 0.2s ease'
-            }}>
-              Contribute ${circle.contribution}
+          {!hasContributed && (
+            <button onClick={handleContribute} disabled={isApproving || isApprovingToken || isContributing || isConfirming}
+              style={{
+                flex: 1, padding: 'var(--dt-space-3) var(--dt-space-4)', borderRadius: 'var(--dt-radius-lg)',
+                background: 'var(--dt-trust-community)', color: '#0A0804',
+                fontWeight: 600, fontSize: 'var(--dt-text-sm)', border: 'none', cursor: 'pointer',
+                opacity: isApproving || isApprovingToken || isContributing ? 0.6 : 1,
+                transition: 'all 0.2s ease'
+              }}>
+              {isApproving ? 'Approving...' : isContributing || isConfirming ? 'Contributing...' : `Contribute $${contribution.toFixed(2)}`}
             </button>
           )}
-          {circle.yourTurn && (
+          {yourTurn && (
             <button style={{
               flex: 1, padding: 'var(--dt-space-3) var(--dt-space-4)', borderRadius: 'var(--dt-radius-lg)',
               background: 'var(--dt-accent)', color: '#0A0804',
@@ -131,10 +234,10 @@ function CircleCard({ circle }: { circle: MockCircle }) {
               transition: 'all 0.2s ease',
               animation: 'dt-glow-pulse 2.5s ease-in-out infinite'
             }}>
-              ✦ Claim Payout
+              ✦ Your Turn to Claim
             </button>
           )}
-          {circle.contributed && !circle.yourTurn && (
+          {hasContributed && !yourTurn && (
             <div style={{
               flex: 1, textAlign: 'center', padding: 'var(--dt-space-3)',
               color: 'var(--dt-trust-community)', fontSize: 'var(--dt-text-sm)',
@@ -175,27 +278,10 @@ export function CircleDashboard() {
         <span style={{
           fontSize: 'var(--dt-text-xs)', color: 'var(--dt-text-muted)',
           fontWeight: 500, letterSpacing: 'var(--dt-tracking-wide)'
-        }}>{MOCK_CIRCLES.length} ACTIVE</span>
+        }}>1 LIVE</span>
       </div>
 
-      {MOCK_CIRCLES.map((circle) => (
-        <CircleCard key={circle.id} circle={circle} />
-      ))}
-
-      {MOCK_CIRCLES.length === 0 && (
-        <div style={{
-          textAlign: 'center', padding: 'var(--dt-space-12) var(--dt-space-4)',
-          borderRadius: 'var(--dt-radius-xl)',
-          border: '1px dashed var(--dt-border-default)'
-        }}>
-          <p style={{ color: 'var(--dt-text-secondary)', marginBottom: 'var(--dt-space-1)', margin: 0 }}>
-            No circles yet
-          </p>
-          <p style={{ color: 'var(--dt-text-muted)', fontSize: 'var(--dt-text-sm)', margin: 0 }}>
-            Submit a save intent to get matched!
-          </p>
-        </div>
-      )}
+      <CircleCard />
     </div>
   )
 }

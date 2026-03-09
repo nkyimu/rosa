@@ -2,10 +2,7 @@ import { useState } from "react";
 import { useAccount, useWriteContract, useWaitForTransactionReceipt } from "wagmi";
 import { encodeAbiParameters, parseAbiParameters, parseUnits } from "viem";
 import { CONTRACT_ADDRESSES } from "../config/wagmi";
-
-const intentRegistryAbi = [
-  { type: "function", name: "submitIntent", inputs: [{ name: "intentType", type: "uint8" }, { name: "params", type: "bytes" }, { name: "expiresAt", type: "uint256" }], outputs: [{ name: "", type: "uint256" }], stateMutability: "nonpayable" },
-] as const;
+import { IntentRegistryABI } from "../abis/IntentRegistry";
 
 const CYCLE_OPTIONS = [
   { label: "Weekly",   value: (7  * 24 * 60 * 60).toString() },
@@ -30,7 +27,13 @@ export function IntentForm() {
       [parseUnits(amount, 18), BigInt(cycleDuration), preferredSize]
     );
     const expiresAt = BigInt(Math.floor(Date.now() / 1000) + 30 * 24 * 60 * 60);
-    writeContract({ address: CONTRACT_ADDRESSES.intentRegistry, abi: intentRegistryAbi, functionName: "submitIntent", args: [0, params, expiresAt] });
+    // intentType: 0 = JOIN_CIRCLE
+    writeContract({ 
+      address: CONTRACT_ADDRESSES.intentRegistry, 
+      abi: IntentRegistryABI, 
+      functionName: "submitIntent", 
+      args: [0, params, expiresAt] 
+    });
   }
 
   if (isSuccess) {
