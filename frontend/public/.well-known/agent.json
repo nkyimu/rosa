@@ -1,0 +1,45 @@
+{
+  "type": "Agent",
+  "name": "IntentCircles Keeper",
+  "description": "AI agent that manages private savings circles on Celo — matching intents, executing rotations, and maintaining circle health",
+  "image": "ipfs://QmIntentCirclesLogo",
+  "endpoints": [
+    {
+      "type": "a2a",
+      "url": "https://intentcircles.example.com/.well-known/agent.json"
+    },
+    {
+      "type": "wallet",
+      "address": "0xa62C2EA1Aa2Ae36C9dFb329E3B194Dc6125758eB",
+      "chainId": 42220
+    }
+  ],
+  "supportedTrust": ["reputation", "validation"],
+  "reputationTags": [
+    {
+      "tag": "starred",
+      "description": "Community rating 0-100",
+      "type": "numeric"
+    },
+    {
+      "tag": "uptime",
+      "description": "Availability percentage 0-100",
+      "type": "numeric"
+    },
+    {
+      "tag": "successRate",
+      "description": "Success rate percentage 0-100",
+      "type": "numeric"
+    },
+    {
+      "tag": "responseTime",
+      "description": "Response quality 0-100",
+      "type": "numeric"
+    },
+    {
+      "tag": "reachable",
+      "description": "Reachability score 0-100",
+      "type": "numeric"
+    }
+  ]
+}

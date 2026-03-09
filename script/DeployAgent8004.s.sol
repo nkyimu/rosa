@@ -25,7 +25,8 @@ contract DeployAgent8004Script is Script {
         // Register agent
         registry.registerAgent(
             "IntentCircles Keeper",
-            "https://intentcircles.example.com/agent"
+            "https://intentcircles.example.com/agent",
+            "ipfs://QmIntentCirclesAgent"
         );
         console.log("Agent registered");
         
