@@ -3,6 +3,7 @@ import { agentAccount, CONTRACT_ADDRESSES, DRY_RUN } from "./config.js";
 import { IntentMatcher } from "./matcher.js";
 import { CircleKeeper } from "./keeper.js";
 import { startX402Server } from "./x402-server.js";
+import { addActivity } from "./activity.js";
 
 // ─── Banner ───────────────────────────────────────────────────────────────────
 
@@ -17,6 +18,13 @@ console.log(`
 // ─── Config Check ─────────────────────────────────────────────────────────────
 
 async function startup() {
+  // Log agent startup
+  addActivity(
+    "AGENT_STARTED",
+    "IntentCircles agent initialized",
+    "Agent is starting up and running startup checks"
+  );
+
   if (DRY_RUN) {
     console.log("[agent] 🏜️  DRY_RUN MODE ENABLED — no transactions will be sent");
   }
@@ -69,7 +77,9 @@ async function main() {
 
   // Run immediately on startup
   console.log("[agent] Running initial scan...");
+  addActivity("CIRCLE_SCAN", "Initial intent scan on startup", "Checking for pending intents to match");
   await matcher.tick();
+  addActivity("CIRCLE_HEALTH", "Initial circle health check", "Verifying circle status and health");
   await keeper.tick();
 
   // Timers
@@ -83,6 +93,7 @@ async function main() {
     if (!running) return;
     matcherTimer = setTimeout(async () => {
       if (!running) return;
+      addActivity("CIRCLE_SCAN", "Scanning for pending intents", "Checking intent registry for unmatched intents");
       await matcher.tick();
       scheduleMatcher();
     }, matcherInterval);
@@ -92,6 +103,7 @@ async function main() {
     if (!running) return;
     keeperTimer = setTimeout(async () => {
       if (!running) return;
+      addActivity("CIRCLE_HEALTH", "Checking circle health", "Verifying active circles and member status");
       await keeper.tick();
       scheduleKeeper();
     }, keeperInterval);

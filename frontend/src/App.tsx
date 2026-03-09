@@ -6,13 +6,16 @@ import { MiniPayDetector } from "./components/MiniPayDetector";
 import { IntentForm }       from "./components/IntentForm";
 import { CircleDashboard }  from "./components/CircleDashboard";
 import { TrustPanel }       from "./components/TrustPanel";
+import { AgentChat }        from "./components/AgentChat";
+import { ActivityFeed }     from "./components/ActivityFeed";
 import { checkMiniPay, CONTRACT_ADDRESSES, celoSepolia }     from "./config/wagmi";
 
-type Tab = "intent" | "circles" | "trust";
+type Tab = "intent" | "circles" | "trust" | "agent";
 
 const TABS: { id: Tab; label: string; icon: string }[] = [
   { id: "intent",  label: "Save",    icon: "🎯" },
   { id: "circles", label: "Circles", icon: "💰" },
+  { id: "agent",   label: "Agent",   icon: "🤖" },
   { id: "trust",   label: "Trust",   icon: "🤝" },
 ];
 
@@ -228,6 +231,24 @@ export default function App() {
           </MiniPayDetector>
         )}
         {activeTab === "circles" && <CircleDashboard />}
+        {activeTab === "agent" && (
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: '1fr 1fr',
+            gap: 'var(--dt-space-4)',
+            height: 'calc(100vh - 180px)',
+            minHeight: 400
+          }}>
+            {/* Chat takes 60% on desktop */}
+            <div style={{ gridColumn: '1 / 2', minHeight: 0 }}>
+              <AgentChat />
+            </div>
+            {/* Activity feed takes 40% on desktop */}
+            <div style={{ gridColumn: '2 / 3', minHeight: 0 }}>
+              <ActivityFeed />
+            </div>
+          </div>
+        )}
         {activeTab === "trust" && <TrustPanel />}
       </main>
 

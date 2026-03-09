@@ -19,6 +19,8 @@ import { serve } from "@hono/node-server";
 import { verifyPayment, getPaymentRequired, getCurrentFee } from "./x402.js";
 import { IntentMatcher } from "./matcher.js";
 import { CONTRACT_ADDRESSES } from "./config.js";
+import { handleChat } from "./chat.js";
+import { getActivities } from "./activity.js";
 
 // ──────────────────────────────────────────────────────────────────────────
 // Type Definitions
@@ -175,6 +177,102 @@ app.get("/api/current-fee", async (c) => {
 });
 
 // ──────────────────────────────────────────────────────────────────────────
+// Chat Endpoint (Conversational Intent Parser)
+// ──────────────────────────────────────────────────────────────────────────
+
+/**
+ * POST /api/chat
+ * Parses natural language into structured intents
+ *
+ * Request body: { "message": "I want to save 50 cUSD monthly for 6 months" }
+ * Response:
+ * {
+ *   "reply": "I'll set up a savings circle for you...",
+ *   "parsed": { "type": "JOIN_CIRCLE", "amount": "50000000000000000000", "duration": 6 },
+ *   "reasoning": ["Parsed savings goal...", "Total payout..."],
+ *   "confidence": 0.92,
+ *   "suggestedAction": "submitIntent"
+ * }
+ *
+ * @example
+ * curl -X POST http://localhost:3002/api/chat \
+ *   -H "Content-Type: application/json" \
+ *   -d '{"message":"I want to save 50 cUSD per month for 6 months"}'
+ */
+app.post("/api/chat", async (c: any) => {
+  try {
+    const body = await c.req.json() as { message: string };
+
+    if (!body.message) {
+      return c.json(
+        {
+          error: "Missing message field",
+        },
+        { status: 400 }
+      );
+    }
+
+    const response = handleChat(body.message);
+
+    return c.json({
+      success: true,
+      ...response,
+    });
+  } catch (error) {
+    console.error("[x402-server] Error in /api/chat:", error);
+
+    return c.json(
+      {
+        success: false,
+        error: error instanceof Error ? error.message : "Chat processing failed",
+      },
+      { status: 500 }
+    );
+  }
+});
+
+// ──────────────────────────────────────────────────────────────────────────
+// Activity Feed Endpoint
+// ──────────────────────────────────────────────────────────────────────────
+
+/**
+ * GET /api/activity
+ * Returns the last 20 agent activities for live feed
+ *
+ * Response:
+ * {
+ *   "activities": [
+ *     { "id": "1", "timestamp": "2026-03-09T10:30:00Z", "action": "INTENT_PARSED", ... },
+ *     { "id": "2", "timestamp": "2026-03-09T10:30:01Z", "action": "CIRCLE_SCAN", ... }
+ *   ]
+ * }
+ *
+ * @example
+ * curl http://localhost:3002/api/activity
+ */
+app.get("/api/activity", (c) => {
+  try {
+    const activities = getActivities();
+
+    return c.json({
+      success: true,
+      activities,
+      count: activities.length,
+    });
+  } catch (error) {
+    console.error("[x402-server] Error fetching activities:", error);
+
+    return c.json(
+      {
+        success: false,
+        error: error instanceof Error ? error.message : "Failed to fetch activities",
+      },
+      { status: 500 }
+    );
+  }
+});
+
+// ──────────────────────────────────────────────────────────────────────────
 // Protected Intent Matching Endpoint
 // ──────────────────────────────────────────────────────────────────────────
 
@@ -293,7 +391,14 @@ app.notFound((c) => {
     {
       error: "Not Found",
       message: `${c.req.method} ${c.req.path} does not exist`,
-      availableEndpoints: ["/", "/api/payment-details", "/api/current-fee", "/api/match-intent"],
+      availableEndpoints: [
+        "/",
+        "/api/payment-details",
+        "/api/current-fee",
+        "/api/chat (POST)",
+        "/api/activity (GET)",
+        "/api/match-intent",
+      ],
     },
     { status: 404 }
   );
@@ -333,6 +438,8 @@ export async function startX402Server(): Promise<void> {
       console.log(`[x402-server]   GET /`);
       console.log(`[x402-server]   GET /api/payment-details`);
       console.log(`[x402-server]   GET /api/current-fee`);
+      console.log(`[x402-server]   POST /api/chat — conversational intent parser`);
+      console.log(`[x402-server]   GET /api/activity — live agent activity feed`);
       console.log(`[x402-server]   GET /api/match-intent?intentId=<id>`);
     }
   );
