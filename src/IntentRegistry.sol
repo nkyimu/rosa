@@ -11,7 +11,9 @@ contract IntentRegistry {
         CREATE_CIRCLE,
         CONTRIBUTE,
         EXIT_CIRCLE,
-        DISPUTE
+        DISPUTE,
+        NIGHTFALL_DEPOSIT,
+        NIGHTFALL_ROTATION
     }
 
     struct Intent {
@@ -25,14 +27,29 @@ contract IntentRegistry {
         bool cancelled;
     }
 
+    struct NightfallDepositIntent {
+        uint256 circleId;
+        uint256 amount;
+        bytes32 salt;
+        bytes32 commitmentHash;
+        uint256 createdAt;
+        bool deposited;
+    }
+
     /// @dev Counter for intent IDs
     uint256 private intentCounter = 1;
+
+    /// @dev Counter for Nightfall deposit intents
+    uint256 public depositIntentCounter = 1;
 
     /// @dev Mapping from intent ID to Intent struct
     mapping(uint256 => Intent) public intents;
 
     /// @dev Mapping from intent type to array of open intent IDs
     mapping(IntentType => uint256[]) private openIntentsByType;
+
+    /// @dev Mapping from deposit intent ID to NightfallDepositIntent struct
+    mapping(uint256 => NightfallDepositIntent) public depositIntents;
 
     /// @dev Mapping to track if an agent is registered
     mapping(address => bool) public registeredAgents;
@@ -248,5 +265,66 @@ contract IntentRegistry {
     function transferOwnership(address newOwner) external onlyOwner {
         require(newOwner != address(0), "Invalid new owner");
         owner = newOwner;
+    }
+
+    // ===== NIGHTFALL DEPOSIT INTENTS =====
+
+    /**
+     * @dev Submit a Nightfall deposit intent
+     * User wants to make a private contribution via Nightfall
+     * @param circleId The circle ID to contribute to
+     * @param amount The amount to contribute (in wei)
+     * @param salt Random salt chosen by user for commitment hash
+     * @return depositIntentId The ID of the submitted Nightfall deposit intent
+     */
+    function submitNightfallDeposit(
+        uint256 circleId,
+        uint256 amount,
+        bytes32 salt
+    ) external returns (uint256) {
+        require(circleId > 0, "Invalid circle ID");
+        require(amount > 0, "Invalid amount");
+
+        // Compute commitment hash
+        bytes32 commitmentHash = keccak256(abi.encodePacked(amount, salt));
+
+        uint256 depositIntentId = depositIntentCounter++;
+        depositIntents[depositIntentId] = NightfallDepositIntent({
+            circleId: circleId,
+            amount: amount,
+            salt: salt,
+            commitmentHash: commitmentHash,
+            createdAt: block.timestamp,
+            deposited: false
+        });
+
+        emit IntentSubmitted(depositIntentId, IntentType.NIGHTFALL_DEPOSIT, msg.sender, 0);
+        return depositIntentId;
+    }
+
+    /**
+     * @dev Mark a Nightfall deposit intent as deposited
+     * Agent calls this after verifying the deposit proof off-chain
+     * @param depositIntentId The ID of the deposit intent to mark as complete
+     */
+    function markNightfallDeposited(uint256 depositIntentId) external onlyAgent {
+        NightfallDepositIntent storage depositIntent = depositIntents[depositIntentId];
+        require(depositIntent.createdAt != 0, "Deposit intent not found");
+        require(!depositIntent.deposited, "Already marked as deposited");
+
+        depositIntent.deposited = true;
+
+        emit IntentFulfilled(depositIntentId, msg.sender);
+    }
+
+    /**
+     * @dev Get a specific Nightfall deposit intent by ID
+     */
+    function getDepositIntent(uint256 depositIntentId)
+        external
+        view
+        returns (NightfallDepositIntent memory)
+    {
+        return depositIntents[depositIntentId];
     }
 }

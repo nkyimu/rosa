@@ -48,6 +48,11 @@ contract SaveCircle is ReentrancyGuard {
     uint256 public totalYieldGenerated;
     uint256 public constant KEEPER_FEE_BPS = 100; // 1% of yield to keeper/agent
 
+    // Privacy layer: commit-reveal + Nightfall mode
+    bool public useNightfallMode;
+    mapping(address => bytes32) public contributionCommitments; // member => hash(amount, salt)
+    mapping(address => bool) public hasCommitted;
+
     event CircleFormed(uint256 indexed circleId);
     event MemberJoined(address indexed member);
     event ContributionMade(address indexed member, uint256 amount);
@@ -57,6 +62,13 @@ contract SaveCircle is ReentrancyGuard {
     event YieldHarvested(uint256 amount);
     event CircleDissolved();
     event CircleCompleted();
+
+    // Privacy tracking events
+    event ContributionCommitted(address indexed member, bytes32 commitmentHash);
+    event ContributionRevealed(address indexed member, uint256 round);
+    event NightfallContributionRecorded(address indexed member, uint256 round);
+    event NightfallPayoutRecorded(address indexed member, uint256 amount);
+    event NightfallModeEnabled();
 
     modifier onlyAgent() {
         require(msg.sender == agent, "Only agent can call this");
@@ -176,9 +188,9 @@ contract SaveCircle is ReentrancyGuard {
         );
 
         // Calculate payout (contributions + share of yield)
-        uint256 totalContributed = contributionAmount * members.length;
+        uint256 totalMemberContributions = contributionAmount * members.length;
         uint256 yieldShare = totalYieldGenerated > 0 ? (totalYieldGenerated / members.length) : 0;
-        uint256 payout = totalContributed + yieldShare;
+        uint256 payout = totalMemberContributions + yieldShare;
 
         IERC20 token = IERC20(tokenAddress);
         uint256 balance = token.balanceOf(address(this));
@@ -364,5 +376,107 @@ contract SaveCircle is ReentrancyGuard {
      */
     function getState() external view returns (CircleState) {
         return state;
+    }
+
+    // ===== PRIVACY LAYER: COMMIT-REVEAL =====
+
+    /**
+     * @dev Submit a commitment hash for contribution (Phase 1)
+     * User calls this with keccak256(abi.encodePacked(amount, salt))
+     * Actual amount remains private until reveal phase
+     */
+    function commitContribution(bytes32 commitmentHash) external onlyMember inState(CircleState.ACTIVE) {
+        require(commitmentHash != bytes32(0), "Invalid commitment");
+        require(!hasCommitted[msg.sender], "Already committed this round");
+
+        contributionCommitments[msg.sender] = commitmentHash;
+        hasCommitted[msg.sender] = true;
+
+        emit ContributionCommitted(msg.sender, commitmentHash);
+    }
+
+    /**
+     * @dev Reveal and verify a contribution commitment (Phase 2)
+     * User calls this with the actual amount and salt to reveal their commitment
+     * Transfers cUSD from user to contract
+     */
+    function revealContribution(uint256 amount, bytes32 salt) external onlyMember inState(CircleState.ACTIVE) nonReentrant {
+        require(hasCommitted[msg.sender], "No commitment found");
+        require(!hasContributedThisRound[msg.sender], "Already revealed this round");
+
+        // Verify that the hash matches
+        bytes32 commitmentHash = keccak256(abi.encodePacked(amount, salt));
+        require(commitmentHash == contributionCommitments[msg.sender], "Commitment hash mismatch");
+
+        // Transfer amount from member to contract
+        IERC20 token = IERC20(tokenAddress);
+        token.safeTransferFrom(msg.sender, address(this), amount);
+
+        totalContributed[msg.sender] += amount;
+        hasContributedThisRound[msg.sender] = true;
+
+        // Clear commitment for next round
+        hasCommitted[msg.sender] = false;
+        delete contributionCommitments[msg.sender];
+
+        emit ContributionRevealed(msg.sender, currentRound);
+    }
+
+    // ===== PRIVACY LAYER: NIGHTFALL MODE =====
+
+    /**
+     * @dev Enable Nightfall mode for private contributions
+     * Only callable once by agent, when circle is ACTIVE
+     */
+    function enableNightfallMode() external onlyAgent inState(CircleState.ACTIVE) {
+        require(!useNightfallMode, "Nightfall mode already enabled");
+
+        useNightfallMode = true;
+
+        emit NightfallModeEnabled();
+    }
+
+    /**
+     * @dev Record a contribution that was made via Nightfall
+     * Agent calls this after verifying the Nightfall deposit proof off-chain
+     * Actual amount remains hidden; only recorded in Nightfall
+     */
+    function recordNightfallContribution(address member) external onlyAgent inState(CircleState.ACTIVE) {
+        require(isMember[member], "Not a member");
+        require(useNightfallMode, "Nightfall mode not enabled");
+        require(!hasContributedThisRound[member], "Already contributed this round");
+
+        // Mark as contributed (amount is private in Nightfall)
+        hasContributedThisRound[member] = true;
+
+        emit NightfallContributionRecorded(member, currentRound);
+    }
+
+    /**
+     * @dev Record a payout that was sent via Nightfall withdrawal
+     * Agent calls this after processing a Nightfall withdrawal proof
+     * Confirms the rotation was completed with private amount
+     */
+    function recordNightfallPayout(address member, uint256 amount) external onlyAgent inState(CircleState.ACTIVE) {
+        require(isMember[member], "Not a member");
+        require(useNightfallMode, "Nightfall mode not enabled");
+        require(memberIndex[member] == rotationIndex, "Not their turn");
+
+        // Advance rotation index
+        rotationIndex++;
+        currentRound++;
+
+        // Reset contribution tracking for next round
+        for (uint256 i = 0; i < members.length; i++) {
+            hasContributedThisRound[members[i]] = false;
+        }
+
+        // Check if circle is complete
+        if (rotationIndex >= members.length) {
+            state = CircleState.COMPLETED;
+            emit CircleCompleted();
+        }
+
+        emit NightfallPayoutRecorded(member, amount);
     }
 }
