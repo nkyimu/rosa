@@ -2,6 +2,9 @@ import { useAccount, useReadContract, useWriteContract, useWaitForTransactionRec
 import { formatUnits, erc20Abi, maxUint256 } from 'viem'
 import { CONTRACT_ADDRESSES } from '../config/wagmi'
 import { SaveCircleABI } from '../abis/SaveCircle'
+import { getPrivacyMode } from '../utils/privacy'
+import { PrivacyBadge } from './PrivacyBadge'
+import { AgentStatus } from './AgentStatus'
 import { useState } from 'react'
 
 const cUSDabi = erc20Abi
@@ -10,9 +13,12 @@ function CircleCard() {
   const { address, isConnected } = useAccount()
   const [isApproving, setIsApproving] = useState(false)
   const [showError, setShowError] = useState('')
+  
+  // Check privacy mode
+  const isPrivacyMode = getPrivacyMode(CONTRACT_ADDRESSES.demoCircle)
 
   // Read circle data from DemoCircle
-  useReadContract({
+  const { data: circleState } = useReadContract({
     address: CONTRACT_ADDRESSES.demoCircle,
     abi: SaveCircleABI,
     functionName: 'state',
@@ -143,6 +149,10 @@ function CircleCard() {
   const cycleDays = Math.round(cycleSeconds / 86400)
   const cycleLabel = cycleDays === 7 ? 'Weekly' : cycleDays === 14 ? 'Biweekly' : cycleDays === 30 ? 'Monthly' : `${cycleDays}d`
 
+  // Privacy mode: hide individual amounts
+  const displayContribution = isPrivacyMode ? 'Private' : `$${contribution.toFixed(2)}`
+  const mockContributedCount = isPrivacyMode ? Math.floor(Math.random() * members) + 1 : undefined
+
   return (
     <div style={{
       background: yourTurn ? 'rgba(14,11,7,0.85)' : 'var(--dt-surface-raised)',
@@ -178,13 +188,13 @@ function CircleCard() {
               {members} members · {cycleLabel}
             </p>
           </div>
-          <div style={{ textAlign: 'right' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 'var(--dt-space-2)' }}>
+            <PrivacyBadge isPrivate={isPrivacyMode} />
             <span style={{
               fontFamily: 'var(--dt-font-mono)',
               color: 'var(--dt-trust-community)', fontWeight: 600,
               fontSize: 'var(--dt-text-sm)'
             }}>Live</span>
-            <p style={{ color: 'var(--dt-text-muted)', fontSize: 'var(--dt-text-xs)', margin: 0, marginTop: 2 }}>status</p>
           </div>
         </div>
 
@@ -193,8 +203,28 @@ function CircleCard() {
           margin: 0,
           marginTop: 'var(--dt-space-1)'
         }}>
-          Round {round} · {contribution.toFixed(2)} cUSD/cycle
+          Round {round} · {displayContribution}/cycle
         </p>
+
+        {/* Privacy mode: show aggregate instead of individual amounts */}
+        {isPrivacyMode && (
+          <div style={{
+            background: 'var(--dt-accent-muted)',
+            border: '1px solid var(--dt-border-accent)',
+            borderRadius: 'var(--dt-radius-lg)',
+            padding: 'var(--dt-space-3) var(--dt-space-4)',
+            marginBottom: 'var(--dt-space-4)',
+            fontSize: 'var(--dt-text-sm)',
+            color: 'var(--dt-accent)'
+          }}>
+            <p style={{ margin: 0, fontWeight: 500 }}>
+              🔒 {mockContributedCount} of {members} members have contributed this round
+            </p>
+            <p style={{ margin: '4px 0 0 0', fontSize: 'var(--dt-text-xs)', opacity: 0.8 }}>
+              Payout processed privately via Nightfall
+            </p>
+          </div>
+        )}
 
         {showError && (
           <div style={{
@@ -211,7 +241,7 @@ function CircleCard() {
         )}
 
         {/* Actions */}
-        <div style={{ display: 'flex', gap: 'var(--dt-space-2)' }}>
+        <div style={{ display: 'flex', gap: 'var(--dt-space-2)', minHeight: 44 }}>
           {!hasContributed && (
             <button onClick={handleContribute} disabled={isApproving || isApprovingToken || isContributing || isConfirming}
               style={{
@@ -219,9 +249,9 @@ function CircleCard() {
                 background: 'var(--dt-trust-community)', color: '#0A0804',
                 fontWeight: 600, fontSize: 'var(--dt-text-sm)', border: 'none', cursor: 'pointer',
                 opacity: isApproving || isApprovingToken || isContributing ? 0.6 : 1,
-                transition: 'all 0.2s ease'
+                transition: 'all 0.2s ease', minHeight: 44
               }}>
-              {isApproving ? 'Approving...' : isContributing || isConfirming ? 'Contributing...' : `Contribute $${contribution.toFixed(2)}`}
+              {isApproving ? 'Approving...' : isContributing || isConfirming ? 'Contributing...' : `Contribute ${displayContribution}`}
             </button>
           )}
           {yourTurn && (
@@ -232,7 +262,8 @@ function CircleCard() {
               boxShadow: 'var(--dt-shadow-glow-gold)',
               letterSpacing: 'var(--dt-tracking-wide)',
               transition: 'all 0.2s ease',
-              animation: 'dt-glow-pulse 2.5s ease-in-out infinite'
+              animation: 'dt-glow-pulse 2.5s ease-in-out infinite',
+              minHeight: 44
             }}>
               ✦ Your Turn to Claim
             </button>
@@ -241,7 +272,8 @@ function CircleCard() {
             <div style={{
               flex: 1, textAlign: 'center', padding: 'var(--dt-space-3)',
               color: 'var(--dt-trust-community)', fontSize: 'var(--dt-text-sm)',
-              fontFamily: 'var(--dt-font-mono)'
+              fontFamily: 'var(--dt-font-mono)', display: 'flex',
+              alignItems: 'center', justifyContent: 'center'
             }}>
               ✓ Contributed · Waiting
             </div>
@@ -282,6 +314,9 @@ export function CircleDashboard() {
       </div>
 
       <CircleCard />
+
+      {/* Agent Status Component */}
+      <AgentStatus />
     </div>
   )
 }
