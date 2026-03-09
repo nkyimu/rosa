@@ -1,5 +1,17 @@
 @import "tailwindcss";
 
+* {
+  box-sizing: border-box;
+}
+
+html, body {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden; /* Prevent horizontal scroll */
+}
+
 body {
   background-color: var(--dt-surface-base);
   color: var(--dt-text-primary);
@@ -7,6 +19,9 @@ body {
   margin: 0;
   padding: 0;
   min-height: 100vh;
+  position: relative;
+  -webkit-user-select: none;
+  user-select: none;
 }
 
 /* No paper noise in light mode — clean aesthetic */
@@ -18,6 +33,9 @@ body::before {
   min-height: 100vh;
   position: relative;
   z-index: 1;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
 }
 
 /* Focus ring — gold */
@@ -55,4 +73,92 @@ input[type="range"] {
   accent-color: var(--dt-accent);
   height: 44px; /* minimum touch target */
   cursor: pointer;
+}
+
+/* ==========================================
+   MOBILE RESPONSIVE OVERRIDES
+   ========================================== */
+
+/* Mobile-first: prevent iOS zoom on input focus */
+input, textarea, select {
+  font-size: 16px;
+  padding: var(--dt-space-2) var(--dt-space-3);
+  border: 1px solid var(--dt-border-default);
+  border-radius: var(--dt-radius-md);
+  background: var(--dt-surface-overlay);
+  color: var(--dt-text-primary);
+  font-family: var(--dt-font-body);
+  min-height: 44px;
+  box-sizing: border-box;
+}
+
+/* Prevent body scroll when modals are open */
+body.modal-open {
+  overflow: hidden;
+}
+
+/* Agent layout — stack on mobile, grid on tablet+ */
+.agent-layout {
+  display: flex;
+  flex-direction: column;
+  gap: var(--dt-space-3);
+}
+
+@media (min-width: 641px) {
+  .agent-layout {
+    display: grid;
+    grid-template-columns: 1.5fr 1fr;
+    height: auto;
+    gap: var(--dt-space-4);
+  }
+}
+
+/* Touch target minimum 44px for all interactive elements */
+button, a, input[type="button"], input[type="submit"], input[type="checkbox"], input[type="radio"] {
+  min-height: 44px;
+  min-width: 44px;
+}
+
+/* Ensure no horizontal overflow at 390px */
+@media (max-width: 480px) {
+  body, html, #root {
+    max-width: 100vw;
+    overflow-x: hidden;
+  }
+
+  main, header, nav, .dt-container {
+    width: 100%;
+    max-width: 100%;
+    padding-left: var(--dt-space-3);
+    padding-right: var(--dt-space-3);
+    box-sizing: border-box;
+  }
+
+  /* Reduce spacing on mobile */
+  header {
+    padding-top: env(safe-area-inset-top);
+  }
+
+  nav {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+
+  /* Chat bubbles — compact on mobile */
+  .chat-bubble {
+    padding: var(--dt-space-2) var(--dt-space-3);
+    border-radius: var(--dt-radius-md);
+    font-size: var(--dt-text-sm);
+  }
+
+  /* Activity cards — reduce padding */
+  .activity-card {
+    padding: var(--dt-space-2);
+  }
+
+  /* Text truncation */
+  .truncate-mobile {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
 }

@@ -165,10 +165,11 @@ export function ActivityFeed() {
           style={{
             flex: 1,
             overflowY: "auto",
-            padding: "var(--dt-space-3)",
+            padding: "var(--dt-space-2)",
             display: "flex",
             flexDirection: "column",
             gap: "var(--dt-space-2)",
+            minWidth: 0
           }}
         >
           {activities.length === 0 ? (
@@ -188,15 +189,17 @@ export function ActivityFeed() {
               <div
                 key={activity.id}
                 style={{
-                  padding: "var(--dt-space-2) var(--dt-space-3)",
+                  padding: "var(--dt-space-2)",
                   background: "rgba(212, 175, 55, 0.04)",
                   border: "1px solid rgba(212, 175, 55, 0.15)",
                   borderRadius: "var(--dt-radius-md)",
                   animation: `fadeIn 0.3s ease ${index * 0.05}s both`,
+                  minWidth: 0,
+                  overflow: "hidden"
                 } as CSSProperties}
               >
-                <div style={{ display: "flex", alignItems: "flex-start", gap: "var(--dt-space-2)" }}>
-                  <span style={{ fontSize: 16, flexShrink: 0 }}>
+                <div style={{ display: "flex", alignItems: "flex-start", gap: "var(--dt-space-2)", minWidth: 0 }}>
+                  <span style={{ fontSize: 14, flexShrink: 0, marginTop: 2 }}>
                     {ACTION_ICONS[activity.action] || "🔄"}
                   </span>
 
@@ -206,19 +209,22 @@ export function ActivityFeed() {
                       style={{
                         fontSize: "var(--dt-text-xs)",
                         color: "var(--dt-text-muted)",
-                        marginBottom: "var(--dt-space-1)",
+                        marginBottom: 2,
                       }}
                     >
                       {formatTimeAgo(activity.timestamp)}
                     </div>
 
-                    {/* Detail */}
+                    {/* Detail — truncate on mobile */}
                     <div
                       style={{
                         fontSize: "var(--dt-text-sm)",
                         color: "var(--dt-text-primary)",
                         fontWeight: 500,
-                        marginBottom: "var(--dt-space-1)",
+                        marginBottom: 2,
+                        overflow: "hidden",
+                        textOverflow: "ellipsis",
+                        whiteSpace: "nowrap"
                       }}
                     >
                       {activity.detail}
@@ -234,8 +240,10 @@ export function ActivityFeed() {
                       <summary
                         style={{
                           color: "var(--dt-accent)",
-                          marginBottom: "var(--dt-space-1)",
+                          marginTop: 4,
                           userSelect: "none",
+                          fontSize: "var(--dt-text-xs)",
+                          fontWeight: 500
                         }}
                       >
                         Why?
@@ -243,11 +251,13 @@ export function ActivityFeed() {
                       <div
                         style={{
                           paddingLeft: "var(--dt-space-2)",
+                          paddingTop: "var(--dt-space-1)",
                           borderLeft: "2px solid var(--dt-accent)",
                           color: "var(--dt-text-secondary)",
                           fontSize: "var(--dt-text-xs)",
                           fontFamily: "var(--dt-font-mono)",
                           lineHeight: "var(--dt-leading-relaxed)",
+                          wordBreak: "break-word"
                         }}
                       >
                         {activity.reasoning}
@@ -258,7 +268,7 @@ export function ActivityFeed() {
                     {activity.confidence !== undefined && (
                       <div
                         style={{
-                          marginTop: "var(--dt-space-1)",
+                          marginTop: 4,
                           fontSize: "var(--dt-text-xs)",
                           color: "var(--dt-text-muted)",
                         }}

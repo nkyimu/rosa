@@ -157,10 +157,10 @@ export function AgentChat() {
         style={{
           flex: 1,
           overflowY: "auto",
-          padding: "var(--dt-space-4)",
+          padding: "var(--dt-space-3)",
           display: "flex",
           flexDirection: "column",
-          gap: "var(--dt-space-3)",
+          gap: "var(--dt-space-2)",
         }}
       >
         {messages.map((msg) => (
@@ -169,14 +169,15 @@ export function AgentChat() {
             style={{
               display: "flex",
               justifyContent: msg.role === "user" ? "flex-end" : "flex-start",
-              gap: "var(--dt-space-2)",
+              gap: "var(--dt-space-1)",
+              alignItems: 'flex-end'
             }}
           >
             {msg.role === "agent" && (
               <div
                 style={{
-                  width: 32,
-                  height: 32,
+                  width: 28,
+                  height: 28,
                   borderRadius: "50%",
                   background: "rgba(212, 175, 55, 0.1)",
                   border: "1px solid rgba(212, 175, 55, 0.3)",
@@ -184,7 +185,8 @@ export function AgentChat() {
                   alignItems: "center",
                   justifyContent: "center",
                   flexShrink: 0,
-                  fontSize: 16,
+                  fontSize: 14,
+                  marginTop: 4
                 }}
               >
                 🤖
@@ -193,17 +195,17 @@ export function AgentChat() {
 
             <div
               style={{
-                maxWidth: msg.role === "user" ? "80%" : "85%",
+                maxWidth: "85%",
                 display: "flex",
                 flexDirection: "column",
-                gap: "var(--dt-space-2)",
+                gap: "var(--dt-space-1)",
               }}
             >
               {/* Message bubble */}
               <div
                 style={{
-                  padding: "var(--dt-space-3)",
-                  borderRadius: "var(--dt-radius-lg)",
+                  padding: "var(--dt-space-2) var(--dt-space-3)",
+                  borderRadius: "var(--dt-radius-md)",
                   background: msg.role === "user" ? "#FFFFFF" : "#F5F2ED",
                   border: `1px solid ${msg.role === "user" ? "rgba(0,0,0,0.08)" : "rgba(212,175,55,0.2)"}`,
                   color: "var(--dt-text-primary)",
@@ -211,6 +213,7 @@ export function AgentChat() {
                   lineHeight: "var(--dt-leading-relaxed)",
                   whiteSpace: "pre-wrap",
                   wordBreak: "break-word",
+                  overflowWrap: "break-word"
                 }}
               >
                 {msg.content}
@@ -219,21 +222,21 @@ export function AgentChat() {
               {/* Agent message extras */}
               {msg.role === "agent" && (
                 <>
-                  {/* Confidence badge */}
+                  {/* Confidence badge — inline */}
                   {msg.confidence !== undefined && (
                     <div
                       style={{
-                        display: "flex",
+                        display: "inline-flex",
                         alignItems: "center",
-                        gap: "var(--dt-space-1)",
+                        gap: 4,
                         fontSize: "var(--dt-text-xs)",
                         color: "var(--dt-text-muted)",
                       }}
                     >
                       <span
                         style={{
-                          width: 6,
-                          height: 6,
+                          width: 4,
+                          height: 4,
                           borderRadius: "50%",
                           background:
                             msg.confidence > 0.8
@@ -241,9 +244,10 @@ export function AgentChat() {
                               : msg.confidence > 0.5
                                 ? "#F59E0B"
                                 : "#EF4444",
+                          flexShrink: 0
                         }}
                       />
-                      {(msg.confidence * 100).toFixed(0)}% confidence
+                      {(msg.confidence * 100).toFixed(0)}%
                     </div>
                   )}
 
@@ -344,13 +348,14 @@ export function AgentChat() {
             style={{
               display: "flex",
               justifyContent: "flex-start",
-              gap: "var(--dt-space-2)",
+              gap: "var(--dt-space-1)",
+              alignItems: "flex-end"
             }}
           >
             <div
               style={{
-                width: 32,
-                height: 32,
+                width: 28,
+                height: 28,
                 borderRadius: "50%",
                 background: "rgba(212, 175, 55, 0.1)",
                 border: "1px solid rgba(212, 175, 55, 0.3)",
@@ -358,25 +363,26 @@ export function AgentChat() {
                 alignItems: "center",
                 justifyContent: "center",
                 flexShrink: 0,
-                fontSize: 16,
+                fontSize: 14,
+                marginTop: 4
               }}
             >
               🤖
             </div>
             <div
               style={{
-                padding: "var(--dt-space-3)",
-                borderRadius: "var(--dt-radius-lg)",
+                padding: "var(--dt-space-2) var(--dt-space-3)",
+                borderRadius: "var(--dt-radius-md)",
                 background: "#F5F2ED",
                 border: "1px solid rgba(212,175,55,0.2)",
                 display: "flex",
                 alignItems: "center",
-                gap: "var(--dt-space-2)",
+                gap: "var(--dt-space-1)",
               }}
             >
-              <span style={{ animation: "pulse 1.5s infinite" }}>●</span>
+              <span style={{ animation: "pulse 1.5s infinite", fontSize: 12 }}>●</span>
               <style>{`@keyframes pulse { 0%, 100% { opacity: 0.3; } 50% { opacity: 1; } }`}</style>
-              Thinking...
+              <span style={{ fontSize: "var(--dt-text-sm)" }}>Thinking...</span>
             </div>
           </div>
         )}
@@ -388,10 +394,23 @@ export function AgentChat() {
       <div
         style={{
           borderTop: "1px solid var(--dt-border-default)",
-          padding: "var(--dt-space-4)",
+          padding: "var(--dt-space-3)",
           background: "var(--dt-surface-base)",
+          boxSizing: "border-box"
         }}
       >
+        {!isConnected && (
+          <div
+            style={{
+              marginBottom: "var(--dt-space-2)",
+              fontSize: "var(--dt-text-xs)",
+              color: "var(--dt-text-muted)",
+              lineHeight: "var(--dt-leading-relaxed)"
+            }}
+          >
+            ℹ Connect wallet to submit intents on-chain
+          </div>
+        )}
         <div
           style={{
             display: "flex",
@@ -404,35 +423,40 @@ export function AgentChat() {
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={handleKeyDown}
-            placeholder="Say anything... e.g., 'Save 50 cUSD/month for 6 months'"
+            placeholder="e.g., 'Save 50 cUSD/month for 6 months'"
             style={{
               flex: 1,
               padding: "var(--dt-space-2) var(--dt-space-3)",
               border: "1px solid var(--dt-border-default)",
               borderRadius: "var(--dt-radius-md)",
-              fontSize: "var(--dt-text-sm)",
+              fontSize: "16px",
               fontFamily: "var(--dt-font-body)",
               color: "var(--dt-text-primary)",
               background: "var(--dt-surface-overlay)",
               minHeight: 44,
+              boxSizing: "border-box"
             }}
           />
           <button
             onClick={handleSendMessage}
             disabled={!input.trim() || isLoading}
             style={{
-              padding: "var(--dt-space-2) var(--dt-space-3)",
+              padding: 0,
               background:
                 input.trim() ? "var(--dt-accent)" : "var(--dt-border-default)",
               color: input.trim() ? "#0A0A0A" : "var(--dt-text-muted)",
               border: "none",
               borderRadius: "var(--dt-radius-md)",
               cursor: input.trim() && !isLoading ? "pointer" : "not-allowed",
-              fontSize: "var(--dt-text-sm)",
+              fontSize: "18px",
               fontWeight: 600,
               minHeight: 44,
               minWidth: 44,
               transition: "all 0.2s ease",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              flexShrink: 0
             }}
             onMouseEnter={(e) => {
               if (input.trim()) {
@@ -450,18 +474,6 @@ export function AgentChat() {
             →
           </button>
         </div>
-
-        {!isConnected && (
-          <div
-            style={{
-              marginTop: "var(--dt-space-2)",
-              fontSize: "var(--dt-text-xs)",
-              color: "var(--dt-text-muted)",
-            }}
-          >
-            Connect wallet to submit intents on-chain
-          </div>
-        )}
       </div>
     </div>
   );

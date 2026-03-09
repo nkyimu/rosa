@@ -36,10 +36,11 @@ function ConnectButton() {
         letterSpacing: 'var(--dt-tracking-wide)',
         cursor: isPending ? 'not-allowed' : 'pointer',
         opacity: isPending ? 0.6 : 1,
-        transition: 'all 0.2s ease'
+        transition: 'all 0.2s ease',
+        whiteSpace: 'nowrap'
       }}
     >
-      {isPending ? "Connecting..." : "Connect Wallet"}
+      {isPending ? "..." : "Connect"}
     </button>
   );
 }
@@ -119,47 +120,55 @@ export default function App() {
         borderBottom: '1px solid var(--dt-border-default)',
         boxShadow: 'var(--dt-shadow-sm)',
         width: '100%',
-        boxSizing: 'border-box'
+        boxSizing: 'border-box',
+        paddingTop: 'env(safe-area-inset-top)'
       }}>
         <div style={{
           maxWidth: 480,
           margin: '0 auto',
-          padding: 'var(--dt-space-3) var(--dt-space-4)',
+          padding: 'var(--dt-space-2) var(--dt-space-3)',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
           boxSizing: 'border-box',
-          width: '100%'
+          width: '100%',
+          gap: 'var(--dt-space-2)',
+          minHeight: 48
         }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--dt-space-3)' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--dt-space-2)', minWidth: 0 }}>
             {/* Logo icon */}
             <div style={{
-              width: 36, height: 36, borderRadius: '50%',
+              width: 32, height: 32, borderRadius: '50%',
               background: 'var(--dt-accent-muted)',
               border: '1px solid var(--dt-border-accent)',
-              display: 'flex', alignItems: 'center', justifyContent: 'center'
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              flexShrink: 0
             }}>
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--dt-accent)" strokeWidth="1.5">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--dt-accent)" strokeWidth="1.5">
                 <circle cx="12" cy="12" r="9"/>
                 <path d="M12 6v6l4 2"/>
               </svg>
             </div>
-            <div>
+            <div style={{ minWidth: 0, flex: 1 }}>
               <h1 style={{
                 fontFamily: 'var(--dt-font-display)',
-                fontSize: 'var(--dt-text-lg)',
+                fontSize: 'var(--dt-text-base)',
                 fontWeight: 400,
                 color: 'var(--dt-text-primary)',
                 lineHeight: 'var(--dt-leading-tight)',
-                margin: 0
+                margin: 0,
+                whiteSpace: 'nowrap'
               }}>IntentCircles</h1>
               <p style={{
                 fontSize: 'var(--dt-text-xs)',
                 color: 'var(--dt-text-muted)',
                 letterSpacing: 'var(--dt-tracking-wide)',
                 margin: 0,
-                marginTop: 2
-              }}>Agent-managed savings · Celo</p>
+                lineHeight: '1.0',
+                whiteSpace: 'nowrap',
+                textOverflow: 'ellipsis',
+                overflow: 'hidden'
+              }}>Celo agent</p>
             </div>
           </div>
           <MiniPayDetector connectButton={<ConnectButton />}>
@@ -172,8 +181,9 @@ export default function App() {
       <div style={{
         maxWidth: 480,
         margin: '0 auto',
-        padding: 'var(--dt-space-3) var(--dt-space-4)',
-        paddingBottom: 0,
+        padding: '0 var(--dt-space-3)',
+        paddingTop: 'var(--dt-space-2)',
+        paddingBottom: 'var(--dt-space-2)',
         boxSizing: 'border-box',
         width: '100%'
       }}>
@@ -182,7 +192,6 @@ export default function App() {
           border: '1px solid rgba(245,158,11,0.2)',
           borderRadius: 'var(--dt-radius-md)',
           padding: 'var(--dt-space-2) var(--dt-space-3)',
-          marginBottom: 'var(--dt-space-4)',
           fontSize: 'var(--dt-text-xs)',
           color: '#F59E0B',
           display: 'flex', alignItems: 'center', gap: 'var(--dt-space-2)',
@@ -197,13 +206,12 @@ export default function App() {
       <main style={{
         maxWidth: 480,
         margin: '0 auto',
-        padding: 'var(--dt-space-4)',
-        paddingBottom: 100,
+        padding: 'var(--dt-space-3)',
+        paddingBottom: 'calc(80px + env(safe-area-inset-bottom))',
         position: 'relative',
         zIndex: 1,
         boxSizing: 'border-box',
-        width: '100%',
-        overflow: 'hidden'
+        width: '100%'
       }}>
         {activeTab === "intent" && (
           <MiniPayDetector connectButton={
@@ -232,19 +240,18 @@ export default function App() {
         )}
         {activeTab === "circles" && <CircleDashboard />}
         {activeTab === "agent" && (
-          <div style={{
-            display: 'grid',
-            gridTemplateColumns: '1fr 1fr',
+          <div className="agent-layout" style={{
+            display: 'flex',
+            flexDirection: 'column',
             gap: 'var(--dt-space-4)',
-            height: 'calc(100vh - 180px)',
-            minHeight: 400
+            minHeight: 'calc(100vh - 220px)'
           }}>
-            {/* Chat takes 60% on desktop */}
-            <div style={{ gridColumn: '1 / 2', minHeight: 0 }}>
+            {/* Chat — full width on mobile, 60% on tablet+ */}
+            <div style={{ minHeight: 300 }}>
               <AgentChat />
             </div>
-            {/* Activity feed takes 40% on desktop */}
-            <div style={{ gridColumn: '2 / 3', minHeight: 0 }}>
+            {/* Activity feed — below chat on mobile, 40% on tablet+ */}
+            <div style={{ minHeight: 300 }}>
               <ActivityFeed />
             </div>
           </div>
@@ -261,12 +268,16 @@ export default function App() {
         zIndex: 20,
         background: 'var(--dt-surface-raised)',
         borderTop: '1px solid var(--dt-border-default)',
-        boxShadow: '0 -4px 24px rgba(10,8,4,0.4)'
+        boxShadow: '0 -4px 24px rgba(10,8,4,0.4)',
+        width: '100%',
+        boxSizing: 'border-box',
+        paddingBottom: 'env(safe-area-inset-bottom)'
       }}>
         <div style={{
           maxWidth: 480,
           margin: '0 auto',
-          display: 'flex'
+          display: 'flex',
+          width: '100%'
         }}>
           {TABS.map((tab) => (
             <button key={tab.id} onClick={() => setActiveTab(tab.id)}
@@ -286,7 +297,7 @@ export default function App() {
                 textTransform: 'uppercase'
               }}>
               <span style={{ fontSize: 20, lineHeight: 1 }}>{tab.icon}</span>
-              <span>{tab.label}</span>
+              <span style={{ whiteSpace: 'nowrap' }}>{tab.label}</span>
             </button>
           ))}
         </div>
