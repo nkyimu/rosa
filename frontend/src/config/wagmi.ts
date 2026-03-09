@@ -37,8 +37,9 @@ export const wagmiConfig = createConfig({
 const env = import.meta.env as Record<string, any>;
 
 export const CONTRACT_ADDRESSES = {
-  intentRegistry: (env["VITE_INTENT_REGISTRY"] ?? "0x0000000000000000000000000000000000000000") as `0x${string}`,
-  circleFactory:  (env["VITE_CIRCLE_FACTORY"]  ?? "0x0000000000000000000000000000000000000000") as `0x${string}`,
-  circleTrust:    (env["VITE_CIRCLE_TRUST"]    ?? "0x0000000000000000000000000000000000000000") as `0x${string}`,
+  intentRegistry: (env["VITE_INTENT_REGISTRY"] ?? "0x6Bddd66698206c9956e5ac65F9083A132B574844") as `0x${string}`,
+  circleFactory:  (env["VITE_CIRCLE_FACTORY"]  ?? "0x87cd271485E7838607D19Bc5B33Dc0DC6297F1E3") as `0x${string}`,
+  circleTrust:    (env["VITE_CIRCLE_TRUST"]    ?? "0x58C26bA12128e68B203442AC081656b525892B83") as `0x${string}`,
+  demoCircle:     "0x7D938c7326eC34fB26F3aF4A61259D2a0D19D8e4" as `0x${string}`,
   cUSD:           "0xEF4d55D6dE8e8d73232827Cd1e9b2F2dBb45bC80" as `0x${string}`,
 } as const;

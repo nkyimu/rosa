@@ -17,6 +17,8 @@ export const CONTRACT_ADDRESSES = {
   cUSD:            (process.env.CUSD_ADDRESS             ?? "0xEF4d55D6dE8e8d73232827Cd1e9b2F2dBb45bC80") as `0x${string}`,
   // Moola / Aave lending pool (Sepolia - TBD)
   moolaLendingPool:(process.env.MOOLA_LENDING_POOL       ?? "0x0000000000000000000000000000000000000000") as `0x${string}`,
+  // x402 Payment collection contract
+  agentPayment:    (process.env.AGENT_PAYMENT_ADDRESS    ?? "0x0000000000000000000000000000000000000000") as `0x${string}`,
 };
 
 // ─── Agent Wallet ────────────────────────────────────────────────────────────
