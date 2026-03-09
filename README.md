@@ -10,9 +10,9 @@ Savings circles—known as ROSCAs, chamas, or merry-go-rounds across Africa—ar
 
 ## The Solution
 
-IntentCircles uses **intent-based coordination** (inspired by Anoma) to match members into circles, **Nightfall zero-knowledge proofs** to keep contributions and payouts private, and **autonomous agents** to run the operation. The result: savings circles that are **transparent to members, opaque to outsiders, and automated end-to-end**.
+IntentCircles uses **intent-based coordination** to match members into circles, **Nightfall zero-knowledge proofs** to keep contributions and payouts private, and **autonomous agents** to run the operation. The result: savings circles that are **transparent to members, opaque to outsiders, and automated end-to-end**.
 
-- **Anoma-style intents** let members express "I want to save 100 cUSD monthly" once, and the agent handles matching and coordination
+- **Intent-based matching** let members express "I want to save 100 cUSD monthly" once, and the agent handles matching and coordination
 - **Nightfall privacy layer** hides contribution amounts and payout recipients behind cryptographic commitments
 - **ERC-8004 agent identity** registers the coordinator on-chain with reputation tracking
 - **x402 HTTP payment protocol** lets the agent charge fees directly via HTTP requests, no approval flows needed
@@ -30,7 +30,7 @@ User Intent                  Agent Matching              Circle Execution
                                                       →   Private payouts
 ```
 
-### Intent System (Anoma-Inspired)
+### Intent System 
 
 Members submit intents to the **IntentRegistry**: "I want to join a circle with 100 cUSD contributions, monthly cycles, ~5 members." The agent scans for compatible intents (same duration, ±10% contribution tolerance), batches them into groups, and deploys a **SaveCircle** contract for each match. All intents are fulfilled in a single atomic batch.
 
@@ -250,7 +250,7 @@ intent-circles/
 
 This project demonstrates:
 - **Agent autonomy**: The agent runs continuously, making decisions without human intervention
-- **Anoma-style intents**: Users express intent once; agent handles execution
+- **Intent-based matching**: Users express intent once; agent handles execution
 - **Zero-knowledge privacy**: Nightfall integration proves contributions without revealing amounts
 - **On-chain reputation**: AgentRegistry8004 tracks agent performance
 - **HTTP payment flows**: x402 creates a direct, frictionless payment channel
