@@ -1,5 +1,6 @@
 import { createConfig, http, injected } from "wagmi";
-import { celo, defineChain } from "wagmi/chains";
+import { celo } from "wagmi/chains";
+import { defineChain } from "viem";
 
 // Celo Sepolia testnet chain definition
 export const celoSepolia = defineChain({
