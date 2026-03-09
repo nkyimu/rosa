@@ -41,10 +41,11 @@ contract SaveCircle is ReentrancyGuard {
     mapping(address => bool) public isMember;
     mapping(address => uint256) public memberIndex;
     mapping(address => uint256) public totalContributed;
-    mapping(address => bool) public hasClaimedThisRound;
+    mapping(address => bool) public hasContributedThisRound;
     mapping(address => uint256) public penaltyCount;
 
     uint256 public totalYieldGenerated;
+    uint256 public constant KEEPER_FEE_BPS = 100; // 1% of yield to keeper/agent
 
     event CircleFormed(uint256 indexed circleId);
     event MemberJoined(address indexed member);
@@ -149,18 +150,16 @@ contract SaveCircle is ReentrancyGuard {
      * @dev Make a contribution for the current round
      */
     function contribute() external onlyMember inState(CircleState.ACTIVE) nonReentrant {
-        require(!hasClaimedThisRound[msg.sender], "Already claimed this round");
+        require(!hasContributedThisRound[msg.sender], "Already contributed this round");
 
         // Transfer token from member to contract
         IERC20 token = IERC20(tokenAddress);
         token.safeTransferFrom(msg.sender, address(this), contributionAmount);
 
         totalContributed[msg.sender] += contributionAmount;
-        hasClaimedThisRound[msg.sender] = true;
+        hasContributedThisRound[msg.sender] = true;
 
         emit ContributionMade(msg.sender, contributionAmount);
-
-        // Check if all members have contributed - if so, can proceed to rotation
     }
 
     /**
@@ -186,8 +185,14 @@ contract SaveCircle is ReentrancyGuard {
 
         emit RotationClaimed(msg.sender, payout);
 
-        // Advance rotation
+        // Advance rotation and round
         rotationIndex++;
+        currentRound++;
+
+        // Reset contribution tracking for next round
+        for (uint256 i = 0; i < members.length; i++) {
+            hasContributedThisRound[members[i]] = false;
+        }
 
         // Check if circle is complete
         if (rotationIndex >= members.length) {
@@ -198,18 +203,20 @@ contract SaveCircle is ReentrancyGuard {
 
     /**
      * @dev Penalize a member for missed contribution (only agent)
-     * Penalties accumulate - after 3 penalties, member is evicted
+     * Deducts from member's escrowed contributions (NOT their wallet)
+     * After 3 penalties, member is evicted
      */
-    function penalize(address member) external onlyAgent inState(CircleState.ACTIVE) {
+    function penalize(address member) external onlyAgent inState(CircleState.ACTIVE) nonReentrant {
         require(isMember[member], "Not a member");
 
         uint256 penalty = (contributionAmount * 10) / 100; // 10% penalty
         penaltyCount[member]++;
 
-        // Transfer penalty to agent/community
+        // Deduct from escrowed contributions — NEVER pull from member wallet
         IERC20 token = IERC20(tokenAddress);
-        if (token.balanceOf(member) >= penalty) {
-            token.safeTransferFrom(member, agent, penalty);
+        if (totalContributed[member] >= penalty && token.balanceOf(address(this)) >= penalty) {
+            totalContributed[member] -= penalty;
+            token.safeTransfer(agent, penalty);
         }
 
         emit MemberPenalized(member, penalty);
@@ -233,8 +240,8 @@ contract SaveCircle is ReentrancyGuard {
         IERC20 token = IERC20(tokenAddress);
         require(token.balanceOf(address(this)) >= amount, "Insufficient balance");
 
-        // Approve Moola and deposit
-        token.approve(yieldVault, amount);
+        // Approve Moola and deposit (forceApprove handles USDT-style tokens)
+        token.forceApprove(yieldVault, amount);
         IMoolaLendingPool(yieldVault).deposit(
             tokenAddress,
             amount,
@@ -303,9 +310,15 @@ contract SaveCircle is ReentrancyGuard {
 
     /**
      * @dev Internal: remove member from circle
+     * Adjusts rotationIndex to prevent skipping or misassignment
      */
     function _removeMember(address member) internal {
         uint256 idx = memberIndex[member];
+
+        // If removed member is before current rotation, adjust index
+        if (idx < rotationIndex) {
+            rotationIndex--;
+        }
 
         // Swap with last and pop
         address lastMember = members[members.length - 1];

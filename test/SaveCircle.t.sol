@@ -183,12 +183,12 @@ contract SaveCircleTest is Test {
         vm.prank(agent);
         circle.startCircle();
 
-        // Token for penalty
+        // Member contributes first (penalty deducts from escrowed contributions)
         token.mint(member1, 1000e18);
-
-        // Penalize member1
         vm.prank(member1);
         token.approve(address(circle), 1000e18);
+        vm.prank(member1);
+        circle.contribute();
 
         uint256 agentBalanceBefore = token.balanceOf(agent);
         vm.prank(agent);
@@ -277,7 +277,7 @@ contract SaveCircleTest is Test {
         vm.prank(member1);
         circle.contribute();
 
-        assertTrue(circle.hasClaimedThisRound(member1));
+        assertTrue(circle.hasContributedThisRound(member1));
     }
 
     function testClaimRotationOnlyOnYourTurn() public {
