@@ -54,7 +54,7 @@ export async function deriveKeys(mnemonic: string, childPath = "m/44'/60'/0'/0/0
     body: JSON.stringify({ mnemonic, child_path: childPath })
   });
   if (!res.ok) throw new Error(`deriveKey failed: ${res.status} ${await res.text()}`);
-  return res.json();
+  return (await res.json()) as NightfallKeys;
 }
 
 // ========== Core Operations ==========
@@ -178,7 +178,7 @@ export async function withdraw(
 export async function checkRequestStatus(requestId: string): Promise<RequestStatus> {
   const res = await fetch(`${NIGHTFALL_CLIENT}/v1/request/${requestId}`);
   if (!res.ok) return 'failed';
-  const data = await res.json();
+  const data = (await res.json()) as { status?: RequestStatus };
   return data.status || 'pending';
 }
 
