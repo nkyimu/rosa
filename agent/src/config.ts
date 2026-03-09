@@ -3,20 +3,20 @@ import type { Hex } from "viem";
 
 // ─── RPC ────────────────────────────────────────────────────────────────────
 
-export const CELO_ALFAJORES_RPC = "https://alfajores-forno.celo-testnet.org";
+export const CELO_SEPOLIA_RPC = "https://forno.celo-sepolia.celo-testnet.org";
 export const CELO_MAINNET_RPC   = "https://forno.celo.org";
 
-// ─── Contract Addresses (Alfajores testnet) ──────────────────────────────────
+// ─── Contract Addresses (Celo Sepolia testnet) ───────────────────────────────
 // TODO: replace these after deployment
 
 export const CONTRACT_ADDRESSES = {
   intentRegistry:  (process.env.INTENT_REGISTRY_ADDRESS  ?? "0x0000000000000000000000000000000000000000") as `0x${string}`,
   circleFactory:   (process.env.CIRCLE_FACTORY_ADDRESS   ?? "0x0000000000000000000000000000000000000000") as `0x${string}`,
   circleTrust:     (process.env.CIRCLE_TRUST_ADDRESS     ?? "0x0000000000000000000000000000000000000000") as `0x${string}`,
-  // Celo Alfajores cUSD
-  cUSD:            (process.env.CUSD_ADDRESS             ?? "0x874069Fa1Eb16D44d622F2e0Ca25eeA172369bC1") as `0x${string}`,
-  // Moola / Aave lending pool (Alfajores)
-  moolaLendingPool:(process.env.MOOLA_LENDING_POOL       ?? "0x0886f74eEEc443fBb6907fB5528B57C28E813129") as `0x${string}`,
+  // Celo Sepolia cUSD
+  cUSD:            (process.env.CUSD_ADDRESS             ?? "0xEF4d55D6dE8e8d73232827Cd1e9b2F2dBb45bC80") as `0x${string}`,
+  // Moola / Aave lending pool (Sepolia - TBD)
+  moolaLendingPool:(process.env.MOOLA_LENDING_POOL       ?? "0x0000000000000000000000000000000000000000") as `0x${string}`,
 };
 
 // ─── Agent Wallet ────────────────────────────────────────────────────────────

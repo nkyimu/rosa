@@ -44,8 +44,8 @@ contract DeployScript is Script {
         );
         console.log("DemoCircle:", address(demoCircle));
 
-        // 6. Initialize demo circle with Alfajores cUSD
-        address cUSD = 0x874069Fa1Eb16D44d622F2e0Ca25eeA172369bC1;
+        // 6. Initialize demo circle with Celo Sepolia cUSD
+        address cUSD = 0xEF4d55D6dE8e8d73232827Cd1e9b2F2dBb45bC80;
         demoCircle.initialize(cUSD, 1e18); // 1 cUSD contribution
         console.log("Demo circle initialized with 1 cUSD contribution, 5-min rounds");
 

@@ -149,7 +149,7 @@ export default function App() {
           display: 'flex', alignItems: 'center', gap: 'var(--dt-space-2)'
         }}>
           <span>◆</span>
-          <span><strong>Alfajores testnet</strong> — no real funds</span>
+          <span><strong>Celo Sepolia testnet</strong> — no real funds</span>
         </div>
       </div>
 

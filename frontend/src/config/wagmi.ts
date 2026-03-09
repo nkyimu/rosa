@@ -1,5 +1,20 @@
 import { createConfig, http, injected } from "wagmi";
-import { celo, celoAlfajores } from "wagmi/chains";
+import { celo, defineChain } from "wagmi/chains";
+
+// Celo Sepolia testnet chain definition
+export const celoSepolia = defineChain({
+  id: 11142220,
+  name: "Celo Sepolia",
+  nativeCurrency: { name: "Celo", symbol: "CELO", decimals: 18 },
+  rpcUrls: {
+    default: { http: ["https://forno.celo-sepolia.celo-testnet.org"] },
+  },
+  blockExplorers: {
+    default: { name: "Blockscout", url: "https://celo-sepolia.blockscout.com" },
+    celoScan: { name: "CeloScan", url: "https://sepolia.celoscan.io" },
+  },
+  testnet: true,
+});
 
 /** Returns true when running inside MiniPay super-app */
 export function checkMiniPay(): boolean {
@@ -9,10 +24,10 @@ export function checkMiniPay(): boolean {
 }
 
 export const wagmiConfig = createConfig({
-  chains: [celoAlfajores, celo],
+  chains: [celoSepolia, celo],
   connectors: [injected({ shimDisconnect: true })],
   transports: {
-    [celoAlfajores.id]: http("https://alfajores-forno.celo-testnet.org"),
+    [celoSepolia.id]: http("https://forno.celo-sepolia.celo-testnet.org"),
     [celo.id]: http("https://forno.celo.org"),
   },
 });
@@ -24,5 +39,5 @@ export const CONTRACT_ADDRESSES = {
   intentRegistry: (env["VITE_INTENT_REGISTRY"] ?? "0x0000000000000000000000000000000000000000") as `0x${string}`,
   circleFactory:  (env["VITE_CIRCLE_FACTORY"]  ?? "0x0000000000000000000000000000000000000000") as `0x${string}`,
   circleTrust:    (env["VITE_CIRCLE_TRUST"]    ?? "0x0000000000000000000000000000000000000000") as `0x${string}`,
-  cUSD:           "0x874069Fa1Eb16D44d622F2e0Ca25eeA172369bC1" as `0x${string}`,
+  cUSD:           "0xEF4d55D6dE8e8d73232827Cd1e9b2F2dBb45bC80" as `0x${string}`,
 } as const;

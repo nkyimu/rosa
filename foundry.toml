@@ -4,8 +4,8 @@ out = "out"
 libs = ["lib"]
 
 [rpc_endpoints]
-celo_alfajores = "https://alfajores-forno.celo-testnet.org"
+celo_sepolia = "https://forno.celo-sepolia.celo-testnet.org"
 celo = "https://forno.celo.org"
 
 [etherscan]
-celo_alfajores = { key = "", url = "https://api-alfajores.celoscan.io/api", chain = 44787 }
+celo_sepolia = { key = "", url = "https://api-sepolia.celoscan.io/api", chain = 11142220 }

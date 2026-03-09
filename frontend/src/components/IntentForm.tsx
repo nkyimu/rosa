@@ -61,7 +61,7 @@ export function IntentForm() {
           The agent is searching for your circle. You'll be matched within 24 hours.
         </p>
         {txHash && (
-          <a href={`https://alfajores.celoscan.io/tx/${txHash}`} target="_blank" rel="noopener noreferrer"
+          <a href={`https://sepolia.celoscan.io/tx/${txHash}`} target="_blank" rel="noopener noreferrer"
             style={{
               display: 'inline-block',
               marginTop: 'var(--dt-space-3)',
