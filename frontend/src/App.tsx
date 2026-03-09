@@ -40,7 +40,7 @@ function ConnectButton() {
         whiteSpace: 'nowrap'
       }}
     >
-      {isPending ? "..." : "Connect"}
+      {isPending ? "..." : "Login"}
     </button>
   );
 }
@@ -224,13 +224,13 @@ export default function App() {
                 fontWeight: 400,
                 color: 'var(--dt-text-primary)',
                 marginBottom: 'var(--dt-space-2)'
-              }}>Connect to get started</h3>
+              }}>Login to get started</h3>
               <p style={{
                 color: 'var(--dt-text-secondary)',
                 fontSize: 'var(--dt-text-sm)',
                 marginBottom: 'var(--dt-space-4)',
                 margin: 0
-              }}>Connect your Celo wallet to submit a savings circle intent</p>
+              }}>Login with your Celo wallet to submit a savings circle intent</p>
               <div style={{ marginTop: 'var(--dt-space-4)' }}>
                 <ConnectButton />
               </div>
