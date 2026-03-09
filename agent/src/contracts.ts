@@ -1,19 +1,19 @@
 import { createPublicClient, createWalletClient, http, getContract } from "viem";
-import { celoAlfajores } from "viem/chains";
-import { CELO_ALFAJORES_RPC, CONTRACT_ADDRESSES, agentAccount } from "./config.js";
+import { celoSepolia } from "viem/chains";
+import { CELO_SEPOLIA_RPC, CONTRACT_ADDRESSES, agentAccount } from "./config.js";
 
 // ─── Chain & Clients ─────────────────────────────────────────────────────────
 
 export const publicClient = createPublicClient({
-  chain: celoAlfajores,
-  transport: http(CELO_ALFAJORES_RPC),
+  chain: celoSepolia,
+  transport: http(CELO_SEPOLIA_RPC),
 });
 
 export const walletClient = agentAccount
   ? createWalletClient({
       account: agentAccount,
-      chain: celoAlfajores,
-      transport: http(CELO_ALFAJORES_RPC),
+      chain: celoSepolia,
+      transport: http(CELO_SEPOLIA_RPC),
     })
   : null;
 

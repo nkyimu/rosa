@@ -16,6 +16,7 @@ import {
   agentAccount,
   MATCHER_CONFIG,
   CYCLE_DURATIONS,
+  DRY_RUN,
 } from "./config.js";
 
 // ─── Intent Params Schema ─────────────────────────────────────────────────────
@@ -176,6 +177,16 @@ export class IntentMatcher {
       `[matcher] Deploying circle for ${group.intents.length} members ` +
       `(${group.targetContributionAmount} wei, ${group.cycleDuration}s cycles)`
     );
+
+    // DEMO MODE: Skip actual transactions
+    if (DRY_RUN) {
+      const demoAddress = "0x" + "deadbeef".repeat(5);
+      console.log(`[matcher] 🏜️  DRY_RUN: Would deploy circle at ${demoAddress}`);
+      console.log(
+        `[matcher] 🏜️  DRY_RUN: Would batch-fulfill ${group.intents.length} intents`
+      );
+      return demoAddress as `0x${string}`;
+    }
 
     // 1. Deploy circle via factory
     const { request: createRequest } = await publicClient.simulateContract({

@@ -1,5 +1,5 @@
 import { publicClient } from "./contracts.js";
-import { agentAccount, CONTRACT_ADDRESSES } from "./config.js";
+import { agentAccount, CONTRACT_ADDRESSES, DRY_RUN } from "./config.js";
 import { IntentMatcher } from "./matcher.js";
 import { CircleKeeper } from "./keeper.js";
 
@@ -15,10 +15,14 @@ console.log(`
 // ─── Config Check ─────────────────────────────────────────────────────────────
 
 async function startup() {
+  if (DRY_RUN) {
+    console.log("[agent] 🏜️  DRY_RUN MODE ENABLED — no transactions will be sent");
+  }
+
   // Check RPC connectivity
   try {
     const block = await publicClient.getBlockNumber();
-    console.log(`[agent] Connected to Celo Alfajores — block #${block}`);
+    console.log(`[agent] Connected to Celo Sepolia (chain 11142220) — block #${block}`);
   } catch (err) {
     console.error("[agent] ⚠️  Failed to connect to RPC:", err);
     console.error("[agent] Continuing in degraded mode...");

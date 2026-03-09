@@ -10,7 +10,7 @@
 
 import { createPublicClient, createWalletClient, http, keccak256, encodePacked, parseEther, type Address } from 'viem';
 import { privateKeyToAccount } from 'viem/accounts';
-import { CHAIN_CONFIG, CONTRACT_ADDRESSES } from './config';
+import { CONTRACT_ADDRESSES } from './config.js';
 
 // Nightfall client REST API
 const NIGHTFALL_CLIENT = process.env.NIGHTFALL_CLIENT_URL || 'http://localhost:3001';

@@ -13,6 +13,7 @@ import {
   CONTRACT_ADDRESSES,
   agentAccount,
   KEEPER_CONFIG,
+  DRY_RUN,
 } from "./config.js";
 
 // ─── CircleKeeper ─────────────────────────────────────────────────────────────
@@ -75,18 +76,22 @@ export class CircleKeeper {
       });
 
       // Heuristic: try to penalize — contract will revert if not applicable
-      try {
-        const { request } = await publicClient.simulateContract({
-          address,
-          abi: saveCircleAbi,
-          functionName: "penalize",
-          args: [member],
-          account: agentAccount,
-        });
-        const hash = await walletClient.writeContract(request);
-        console.log(`[keeper] Penalized ${member} in circle ${address} — tx: ${hash}`);
-      } catch {
-        // Member contributed or penalty not applicable — expected, skip silently
+      if (DRY_RUN) {
+        console.log(`[keeper] 🏜️  DRY_RUN: Would penalize ${member} in circle ${address}`);
+      } else {
+        try {
+          const { request } = await publicClient.simulateContract({
+            address,
+            abi: saveCircleAbi,
+            functionName: "penalize",
+            args: [member],
+            account: agentAccount,
+          });
+          const hash = await walletClient.writeContract(request);
+          console.log(`[keeper] Penalized ${member} in circle ${address} — tx: ${hash}`);
+        } catch {
+          // Member contributed or penalty not applicable — expected, skip silently
+        }
       }
     }
   }
@@ -165,6 +170,11 @@ export class CircleKeeper {
       `[keeper] Sweeping ${formatUnits(sweepable, 18)} cUSD to yield vault for ${address}`
     );
 
+    if (DRY_RUN) {
+      console.log(`[keeper] 🏜️  DRY_RUN: Would sweep ${formatUnits(sweepable, 18)} cUSD`);
+      return;
+    }
+
     try {
       const { request } = await publicClient.simulateContract({
         address,
@@ -197,6 +207,11 @@ export class CircleKeeper {
     console.log(
       `[keeper] Harvesting ${formatUnits(totalYield, 18)} cUSD yield for ${address}`
     );
+
+    if (DRY_RUN) {
+      console.log(`[keeper] 🏜️  DRY_RUN: Would harvest ${formatUnits(totalYield, 18)} cUSD yield`);
+      return;
+    }
 
     try {
       const { request } = await publicClient.simulateContract({
