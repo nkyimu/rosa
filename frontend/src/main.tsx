@@ -4,6 +4,7 @@ import { WagmiProvider } from "wagmi";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { wagmiConfig } from "./config/wagmi";
 import App from "./App";
+import "./styles/rosa-tokens.css";
 import "./index.css";
 
 const queryClient = new QueryClient({

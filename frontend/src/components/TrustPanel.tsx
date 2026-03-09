@@ -52,67 +52,279 @@ export function TrustPanel() {
   }
 
   if (!isConnected) {
-    return <div className="text-center py-12 text-gray-500">Connect your wallet to manage trust</div>;
+    return (
+      <div style={{
+        textAlign: 'center', padding: 'var(--dt-space-12) var(--dt-space-4)',
+        color: 'var(--dt-text-secondary)', fontSize: 'var(--dt-text-base)'
+      }}>
+        Connect your wallet to manage trust
+      </div>
+    );
   }
 
   const score = Number((trustScore as bigint | undefined) ?? 0n);
   const edges = (givenEdges ?? []) as TrustEdge[];
-  const scoreColor = score >= 80 ? "text-emerald-700 bg-emerald-100" : score >= 50 ? "text-yellow-700 bg-yellow-100" : "text-red-700 bg-red-100";
+
+  // Mock three-dimension breakdown
+  const reliability = Math.min(score * 0.9 + 5, 100);
+  const credit = Math.max(score * 0.7, 0);
+  const community = Math.min(score * 1.1, 100);
 
   return (
-    <div className="space-y-6">
-      <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-5">
-        <h3 className="font-semibold text-gray-900 mb-3">Your Trust Score</h3>
-        <span className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-sm font-semibold ${scoreColor}`}>
-          {score} / 100
-        </span>
-        <p className="text-sm text-gray-500 mt-2">Based on how many people vouch for you. Higher score = access to better circles.</p>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--dt-space-6)' }}>
+      {/* Trust Score Display — Three Dimensions */}
+      <div style={{
+        background: 'var(--dt-surface-raised)',
+        border: '1px solid var(--dt-border-default)',
+        borderRadius: 'var(--dt-radius-xl)',
+        padding: 'var(--dt-space-6)',
+        boxShadow: 'var(--dt-shadow-md)'
+      }}>
+        <p style={{
+          fontSize: 'var(--dt-text-xs)', fontWeight: 500, letterSpacing: 'var(--dt-tracking-widest)',
+          textTransform: 'uppercase', color: 'var(--dt-text-muted)', marginBottom: 'var(--dt-space-2)',
+          margin: 0
+        }}>Trust Score</p>
+
+        {/* Large score display */}
+        <div style={{ display: 'flex', alignItems: 'baseline', gap: 'var(--dt-space-2)', marginBottom: 'var(--dt-space-5)' }}>
+          <span style={{
+            fontFamily: 'var(--dt-font-display)',
+            fontSize: 'var(--dt-text-4xl)', fontWeight: 400,
+            color: score >= 80 ? 'var(--dt-trust-community)' : score >= 50 ? 'var(--dt-trust-credit)' : '#EF4444'
+          }}>{score}</span>
+          <span style={{
+            color: 'var(--dt-text-muted)', fontSize: 'var(--dt-text-xl)',
+            fontFamily: 'var(--dt-font-mono)'
+          }}>/ 100</span>
+        </div>
+
+        {/* Three dimension bars */}
+        {[
+          { label: 'Reliability', color: 'var(--dt-trust-reliability)', value: reliability, desc: 'On-time payments' },
+          { label: 'Credit', color: 'var(--dt-trust-credit)', value: credit, desc: 'Borrowing history' },
+          { label: 'Community', color: 'var(--dt-trust-community)', value: community, desc: 'Circle connections' },
+        ].map((dim) => (
+          <div key={dim.label} style={{ marginBottom: 'var(--dt-space-3)' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 'var(--dt-space-1)' }}>
+              <span style={{
+                fontSize: 'var(--dt-text-xs)', color: 'var(--dt-text-secondary)',
+                fontWeight: 500
+              }}>
+                {dim.label}
+              </span>
+              <span style={{
+                fontSize: 'var(--dt-text-xs)', fontFamily: 'var(--dt-font-mono)',
+                color: dim.color
+              }}>
+                {Math.round(dim.value)}
+              </span>
+            </div>
+            <div style={{
+              width: '100%', height: 4, borderRadius: 'var(--dt-radius-full)',
+              background: 'var(--dt-surface-overlay)', overflow: 'hidden'
+            }}>
+              <div style={{
+                width: `${dim.value}%`, height: '100%', borderRadius: 'inherit',
+                background: dim.color, transition: 'width 0.6s cubic-bezier(0.4,0,0.2,1)'
+              }} />
+            </div>
+            <p style={{
+              fontSize: 'var(--dt-text-xs)', color: 'var(--dt-text-muted)',
+              marginTop: 'var(--dt-space-1)', margin: 0
+            }}>
+              {dim.desc}
+            </p>
+          </div>
+        ))}
+
+        {/* Score context */}
+        <div style={{
+          marginTop: 'var(--dt-space-4)', padding: 'var(--dt-space-3) var(--dt-space-4)',
+          background: 'var(--dt-surface-overlay)',
+          borderRadius: 'var(--dt-radius-md)',
+          border: '1px solid var(--dt-border-subtle)'
+        }}>
+          <p style={{
+            fontSize: 'var(--dt-text-xs)', color: 'var(--dt-text-muted)', margin: 0
+          }}>
+            Score {score}: qualifies for circles up to{' '}
+            <span style={{
+              color: 'var(--dt-accent)', fontFamily: 'var(--dt-font-mono)',
+              fontWeight: 500
+            }}>
+              ${score >= 80 ? '100' : score >= 50 ? '50' : '20'} cUSD/cycle
+            </span>
+          </p>
+        </div>
       </div>
 
-      <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-5">
-        <h3 className="font-semibold text-gray-900 mb-1">Vouch for Someone</h3>
-        <p className="text-sm text-gray-500 mb-4">Vouching adds a trust edge and increases their score.</p>
-        <form onSubmit={handleVouch} className="space-y-3">
+      {/* Vouch Form */}
+      <div style={{
+        background: 'var(--dt-surface-raised)',
+        border: '1px solid var(--dt-border-default)',
+        borderRadius: 'var(--dt-radius-xl)',
+        padding: 'var(--dt-space-6)',
+        boxShadow: 'var(--dt-shadow-md)'
+      }}>
+        <h3 style={{
+          fontFamily: 'var(--dt-font-display)', fontSize: 'var(--dt-text-xl)',
+          fontWeight: 400, color: 'var(--dt-text-primary)', marginBottom: 'var(--dt-space-1)',
+          margin: 0
+        }}>Vouch for Someone</h3>
+        <p style={{
+          color: 'var(--dt-text-muted)', fontSize: 'var(--dt-text-sm)',
+          marginBottom: 'var(--dt-space-5)', margin: 0,
+          marginTop: 'var(--dt-space-1)'
+        }}>
+          Your endorsement raises their score and opens circles to them.
+        </p>
+
+        <form onSubmit={handleVouch} style={{ display: 'flex', flexDirection: 'column', gap: 'var(--dt-space-4)' }}>
+          {/* Address input */}
           <div>
-            <label className="block text-xs font-medium text-gray-600 mb-1">Wallet Address</label>
-            <input type="text" value={vouchAddress} onChange={(e) => setVouchAddress(e.target.value)}
-              placeholder="0x..." className="w-full px-3 py-2.5 border border-gray-200 rounded-lg text-sm font-mono focus:outline-none focus:ring-2 focus:ring-emerald-500" />
+            <label style={{
+              display: 'block', fontSize: 'var(--dt-text-xs)', fontWeight: 500,
+              color: 'var(--dt-text-muted)', letterSpacing: 'var(--dt-tracking-widest)',
+              textTransform: 'uppercase', marginBottom: 'var(--dt-space-2)',
+              margin: 0
+            }}>Wallet Address</label>
+            <input type="text" value={vouchAddress}
+              onChange={(e) => setVouchAddress(e.target.value)}
+              placeholder="0x..."
+              style={{
+                width: '100%', padding: 'var(--dt-space-3) var(--dt-space-4)',
+                background: 'var(--dt-surface-overlay)',
+                border: '1px solid var(--dt-border-default)',
+                borderRadius: 'var(--dt-radius-lg)',
+                color: 'var(--dt-text-primary)',
+                fontFamily: 'var(--dt-font-mono)',
+                fontSize: 'var(--dt-text-sm)',
+                outline: 'none',
+                boxSizing: 'border-box',
+                transition: 'border-color 0.2s ease'
+              }}
+              onFocus={(e) => e.target.style.borderColor = 'var(--dt-accent)'}
+              onBlur={(e) => e.target.style.borderColor = 'var(--dt-border-default)'}
+            />
           </div>
+
+          {/* Duration slider */}
           <div>
-            <label className="block text-xs font-medium text-gray-600 mb-1">
-              Trust Duration: <span className="text-emerald-600">{vouchMonths} months</span>
+            <label style={{
+              display: 'block', fontSize: 'var(--dt-text-xs)', fontWeight: 500,
+              color: 'var(--dt-text-muted)', letterSpacing: 'var(--dt-tracking-widest)',
+              textTransform: 'uppercase', marginBottom: 'var(--dt-space-2)',
+              margin: 0
+            }}>
+              Duration: <span style={{
+                color: 'var(--dt-accent)', fontFamily: 'var(--dt-font-mono)',
+                fontWeight: 500
+              }}>{vouchMonths} months</span>
             </label>
-            <input type="range" min={1} max={24} value={vouchMonths} onChange={(e) => setVouchMonths(Number(e.target.value))} className="w-full accent-emerald-600" />
+            <input type="range" min={1} max={24} value={vouchMonths}
+              onChange={(e) => setVouchMonths(Number(e.target.value))}
+              style={{ width: '100%' }} />
           </div>
-          {formError && <p className="text-red-600 text-xs">{formError}</p>}
-          {isSuccess && <p className="text-green-700 text-xs">Trust added successfully</p>}
+
+          {formError && (
+            <div style={{
+              background: 'rgba(239,68,68,0.08)',
+              border: '1px solid rgba(239,68,68,0.2)',
+              borderRadius: 'var(--dt-radius-md)',
+              padding: 'var(--dt-space-2) var(--dt-space-3)',
+              color: 'var(--dt-state-error)',
+              fontSize: 'var(--dt-text-xs)'
+            }}>
+              {formError}
+            </div>
+          )}
+
+          {isSuccess && (
+            <div style={{
+              background: 'rgba(34,197,94,0.08)',
+              border: '1px solid rgba(34,197,94,0.2)',
+              borderRadius: 'var(--dt-radius-md)',
+              padding: 'var(--dt-space-2) var(--dt-space-3)',
+              color: 'var(--dt-trust-community)',
+              fontSize: 'var(--dt-text-xs)'
+            }}>
+              Trust added successfully
+            </div>
+          )}
+
           <button type="submit" disabled={isPending || isConfirming}
-            className="w-full py-2.5 bg-emerald-600 text-white rounded-lg text-sm font-medium hover:bg-emerald-700 disabled:opacity-50 transition-colors">
-            {isPending || isConfirming ? "Submitting..." : "Vouch"}
+            style={{
+              width: '100%', padding: 'var(--dt-space-3) var(--dt-space-4)',
+              background: isPending || isConfirming ? 'var(--dt-accent-muted)' : 'var(--dt-surface-overlay)',
+              border: '1px solid var(--dt-border-strong)',
+              borderRadius: 'var(--dt-radius-lg)',
+              color: isPending || isConfirming ? 'var(--dt-accent)' : 'var(--dt-text-primary)',
+              fontWeight: 500, fontSize: 'var(--dt-text-sm)',
+              cursor: isPending ? 'not-allowed' : 'pointer',
+              transition: 'all 0.2s ease'
+            }}>
+            {isPending || isConfirming ? "Submitting..." : "Give Vouch"}
           </button>
         </form>
       </div>
 
-      <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-5">
-        <h3 className="font-semibold text-gray-900 mb-3">You Trust ({edges.length})</h3>
+      {/* Vouch List */}
+      <div style={{
+        background: 'var(--dt-surface-raised)',
+        border: '1px solid var(--dt-border-default)',
+        borderRadius: 'var(--dt-radius-xl)',
+        padding: 'var(--dt-space-6)',
+        boxShadow: 'var(--dt-shadow-md)'
+      }}>
+        <h3 style={{
+          fontFamily: 'var(--dt-font-display)', fontSize: 'var(--dt-text-xl)',
+          fontWeight: 400, color: 'var(--dt-text-primary)', marginBottom: 'var(--dt-space-3)',
+          margin: 0
+        }}>You Trust ({edges.length})</h3>
+
         {edges.length === 0 ? (
-          <p className="text-sm text-gray-400">You have not vouched for anyone yet</p>
+          <p style={{
+            fontSize: 'var(--dt-text-sm)', color: 'var(--dt-text-muted)', margin: 0
+          }}>
+            You have not vouched for anyone yet
+          </p>
         ) : (
           edges.map((edge) => {
             const expiresDate = new Date(Number(edge.expiresAt) * 1000);
             const isExpired = edge.expiresAt > 0n && expiresDate < new Date();
             const shortAddr = `${edge.trustee.slice(0, 8)}...${edge.trustee.slice(-4)}`;
             return (
-              <div key={edge.trustee} className="flex items-center justify-between py-2.5 border-b border-gray-50 last:border-0">
+              <div key={edge.trustee} style={{
+                display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                paddingTop: 'var(--dt-space-3)', paddingBottom: 'var(--dt-space-3)',
+                borderBottom: '1px solid var(--dt-border-subtle)'
+              }}>
                 <div>
-                  <p className="text-sm font-mono text-gray-700">{shortAddr}</p>
+                  <p style={{
+                    fontSize: 'var(--dt-text-sm)', fontFamily: 'var(--dt-font-mono)',
+                    color: 'var(--dt-text-primary)', margin: 0
+                  }}>
+                    {shortAddr}
+                  </p>
                   {edge.expiresAt > 0n && (
-                    <p className={`text-xs ${isExpired ? "text-red-500" : "text-gray-400"}`}>
+                    <p style={{
+                      fontSize: 'var(--dt-text-xs)',
+                      color: isExpired ? 'var(--dt-state-error)' : 'var(--dt-text-muted)',
+                      margin: 0,
+                      marginTop: 2
+                    }}>
                       {isExpired ? "Expired" : `Expires ${expiresDate.toLocaleDateString()}`}
                     </p>
                   )}
                 </div>
-                <button onClick={() => handleRevoke(edge.trustee)} className="text-xs text-red-500 hover:text-red-700 transition-colors px-2 py-1 rounded hover:bg-red-50">
+                <button onClick={() => handleRevoke(edge.trustee)}
+                  style={{
+                    fontSize: 'var(--dt-text-xs)', color: 'var(--dt-state-error)',
+                    background: 'none', border: 'none', cursor: 'pointer', padding: 'var(--dt-space-1) var(--dt-space-2)',
+                    borderRadius: 'var(--dt-radius-md)',
+                    transition: 'all 0.2s ease'
+                  }}>
                   Revoke
                 </button>
               </div>

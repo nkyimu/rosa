@@ -42,55 +42,108 @@ const MOCK_CIRCLES: MockCircle[] = [
 
 function CircleCard({ circle }: { circle: MockCircle }) {
   const progress = (circle.currentRound / circle.totalRounds) * 100
+  const isActive = circle.yourTurn
 
   return (
-    <div className="rounded-xl border border-gray-800 p-4" style={{ background: '#23242A' }}>
-      <div className="flex items-center justify-between mb-3">
-        <div>
-          <h3 className="text-white font-semibold">Circle #{circle.id}</h3>
-          <p className="text-gray-400 text-xs">
-            {circle.members}/{circle.maxMembers} members · {circle.cycle}
-          </p>
-        </div>
-        <span className="text-sm" style={{ color: '#35D07F' }}>
-          +{circle.yieldEarned} cUSD
-        </span>
-      </div>
+    <div style={{
+      background: isActive ? 'rgba(14,11,7,0.85)' : 'var(--dt-surface-raised)',
+      backdropFilter: isActive ? 'blur(24px) saturate(180%)' : 'none',
+      border: `1px solid ${isActive ? 'var(--dt-accent)' : 'var(--dt-border-default)'}`,
+      borderRadius: 'var(--dt-radius-xl)',
+      padding: 'var(--dt-space-5)',
+      boxShadow: isActive ? 'var(--dt-shadow-glow-gold)' : 'var(--dt-shadow-sm)',
+      transition: 'all 0.3s ease',
+      position: 'relative',
+      overflow: 'hidden'
+    }}>
+      {/* Paper noise on card */}
+      <div style={{
+        position: 'absolute', inset: 0, pointerEvents: 'none', borderRadius: 'inherit',
+        backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.5' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E")`,
+        opacity: 0.08, mixBlendMode: 'screen'
+      }} />
 
-      {/* Progress bar */}
-      <div className="w-full h-2 rounded-full bg-gray-700 mb-3">
-        <div
-          className="h-full rounded-full transition-all"
-          style={{ width: `${progress}%`, background: '#35D07F' }}
-        />
-      </div>
-      <p className="text-xs text-gray-500 mb-3">
-        Round {circle.currentRound} of {circle.totalRounds} · {circle.contribution} cUSD/cycle
-      </p>
-
-      {/* Actions */}
-      <div className="flex gap-2">
-        {!circle.contributed && (
-          <button
-            className="flex-1 text-sm font-medium rounded-lg py-2 transition hover:opacity-90"
-            style={{ background: '#35D07F', color: '#1A1B1F' }}
-          >
-            Contribute {circle.contribution} cUSD
-          </button>
-        )}
-        {circle.yourTurn && (
-          <button
-            className="flex-1 text-sm font-medium rounded-lg py-2 border transition hover:opacity-90"
-            style={{ borderColor: '#35D07F', color: '#35D07F' }}
-          >
-            🎉 Claim Payout
-          </button>
-        )}
-        {circle.contributed && !circle.yourTurn && (
-          <div className="flex-1 text-center text-sm text-gray-400 py-2">
-            ✅ Contributed · Waiting for round
+      <div style={{ position: 'relative', zIndex: 1 }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 'var(--dt-space-3)' }}>
+          <div>
+            <h3 style={{
+              fontFamily: 'var(--dt-font-display)',
+              fontSize: 'var(--dt-text-xl)', fontWeight: 400,
+              color: 'var(--dt-text-primary)',
+              margin: 0
+            }}>Circle #{circle.id}</h3>
+            <p style={{
+              color: 'var(--dt-text-muted)', fontSize: 'var(--dt-text-xs)', marginTop: 'var(--dt-space-1)',
+              margin: 0
+            }}>
+              {circle.members}/{circle.maxMembers} members · {circle.cycle}
+            </p>
           </div>
-        )}
+          <div style={{ textAlign: 'right' }}>
+            <span style={{
+              fontFamily: 'var(--dt-font-mono)',
+              color: 'var(--dt-trust-community)', fontWeight: 600,
+              fontSize: 'var(--dt-text-sm)'
+            }}>+{circle.yieldEarned} cUSD</span>
+            <p style={{ color: 'var(--dt-text-muted)', fontSize: 'var(--dt-text-xs)', margin: 0, marginTop: 2 }}>yield</p>
+          </div>
+        </div>
+
+        {/* Progress bar */}
+        <div style={{
+          width: '100%', height: 6, borderRadius: 'var(--dt-radius-full)',
+          background: 'var(--dt-surface-overlay)', marginBottom: 'var(--dt-space-2)', overflow: 'hidden'
+        }}>
+          <div style={{
+            width: `${progress}%`, height: '100%', borderRadius: 'inherit',
+            background: 'linear-gradient(90deg, var(--dt-trust-reliability) 0%, var(--dt-trust-community) 100%)',
+            transition: 'width 0.5s cubic-bezier(0.4,0,0.2,1)'
+          }} />
+        </div>
+
+        <p style={{
+          color: 'var(--dt-text-muted)', fontSize: 'var(--dt-text-xs)', marginBottom: 'var(--dt-space-4)',
+          margin: 0,
+          marginTop: 'var(--dt-space-1)'
+        }}>
+          Round {circle.currentRound} of {circle.totalRounds} · {circle.contribution} cUSD/cycle
+        </p>
+
+        {/* Actions */}
+        <div style={{ display: 'flex', gap: 'var(--dt-space-2)' }}>
+          {!circle.contributed && (
+            <button style={{
+              flex: 1, padding: 'var(--dt-space-3) var(--dt-space-4)', borderRadius: 'var(--dt-radius-lg)',
+              background: 'var(--dt-trust-community)', color: '#0A0804',
+              fontWeight: 600, fontSize: 'var(--dt-text-sm)', border: 'none', cursor: 'pointer',
+              transition: 'all 0.2s ease'
+            }}>
+              Contribute ${circle.contribution}
+            </button>
+          )}
+          {circle.yourTurn && (
+            <button style={{
+              flex: 1, padding: 'var(--dt-space-3) var(--dt-space-4)', borderRadius: 'var(--dt-radius-lg)',
+              background: 'var(--dt-accent)', color: '#0A0804',
+              fontWeight: 700, fontSize: 'var(--dt-text-sm)', border: 'none', cursor: 'pointer',
+              boxShadow: 'var(--dt-shadow-glow-gold)',
+              letterSpacing: 'var(--dt-tracking-wide)',
+              transition: 'all 0.2s ease',
+              animation: 'dt-glow-pulse 2.5s ease-in-out infinite'
+            }}>
+              ✦ Claim Payout
+            </button>
+          )}
+          {circle.contributed && !circle.yourTurn && (
+            <div style={{
+              flex: 1, textAlign: 'center', padding: 'var(--dt-space-3)',
+              color: 'var(--dt-trust-community)', fontSize: 'var(--dt-text-sm)',
+              fontFamily: 'var(--dt-font-mono)'
+            }}>
+              ✓ Contributed · Waiting
+            </div>
+          )}
+        </div>
       </div>
     </div>
   )
@@ -101,17 +154,28 @@ export function CircleDashboard() {
 
   if (!isConnected) {
     return (
-      <div className="text-center py-16">
-        <p className="text-gray-400 text-lg">Connect your wallet to see circles</p>
+      <div style={{ textAlign: 'center', padding: 'var(--dt-space-16) var(--dt-space-4)' }}>
+        <p style={{ color: 'var(--dt-text-secondary)', fontSize: 'var(--dt-text-lg)', margin: 0 }}>
+          Connect your wallet to see circles
+        </p>
       </div>
     )
   }
 
   return (
-    <div className="space-y-4">
-      <div className="flex items-center justify-between">
-        <h2 className="text-white font-bold text-lg">My Circles</h2>
-        <span className="text-xs text-gray-400">{MOCK_CIRCLES.length} active</span>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--dt-space-4)' }}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <h2 style={{
+          fontFamily: 'var(--dt-font-display)',
+          fontSize: 'var(--dt-text-xl)',
+          fontWeight: 400,
+          color: 'var(--dt-text-primary)',
+          margin: 0
+        }}>My Circles</h2>
+        <span style={{
+          fontSize: 'var(--dt-text-xs)', color: 'var(--dt-text-muted)',
+          fontWeight: 500, letterSpacing: 'var(--dt-tracking-wide)'
+        }}>{MOCK_CIRCLES.length} ACTIVE</span>
       </div>
 
       {MOCK_CIRCLES.map((circle) => (
@@ -119,9 +183,17 @@ export function CircleDashboard() {
       ))}
 
       {MOCK_CIRCLES.length === 0 && (
-        <div className="text-center py-12 rounded-xl border border-dashed border-gray-700">
-          <p className="text-gray-400 mb-2">No circles yet</p>
-          <p className="text-gray-500 text-sm">Submit a save intent to get matched!</p>
+        <div style={{
+          textAlign: 'center', padding: 'var(--dt-space-12) var(--dt-space-4)',
+          borderRadius: 'var(--dt-radius-xl)',
+          border: '1px dashed var(--dt-border-default)'
+        }}>
+          <p style={{ color: 'var(--dt-text-secondary)', marginBottom: 'var(--dt-space-1)', margin: 0 }}>
+            No circles yet
+          </p>
+          <p style={{ color: 'var(--dt-text-muted)', fontSize: 'var(--dt-text-sm)', margin: 0 }}>
+            Submit a save intent to get matched!
+          </p>
         </div>
       )}
     </div>

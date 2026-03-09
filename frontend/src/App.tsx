@@ -10,9 +10,9 @@ import { checkMiniPay }     from "./config/wagmi";
 type Tab = "intent" | "circles" | "trust";
 
 const TABS: { id: Tab; label: string; icon: string }[] = [
-  { id: "intent",  label: "Submit Intent", icon: "🎯" },
-  { id: "circles", label: "My Circles",    icon: "💰" },
-  { id: "trust",   label: "Trust Network", icon: "🤝" },
+  { id: "intent",  label: "Save",    icon: "🎯" },
+  { id: "circles", label: "Circles", icon: "💰" },
+  { id: "trust",   label: "Trust",   icon: "🤝" },
 ];
 
 function ConnectButton() {
@@ -21,7 +21,19 @@ function ConnectButton() {
     <button
       onClick={() => connect({ connector: injected() })}
       disabled={isPending}
-      className="px-4 py-2 bg-emerald-600 text-white rounded-lg text-sm font-semibold hover:bg-emerald-700 disabled:opacity-50 transition-colors"
+      style={{
+        padding: '8px 16px',
+        background: 'var(--dt-accent-muted)',
+        border: '1px solid var(--dt-accent)',
+        borderRadius: 'var(--dt-radius-full)',
+        color: 'var(--dt-accent)',
+        fontSize: 'var(--dt-text-sm)',
+        fontWeight: 500,
+        letterSpacing: 'var(--dt-tracking-wide)',
+        cursor: isPending ? 'not-allowed' : 'pointer',
+        opacity: isPending ? 0.6 : 1,
+        transition: 'all 0.2s ease'
+      }}
     >
       {isPending ? "Connecting..." : "Connect Wallet"}
     </button>
@@ -29,34 +41,88 @@ function ConnectButton() {
 }
 
 function WalletStatus() {
-  const { address, isConnected, chain } = useAccount();
+  const { address, isConnected } = useAccount();
   const { disconnect } = useDisconnect();
   const isMiniPay = checkMiniPay();
   if (!isConnected) return null;
   const shortAddr = address ? `${address.slice(0, 6)}...${address.slice(-4)}` : "";
   return (
-    <div className="flex items-center gap-2">
+    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
       {isMiniPay && (
-        <span className="text-xs bg-yellow-100 text-yellow-800 px-2 py-0.5 rounded-full font-medium">MiniPay</span>
+        <span style={{
+          fontSize: 'var(--dt-text-xs)', fontWeight: 600,
+          padding: '2px 8px', borderRadius: 'var(--dt-radius-full)',
+          background: 'var(--dt-accent-muted)', color: 'var(--dt-accent)',
+          border: '1px solid rgba(212,175,55,0.3)'
+        }}>MiniPay</span>
       )}
-      <span className="text-sm text-gray-600 font-mono">{shortAddr}</span>
-      <span className="text-xs text-gray-400">{chain?.name}</span>
-      <button onClick={() => disconnect()} className="text-xs text-gray-400 hover:text-gray-600 ml-1">x</button>
+      <span style={{
+        fontSize: 'var(--dt-text-xs)', fontFamily: 'var(--dt-font-mono)',
+        color: 'var(--dt-text-secondary)', letterSpacing: '0.02em'
+      }}>{shortAddr}</span>
+      <button
+        onClick={() => disconnect()}
+        aria-label="Disconnect wallet"
+        style={{
+          fontSize: 12, color: 'var(--dt-text-muted)',
+          background: 'none', border: 'none', cursor: 'pointer', padding: 4
+        }}
+      >×</button>
     </div>
   );
 }
 
 export default function App() {
   const [activeTab, setActiveTab] = useState<Tab>("intent");
+
   return (
-    <div className="min-h-screen bg-gray-50">
-      <header className="bg-white border-b border-gray-100 sticky top-0 z-10">
-        <div className="max-w-lg mx-auto px-4 py-3 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <span className="text-2xl">🪙</span>
+    <div style={{ minHeight: '100vh', background: 'var(--dt-surface-base)' }}>
+      {/* Header */}
+      <header style={{
+        position: 'sticky',
+        top: 0,
+        zIndex: 20,
+        background: 'var(--dt-surface-raised)',
+        borderBottom: '1px solid var(--dt-border-default)',
+        boxShadow: 'var(--dt-shadow-sm)'
+      }}>
+        <div style={{
+          maxWidth: 480,
+          margin: '0 auto',
+          padding: 'var(--dt-space-3) var(--dt-space-4)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between'
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--dt-space-3)' }}>
+            {/* Logo icon */}
+            <div style={{
+              width: 36, height: 36, borderRadius: '50%',
+              background: 'var(--dt-accent-muted)',
+              border: '1px solid var(--dt-border-accent)',
+              display: 'flex', alignItems: 'center', justifyContent: 'center'
+            }}>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--dt-accent)" strokeWidth="1.5">
+                <circle cx="12" cy="12" r="9"/>
+                <path d="M12 6v6l4 2"/>
+              </svg>
+            </div>
             <div>
-              <h1 className="font-bold text-gray-900 text-base leading-tight">IntentCircles</h1>
-              <p className="text-xs text-gray-400 leading-tight">Agent-managed savings circles on Celo</p>
+              <h1 style={{
+                fontFamily: 'var(--dt-font-display)',
+                fontSize: 'var(--dt-text-lg)',
+                fontWeight: 400,
+                color: 'var(--dt-text-primary)',
+                lineHeight: 'var(--dt-leading-tight)',
+                margin: 0
+              }}>IntentCircles</h1>
+              <p style={{
+                fontSize: 'var(--dt-text-xs)',
+                color: 'var(--dt-text-muted)',
+                letterSpacing: 'var(--dt-tracking-wide)',
+                margin: 0,
+                marginTop: 2
+              }}>Agent-managed savings · Celo</p>
             </div>
           </div>
           <MiniPayDetector connectButton={<ConnectButton />}>
@@ -64,31 +130,58 @@ export default function App() {
           </MiniPayDetector>
         </div>
       </header>
-      <div className="bg-white border-b border-gray-100">
-        <div className="max-w-lg mx-auto px-4">
-          <nav className="flex">
-            {TABS.map((tab) => (
-              <button key={tab.id} onClick={() => setActiveTab(tab.id)}
-                className={`flex-1 py-3 text-sm font-medium border-b-2 transition-colors flex items-center justify-center gap-1.5 ${activeTab === tab.id ? "border-emerald-600 text-emerald-700" : "border-transparent text-gray-500 hover:text-gray-700"}`}>
-                <span>{tab.icon}</span>
-                <span className="hidden sm:inline">{tab.label}</span>
-              </button>
-            ))}
-          </nav>
+
+      {/* Testnet banner */}
+      <div style={{
+        maxWidth: 480,
+        margin: '0 auto',
+        padding: 'var(--dt-space-4)',
+        paddingBottom: 0
+      }}>
+        <div style={{
+          background: 'rgba(245,158,11,0.08)',
+          border: '1px solid rgba(245,158,11,0.2)',
+          borderRadius: 'var(--dt-radius-md)',
+          padding: 'var(--dt-space-2) var(--dt-space-4)',
+          marginBottom: 'var(--dt-space-5)',
+          fontSize: 'var(--dt-text-xs)',
+          color: '#F59E0B',
+          display: 'flex', alignItems: 'center', gap: 'var(--dt-space-2)'
+        }}>
+          <span>◆</span>
+          <span><strong>Alfajores testnet</strong> — no real funds</span>
         </div>
       </div>
-      <main className="max-w-lg mx-auto px-4 py-6">
-        <div className="mb-5 bg-amber-50 border border-amber-200 rounded-lg px-4 py-2.5 text-amber-800 text-xs flex items-center gap-2">
-          <span>⚠️</span>
-          <span><strong>Testnet Alpha</strong> — Celo Alfajores. No real funds.</span>
-        </div>
+
+      {/* Main content */}
+      <main style={{
+        maxWidth: 480,
+        margin: '0 auto',
+        padding: 'var(--dt-space-4)',
+        paddingBottom: 100,
+        position: 'relative',
+        zIndex: 1
+      }}>
         {activeTab === "intent" && (
           <MiniPayDetector connectButton={
-            <div className="text-center py-12">
-              <div className="text-5xl mb-4">🎯</div>
-              <h3 className="text-lg font-semibold text-gray-700 mb-2">Connect to get started</h3>
-              <p className="text-gray-500 text-sm mb-4">Connect your Celo wallet to submit a savings circle intent</p>
-              <ConnectButton />
+            <div style={{ textAlign: 'center', padding: 'var(--dt-space-12) var(--dt-space-4)' }}>
+              <div style={{ fontSize: 48, marginBottom: 'var(--dt-space-4)' }}>🎯</div>
+              <h3 style={{
+                fontFamily: 'var(--dt-font-display)',
+                fontSize: 'var(--dt-text-lg)',
+                fontWeight: 400,
+                color: 'var(--dt-text-primary)',
+                marginBottom: 'var(--dt-space-2)'
+              }}>Connect to get started</h3>
+              <p style={{
+                color: 'var(--dt-text-secondary)',
+                fontSize: 'var(--dt-text-sm)',
+                marginBottom: 'var(--dt-space-4)',
+                margin: 0
+              }}>Connect your Celo wallet to submit a savings circle intent</p>
+              <div style={{ marginTop: 'var(--dt-space-4)' }}>
+                <ConnectButton />
+              </div>
             </div>
           }>
             <IntentForm />
@@ -97,7 +190,57 @@ export default function App() {
         {activeTab === "circles" && <CircleDashboard />}
         {activeTab === "trust" && <TrustPanel />}
       </main>
-      <footer className="max-w-lg mx-auto px-4 pb-8 pt-2 text-center text-xs text-gray-400">
+
+      {/* Bottom navigation */}
+      <nav style={{
+        position: 'fixed',
+        bottom: 0,
+        left: 0,
+        right: 0,
+        zIndex: 20,
+        background: 'var(--dt-surface-raised)',
+        borderTop: '1px solid var(--dt-border-default)',
+        boxShadow: '0 -4px 24px rgba(10,8,4,0.4)'
+      }}>
+        <div style={{
+          maxWidth: 480,
+          margin: '0 auto',
+          display: 'flex'
+        }}>
+          {TABS.map((tab) => (
+            <button key={tab.id} onClick={() => setActiveTab(tab.id)}
+              style={{
+                flex: 1, padding: 'var(--dt-space-3) var(--dt-space-1) var(--dt-space-4)',
+                display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'var(--dt-space-1)',
+                borderTop: `2px solid ${activeTab === tab.id ? 'var(--dt-accent)' : 'transparent'}`,
+                color: activeTab === tab.id ? 'var(--dt-accent)' : 'var(--dt-text-muted)',
+                background: 'none', border: 'none', cursor: 'pointer',
+                transition: 'all 0.2s ease',
+                fontFamily: 'var(--dt-font-body)',
+                fontSize: 'var(--dt-text-xs)',
+                fontWeight: 500,
+                letterSpacing: 'var(--dt-tracking-wide)',
+                textTransform: 'uppercase'
+              }}>
+              <span style={{ fontSize: 20, lineHeight: 1 }}>{tab.icon}</span>
+              <span>{tab.label}</span>
+            </button>
+          ))}
+        </div>
+      </nav>
+
+      {/* Footer */}
+      <footer style={{
+        maxWidth: 480,
+        margin: '0 auto',
+        padding: 'var(--dt-space-4) var(--dt-space-4)',
+        paddingBottom: 'var(--dt-space-2)',
+        textAlign: 'center',
+        fontSize: 'var(--dt-text-xs)',
+        color: 'var(--dt-text-muted)',
+        position: 'relative',
+        zIndex: 1
+      }}>
         Built on Celo · Hackathon prototype
       </footer>
     </div>

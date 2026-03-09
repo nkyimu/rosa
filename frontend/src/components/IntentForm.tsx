@@ -35,66 +35,232 @@ export function IntentForm() {
 
   if (isSuccess) {
     return (
-      <div className="bg-green-50 border border-green-200 rounded-xl p-6 text-center">
-        <div className="text-4xl mb-3">🎉</div>
-        <h3 className="text-lg font-semibold text-green-800 mb-1">Intent Submitted!</h3>
-        <p className="text-green-700 text-sm">The agent will match you with a savings circle soon.</p>
+      <div style={{
+        background: 'var(--dt-surface-raised)',
+        border: '1px solid var(--dt-trust-community)',
+        borderRadius: 'var(--dt-radius-xl)',
+        padding: 'var(--dt-space-8)',
+        textAlign: 'center',
+        boxShadow: '0 0 40px rgba(34,197,94,0.1)'
+      }}>
+        <div style={{ fontSize: 48, marginBottom: 'var(--dt-space-4)' }}>✨</div>
+        <h3 style={{
+          fontFamily: 'var(--dt-font-display)',
+          fontSize: 'var(--dt-text-2xl)',
+          fontWeight: 400,
+          color: 'var(--dt-text-primary)',
+          marginBottom: 'var(--dt-space-2)',
+          margin: 0
+        }}>Intent Submitted</h3>
+        <p style={{
+          color: 'var(--dt-text-secondary)',
+          fontSize: 'var(--dt-text-sm)',
+          margin: 0,
+          marginTop: 'var(--dt-space-2)'
+        }}>
+          The agent is searching for your circle. You'll be matched within 24 hours.
+        </p>
         {txHash && (
-          <a href={`https://alfajores.celoscan.io/tx/${txHash}`} target="_blank" rel="noopener noreferrer" className="inline-block mt-3 text-xs text-green-600 underline">View on CeloScan</a>
+          <a href={`https://alfajores.celoscan.io/tx/${txHash}`} target="_blank" rel="noopener noreferrer"
+            style={{
+              display: 'inline-block',
+              marginTop: 'var(--dt-space-3)',
+              fontSize: 'var(--dt-text-xs)',
+              color: 'var(--dt-accent)',
+              textDecoration: 'underline'
+            }}>
+            View on CeloScan
+          </a>
         )}
       </div>
     );
   }
 
   return (
-    <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-      <h2 className="text-xl font-bold text-gray-900 mb-1">Join a Savings Circle</h2>
-      <p className="text-gray-500 text-sm mb-6">Submit your intent — the agent matches you with compatible members automatically.</p>
-      <form onSubmit={handleSubmit} className="space-y-5">
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Contribution Amount (cUSD)</label>
-          <div className="relative">
-            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm">$</span>
-            <input type="number" min="1" step="1" value={amount} onChange={(e) => setAmount(e.target.value)}
-              className="w-full pl-8 pr-4 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500" placeholder="10" required />
+    <div style={{
+      background: 'var(--dt-surface-raised)',
+      borderRadius: 'var(--dt-radius-xl)',
+      border: '1px solid var(--dt-border-default)',
+      padding: 'var(--dt-space-6)',
+      boxShadow: 'var(--dt-shadow-md)',
+      position: 'relative',
+      overflow: 'hidden'
+    }}>
+      {/* Paper noise layer on card */}
+      <div style={{
+        position: 'absolute', inset: 0, borderRadius: 'inherit',
+        backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.5' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E")`,
+        opacity: 0.06,
+        pointerEvents: 'none',
+        mixBlendMode: 'screen'
+      }} />
+
+      <div style={{ position: 'relative', zIndex: 1 }}>
+        <h2 style={{
+          fontFamily: 'var(--dt-font-display)',
+          fontSize: 'var(--dt-text-2xl)',
+          fontWeight: 400,
+          color: 'var(--dt-text-primary)',
+          marginBottom: 'var(--dt-space-1)',
+          margin: 0
+        }}>Join a Savings Circle</h2>
+        <p style={{
+          color: 'var(--dt-text-muted)',
+          fontSize: 'var(--dt-text-sm)',
+          marginBottom: 'var(--dt-space-6)',
+          margin: 0,
+          marginTop: 'var(--dt-space-1)'
+        }}>
+          State your intent — the agent finds your people.
+        </p>
+
+        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 'var(--dt-space-5)' }}>
+          {/* Amount input */}
+          <div>
+            <label style={{
+              display: 'block', fontSize: 'var(--dt-text-xs)', fontWeight: 500,
+              color: 'var(--dt-text-muted)', letterSpacing: 'var(--dt-tracking-widest)',
+              textTransform: 'uppercase', marginBottom: 'var(--dt-space-2)',
+              margin: 0
+            }}>Contribution per round</label>
+            <div style={{ position: 'relative' }}>
+              <span style={{
+                position: 'absolute', left: 'var(--dt-space-4)', top: '50%', transform: 'translateY(-50%)',
+                fontFamily: 'var(--dt-font-mono)', color: 'var(--dt-text-muted)', fontSize: 'var(--dt-text-lg)'
+              }}>$</span>
+              <input type="number" min="1" step="1" value={amount} onChange={(e) => setAmount(e.target.value)}
+                style={{
+                  width: '100%', paddingLeft: 'var(--dt-space-8)', paddingRight: 'var(--dt-space-4)',
+                  paddingTop: 'var(--dt-space-4)', paddingBottom: 'var(--dt-space-4)',
+                  background: 'var(--dt-surface-overlay)', border: '1px solid var(--dt-border-default)',
+                  borderRadius: 'var(--dt-radius-lg)', color: 'var(--dt-text-primary)',
+                  fontFamily: 'var(--dt-font-mono)', fontSize: 'var(--dt-text-xl)', fontWeight: 500,
+                  outline: 'none', boxSizing: 'border-box',
+                  transition: 'border-color 0.2s ease'
+                }}
+                onFocus={(e) => e.target.style.borderColor = 'var(--dt-accent)'}
+                onBlur={(e) => e.target.style.borderColor = 'var(--dt-border-default)'}
+                required />
+            </div>
+            <p style={{
+              fontSize: 'var(--dt-text-xs)', color: 'var(--dt-text-muted)', marginTop: 'var(--dt-space-1)',
+              margin: 0
+            }}>
+              Matched with members within 10%
+            </p>
           </div>
-          <p className="text-xs text-gray-400 mt-1">The agent matches you with members within 10% of this amount</p>
-        </div>
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Cycle Duration</label>
-          <div className="grid grid-cols-3 gap-2">
-            {CYCLE_OPTIONS.map((opt) => (
-              <button key={opt.value} type="button" onClick={() => setCycleDuration(opt.value)}
-                className={`py-2.5 rounded-lg text-sm font-medium border transition-colors ${cycleDuration === opt.value ? "bg-emerald-600 text-white border-emerald-600" : "bg-white text-gray-700 border-gray-200 hover:border-emerald-400"}`}>
-                {opt.label}
-              </button>
-            ))}
+
+          {/* Cycle duration buttons */}
+          <div>
+            <label style={{
+              display: 'block', fontSize: 'var(--dt-text-xs)', fontWeight: 500,
+              color: 'var(--dt-text-muted)', letterSpacing: 'var(--dt-tracking-widest)',
+              textTransform: 'uppercase', marginBottom: 'var(--dt-space-2)',
+              margin: 0
+            }}>Cycle</label>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 'var(--dt-space-2)' }}>
+              {CYCLE_OPTIONS.map((opt) => (
+                <button key={opt.value} type="button" onClick={() => setCycleDuration(opt.value)}
+                  style={{
+                    padding: 'var(--dt-space-3) var(--dt-space-2)',
+                    borderRadius: 'var(--dt-radius-md)',
+                    border: `1px solid ${cycleDuration === opt.value ? 'var(--dt-accent)' : 'var(--dt-border-default)'}`,
+                    background: cycleDuration === opt.value ? 'var(--dt-accent-muted)' : 'var(--dt-surface-overlay)',
+                    color: cycleDuration === opt.value ? 'var(--dt-accent)' : 'var(--dt-text-secondary)',
+                    fontWeight: 500, fontSize: 'var(--dt-text-sm)', cursor: 'pointer',
+                    transition: 'all 0.2s ease'
+                  }}>
+                  {opt.label}
+                </button>
+              ))}
+            </div>
           </div>
-        </div>
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Preferred Circle Size: <span className="text-emerald-600">{preferredSize} members</span>
-          </label>
-          <input type="range" min={5} max={20} value={preferredSize} onChange={(e) => setPreferredSize(Number(e.target.value))} className="w-full accent-emerald-600" />
-          <div className="flex justify-between text-xs text-gray-400 mt-1">
-            <span>5 (smaller)</span><span>20 (larger)</span>
+
+          {/* Circle size slider */}
+          <div>
+            <label style={{
+              display: 'block', fontSize: 'var(--dt-text-xs)', fontWeight: 500,
+              color: 'var(--dt-text-muted)', letterSpacing: 'var(--dt-tracking-widest)',
+              textTransform: 'uppercase', marginBottom: 'var(--dt-space-2)',
+              margin: 0
+            }}>
+              Preferred circle size: <span style={{ color: 'var(--dt-accent)', fontFamily: 'var(--dt-font-mono)' }}>{preferredSize} members</span>
+            </label>
+            <input type="range" min={5} max={20} value={preferredSize}
+              onChange={(e) => setPreferredSize(Number(e.target.value))}
+              style={{ width: '100%' }} />
+            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 'var(--dt-text-xs)', color: 'var(--dt-text-muted)', marginTop: 'var(--dt-space-1)' }}>
+              <span>5 (smaller)</span><span>20 (larger)</span>
+            </div>
           </div>
-        </div>
-        <div className="bg-gray-50 rounded-lg p-4 text-sm text-gray-600">
-          <p className="font-medium text-gray-700 mb-1">Your Circle Intent:</p>
-          <ul className="space-y-1">
-            <li>Contribute <strong>${amount} cUSD</strong> per round</li>
-            <li><strong>{CYCLE_OPTIONS.find(o => o.value === cycleDuration)?.label}</strong> cycles</li>
-            <li><strong>{preferredSize} members</strong></li>
-            <li>Total payout: <strong>${(Number(amount) * preferredSize).toFixed(0)} cUSD</strong></li>
-          </ul>
-        </div>
-        {error && <div className="bg-red-50 border border-red-200 rounded-lg p-3 text-red-700 text-sm">{error.message.slice(0, 120)}</div>}
-        <button type="submit" disabled={isPending || isConfirming || !isConnected}
-          className="w-full py-3 bg-emerald-600 text-white rounded-lg font-semibold text-sm hover:bg-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
-          {isPending ? "Confirm in wallet..." : isConfirming ? "Submitting intent..." : !isConnected ? "Connect wallet first" : "Submit Intent"}
-        </button>
-      </form>
+
+          {/* Intent summary — document/contract style */}
+          <div style={{
+            background: 'var(--dt-surface-base)',
+            border: '1px solid var(--dt-border-strong)',
+            borderRadius: 'var(--dt-radius-lg)',
+            padding: 'var(--dt-space-4) var(--dt-space-5)',
+            marginBottom: 'var(--dt-space-2)',
+            position: 'relative'
+          }}>
+            {/* "INTENT" stamp label */}
+            <div style={{
+              position: 'absolute', top: -10, left: 'var(--dt-space-4)',
+              background: 'var(--dt-accent)', color: '#0A0804',
+              fontSize: 'var(--dt-text-xs)', fontWeight: 700,
+              padding: '2px var(--dt-space-3)', borderRadius: 'var(--dt-radius-full)',
+              letterSpacing: 'var(--dt-tracking-widest)', textTransform: 'uppercase'
+            }}>Intent</div>
+            <div style={{ marginTop: 'var(--dt-space-2)' }}>
+              <p style={{
+                fontFamily: 'var(--dt-font-mono)', fontSize: 'var(--dt-text-sm)',
+                color: 'var(--dt-text-secondary)', margin: 0
+              }}>
+                Contribute <span style={{ color: 'var(--dt-accent)', fontWeight: 600 }}>${amount} cUSD</span> per round
+                · <span style={{ color: 'var(--dt-text-primary)' }}>{CYCLE_OPTIONS.find(o => o.value === cycleDuration)?.label}</span>
+                · <span style={{ color: 'var(--dt-text-primary)' }}>{preferredSize} members</span>
+              </p>
+              <p style={{
+                fontFamily: 'var(--dt-font-display)', fontSize: 'var(--dt-text-xl)',
+                color: 'var(--dt-text-primary)', marginTop: 'var(--dt-space-2)', fontWeight: 400,
+                margin: 0
+              }}>
+                Total payout: <span style={{ color: 'var(--dt-trust-credit)' }}>${(Number(amount) * preferredSize).toFixed(0)} cUSD</span>
+              </p>
+            </div>
+          </div>
+
+          {error && (
+            <div style={{
+              background: 'rgba(239,68,68,0.08)',
+              border: '1px solid rgba(239,68,68,0.2)',
+              borderRadius: 'var(--dt-radius-md)',
+              padding: 'var(--dt-space-3) var(--dt-space-4)',
+              color: 'var(--dt-state-error)',
+              fontSize: 'var(--dt-text-sm)'
+            }}>
+              {error.message.slice(0, 120)}
+            </div>
+          )}
+
+          {/* CTA button — gold, prominent */}
+          <button type="submit" disabled={isPending || isConfirming || !isConnected}
+            style={{
+              width: '100%', padding: 'var(--dt-space-4) var(--dt-space-6)',
+              background: isPending || isConfirming ? 'var(--dt-accent-muted)' : 'var(--dt-accent)',
+              color: isPending || isConfirming ? 'var(--dt-accent)' : '#0A0804',
+              border: '1px solid var(--dt-accent)',
+              borderRadius: 'var(--dt-radius-lg)',
+              fontWeight: 600, fontSize: 'var(--dt-text-base)',
+              cursor: isPending || isConfirming || !isConnected ? 'not-allowed' : 'pointer',
+              opacity: !isConnected ? 0.5 : 1,
+              transition: 'all 0.2s ease',
+              letterSpacing: 'var(--dt-tracking-wide)'
+            }}>
+            {isPending ? "Confirm in wallet..." : isConfirming ? "Submitting intent..." : !isConnected ? "Connect wallet first" : "✦ Submit Intent"}
+          </button>
+        </form>
+      </div>
     </div>
   );
 }
