@@ -133,7 +133,8 @@ export default function App() {
           boxSizing: 'border-box',
           width: '100%',
           gap: 'var(--dt-space-2)',
-          minHeight: 48
+          minHeight: 48,
+          overflow: 'hidden'
         }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--dt-space-2)', minWidth: 0 }}>
             {/* Logo icon */}
@@ -243,15 +244,16 @@ export default function App() {
           <div className="agent-layout" style={{
             display: 'flex',
             flexDirection: 'column',
-            gap: 'var(--dt-space-4)',
-            minHeight: 'calc(100vh - 220px)'
+            gap: 'var(--dt-space-3)',
+            height: 'calc(100vh - 200px)',
+            overflow: 'hidden',
           }}>
-            {/* Chat — full width on mobile, 60% on tablet+ */}
-            <div style={{ minHeight: 300 }}>
+            {/* Chat — takes priority, fills available space */}
+            <div style={{ flex: 1, minHeight: 0, overflow: 'auto' }}>
               <AgentChat />
             </div>
-            {/* Activity feed — below chat on mobile, 40% on tablet+ */}
-            <div style={{ minHeight: 300 }}>
+            {/* Activity feed — compact on mobile, max 200px */}
+            <div style={{ maxHeight: 200, overflow: 'auto', flexShrink: 0 }}>
               <ActivityFeed />
             </div>
           </div>
