@@ -19,7 +19,7 @@ interface ChatMessage {
   suggestedAction?: "submitIntent" | "viewCircles" | "viewStatus";
 }
 
-const AGENT_API_URL = "http://localhost:3002";
+const AGENT_API_URL = "";
 
 export function AgentChat() {
   const { address, isConnected } = useAccount();

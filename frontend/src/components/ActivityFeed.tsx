@@ -43,7 +43,7 @@ export function ActivityFeed() {
   useEffect(() => {
     const pollActivities = async () => {
       try {
-        const response = await fetch("http://localhost:3002/api/activity");
+        const response = await fetch("/api/activity");
         if (!response.ok) {
           setIsConnected(false);
           return;
