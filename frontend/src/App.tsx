@@ -114,7 +114,9 @@ export default function App() {
         zIndex: 20,
         background: 'var(--dt-surface-raised)',
         borderBottom: '1px solid var(--dt-border-default)',
-        boxShadow: 'var(--dt-shadow-sm)'
+        boxShadow: 'var(--dt-shadow-sm)',
+        width: '100%',
+        boxSizing: 'border-box'
       }}>
         <div style={{
           maxWidth: 480,
@@ -122,7 +124,9 @@ export default function App() {
           padding: 'var(--dt-space-3) var(--dt-space-4)',
           display: 'flex',
           alignItems: 'center',
-          justifyContent: 'space-between'
+          justifyContent: 'space-between',
+          boxSizing: 'border-box',
+          width: '100%'
         }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--dt-space-3)' }}>
             {/* Logo icon */}
@@ -165,20 +169,23 @@ export default function App() {
       <div style={{
         maxWidth: 480,
         margin: '0 auto',
-        padding: 'var(--dt-space-4)',
-        paddingBottom: 0
+        padding: 'var(--dt-space-3) var(--dt-space-4)',
+        paddingBottom: 0,
+        boxSizing: 'border-box',
+        width: '100%'
       }}>
         <div style={{
           background: 'rgba(245,158,11,0.08)',
           border: '1px solid rgba(245,158,11,0.2)',
           borderRadius: 'var(--dt-radius-md)',
-          padding: 'var(--dt-space-2) var(--dt-space-4)',
-          marginBottom: 'var(--dt-space-5)',
+          padding: 'var(--dt-space-2) var(--dt-space-3)',
+          marginBottom: 'var(--dt-space-4)',
           fontSize: 'var(--dt-text-xs)',
           color: '#F59E0B',
-          display: 'flex', alignItems: 'center', gap: 'var(--dt-space-2)'
+          display: 'flex', alignItems: 'center', gap: 'var(--dt-space-2)',
+          flexWrap: 'nowrap'
         }}>
-          <span>◆</span>
+          <span style={{ flexShrink: 0 }}>◆</span>
           <span><strong>Celo Sepolia testnet</strong> — no real funds</span>
         </div>
       </div>
@@ -190,7 +197,10 @@ export default function App() {
         padding: 'var(--dt-space-4)',
         paddingBottom: 100,
         position: 'relative',
-        zIndex: 1
+        zIndex: 1,
+        boxSizing: 'border-box',
+        width: '100%',
+        overflow: 'hidden'
       }}>
         {activeTab === "intent" && (
           <MiniPayDetector connectButton={
@@ -221,7 +231,7 @@ export default function App() {
         {activeTab === "trust" && <TrustPanel />}
       </main>
 
-      {/* Bottom navigation */}
+      {/* Bottom navigation — 44px+ touch targets */}
       <nav style={{
         position: 'fixed',
         bottom: 0,
@@ -240,8 +250,10 @@ export default function App() {
           {TABS.map((tab) => (
             <button key={tab.id} onClick={() => setActiveTab(tab.id)}
               style={{
-                flex: 1, padding: 'var(--dt-space-3) var(--dt-space-1) var(--dt-space-4)',
-                display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'var(--dt-space-1)',
+                flex: 1, 
+                padding: 'var(--dt-space-2) var(--dt-space-1)',
+                minHeight: 56, // 44px+ touch target with padding
+                display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 'var(--dt-space-1)',
                 borderTop: `2px solid ${activeTab === tab.id ? 'var(--dt-accent)' : 'transparent'}`,
                 color: activeTab === tab.id ? 'var(--dt-accent)' : 'var(--dt-text-muted)',
                 background: 'none', border: 'none', cursor: 'pointer',
@@ -263,13 +275,14 @@ export default function App() {
       <footer style={{
         maxWidth: 480,
         margin: '0 auto',
-        padding: 'var(--dt-space-4) var(--dt-space-4)',
-        paddingBottom: 'var(--dt-space-2)',
+        padding: 'var(--dt-space-4)',
         textAlign: 'center',
         fontSize: 'var(--dt-text-xs)',
         color: 'var(--dt-text-muted)',
         position: 'relative',
-        zIndex: 1
+        zIndex: 1,
+        boxSizing: 'border-box',
+        width: '100%'
       }}>
         Built on Celo · Hackathon prototype
       </footer>

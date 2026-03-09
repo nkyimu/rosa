@@ -1,14 +1,12 @@
 import { useState } from "react";
-import { useAccount, useWriteContract, useWaitForTransactionReceipt, useReadContract } from "wagmi";
-import { encodeAbiParameters, parseAbiParameters, parseUnits, formatUnits } from "viem";
+import { useAccount, useWriteContract, useWaitForTransactionReceipt } from "wagmi";
+import { encodeAbiParameters, parseAbiParameters, parseUnits } from "viem";
 import { CONTRACT_ADDRESSES } from "../config/wagmi";
 import { IntentRegistryABI } from "../abis/IntentRegistry";
-import { SaveCircleABI } from "../abis/SaveCircle";
 import { 
   generateSalt, 
   computeCommitment, 
-  storeCommitmentData, 
-  getPrivacyMode 
+  storeCommitmentData
 } from "../utils/privacy";
 import { PrivacyBadge } from "./PrivacyBadge";
 

@@ -18,7 +18,8 @@ function CircleCard() {
   const isPrivacyMode = getPrivacyMode(CONTRACT_ADDRESSES.demoCircle)
 
   // Read circle data from DemoCircle
-  const { data: circleState } = useReadContract({
+  // Read circle state (for future use - monitoring circle lifecycle)
+  useReadContract({
     address: CONTRACT_ADDRESSES.demoCircle,
     abi: SaveCircleABI,
     functionName: 'state',
