@@ -405,7 +405,6 @@ export function AgentChat() {
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={handleKeyDown}
             placeholder="Say anything... e.g., 'Save 50 cUSD/month for 6 months'"
-            disabled={!isConnected}
             style={{
               flex: 1,
               padding: "var(--dt-space-2) var(--dt-space-3)",
@@ -416,20 +415,19 @@ export function AgentChat() {
               color: "var(--dt-text-primary)",
               background: "var(--dt-surface-overlay)",
               minHeight: 44,
-              opacity: isConnected ? 1 : 0.5,
             }}
           />
           <button
             onClick={handleSendMessage}
-            disabled={!input.trim() || isLoading || !isConnected}
+            disabled={!input.trim() || isLoading}
             style={{
               padding: "var(--dt-space-2) var(--dt-space-3)",
               background:
-                input.trim() && isConnected ? "var(--dt-accent)" : "var(--dt-border-default)",
-              color: input.trim() && isConnected ? "#0A0A0A" : "var(--dt-text-muted)",
+                input.trim() ? "var(--dt-accent)" : "var(--dt-border-default)",
+              color: input.trim() ? "#0A0A0A" : "var(--dt-text-muted)",
               border: "none",
               borderRadius: "var(--dt-radius-md)",
-              cursor: input.trim() && isConnected && !isLoading ? "pointer" : "not-allowed",
+              cursor: input.trim() && !isLoading ? "pointer" : "not-allowed",
               fontSize: "var(--dt-text-sm)",
               fontWeight: 600,
               minHeight: 44,
@@ -437,13 +435,13 @@ export function AgentChat() {
               transition: "all 0.2s ease",
             }}
             onMouseEnter={(e) => {
-              if (input.trim() && isConnected) {
+              if (input.trim()) {
                 (e.target as HTMLButtonElement).style.background =
                   "var(--dt-accent-hover)";
               }
             }}
             onMouseLeave={(e) => {
-              if (input.trim() && isConnected) {
+              if (input.trim()) {
                 (e.target as HTMLButtonElement).style.background =
                   "var(--dt-accent)";
               }
@@ -461,7 +459,7 @@ export function AgentChat() {
               color: "var(--dt-text-muted)",
             }}
           >
-            Connect your wallet to chat with the agent
+            Connect wallet to submit intents on-chain
           </div>
         )}
       </div>

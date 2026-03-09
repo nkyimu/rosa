@@ -15,6 +15,7 @@
  */
 
 import { Hono } from "hono";
+import { cors } from "hono/cors";
 import { serve } from "@hono/node-server";
 import { verifyPayment, getPaymentRequired, getCurrentFee } from "./x402.js";
 import { IntentMatcher } from "./matcher.js";
@@ -50,6 +51,9 @@ interface MatchIntentResponse {
 // ──────────────────────────────────────────────────────────────────────────
 
 const app = new Hono();
+
+// Enable CORS for frontend
+app.use("*", cors({ origin: "*" }));
 const matcher = new IntentMatcher();
 
 /**
