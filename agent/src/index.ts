@@ -2,6 +2,7 @@ import { publicClient } from "./contracts.js";
 import { agentAccount, CONTRACT_ADDRESSES, DRY_RUN } from "./config.js";
 import { IntentMatcher } from "./matcher.js";
 import { CircleKeeper } from "./keeper.js";
+import { startX402Server } from "./x402-server.js";
 
 // ─── Banner ───────────────────────────────────────────────────────────────────
 
@@ -9,6 +10,7 @@ console.log(`
 ╔═══════════════════════════════════════════╗
 ║         IntentCircles Agent v0.1          ║
 ║   Intent-matched, agent-managed ROSCAs   ║
+║   with x402 Payment Required protocol     ║
 ╚═══════════════════════════════════════════╝
 `);
 
@@ -56,6 +58,10 @@ async function main() {
   const keeper  = new CircleKeeper();
 
   let running = true;
+
+  // Start x402 payment server
+  console.log("[agent] Starting x402 payment server...");
+  await startX402Server();
 
   // Graceful shutdown
   process.on("SIGINT",  () => { console.log("\n[agent] SIGINT — shutting down..."); running = false; });

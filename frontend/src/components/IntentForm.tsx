@@ -9,6 +9,7 @@ import {
   storeCommitmentData
 } from "../utils/privacy";
 import { PrivacyBadge } from "./PrivacyBadge";
+import { X402Payment } from "./X402Payment";
 
 const CYCLE_OPTIONS = [
   { label: "Weekly",   value: (7  * 24 * 60 * 60).toString() },
@@ -289,42 +290,84 @@ export function IntentForm() {
   if (isSuccess) {
     return (
       <div style={{
-        background: 'var(--dt-surface-raised)',
-        border: '1px solid var(--dt-trust-community)',
-        borderRadius: 'var(--dt-radius-xl)',
-        padding: 'var(--dt-space-8)',
-        textAlign: 'center',
-        boxShadow: '0 0 40px rgba(34,197,94,0.1)'
+        display: 'flex',
+        flexDirection: 'column',
+        gap: 'var(--dt-space-6)'
       }}>
-        <div style={{ fontSize: 48, marginBottom: 'var(--dt-space-4)' }}>✨</div>
-        <h3 style={{
-          fontFamily: 'var(--dt-font-display)',
-          fontSize: 'var(--dt-text-2xl)',
-          fontWeight: 400,
-          color: 'var(--dt-text-primary)',
-          marginBottom: 'var(--dt-space-2)',
-          margin: 0
-        }}>Intent Submitted</h3>
-        <p style={{
-          color: 'var(--dt-text-secondary)',
-          fontSize: 'var(--dt-text-sm)',
-          margin: 0,
-          marginTop: 'var(--dt-space-2)'
+        <div style={{
+          background: 'var(--dt-surface-raised)',
+          border: '1px solid var(--dt-trust-community)',
+          borderRadius: 'var(--dt-radius-xl)',
+          padding: 'var(--dt-space-8)',
+          textAlign: 'center',
+          boxShadow: '0 0 40px rgba(34,197,94,0.1)'
         }}>
-          The agent is searching for your circle. You'll be matched within 24 hours.
-        </p>
-        {txHash && (
-          <a href={`https://sepolia.celoscan.io/tx/${txHash}`} target="_blank" rel="noopener noreferrer"
-            style={{
-              display: 'inline-block',
-              marginTop: 'var(--dt-space-3)',
-              fontSize: 'var(--dt-text-xs)',
-              color: 'var(--dt-accent)',
-              textDecoration: 'underline'
-            }}>
-            View on CeloScan
-          </a>
-        )}
+          <div style={{ fontSize: 48, marginBottom: 'var(--dt-space-4)' }}>✨</div>
+          <h3 style={{
+            fontFamily: 'var(--dt-font-display)',
+            fontSize: 'var(--dt-text-2xl)',
+            fontWeight: 400,
+            color: 'var(--dt-text-primary)',
+            marginBottom: 'var(--dt-space-2)',
+            margin: 0
+          }}>Intent Submitted</h3>
+          <p style={{
+            color: 'var(--dt-text-secondary)',
+            fontSize: 'var(--dt-text-sm)',
+            margin: 0,
+            marginTop: 'var(--dt-space-2)',
+            marginBottom: 'var(--dt-space-4)'
+          }}>
+            The agent is searching for your circle. You'll be matched within 24 hours.
+          </p>
+          {txHash && (
+            <a href={`https://sepolia.celoscan.io/tx/${txHash}`} target="_blank" rel="noopener noreferrer"
+              style={{
+                display: 'inline-block',
+                fontSize: 'var(--dt-text-xs)',
+                color: 'var(--dt-accent)',
+                textDecoration: 'underline'
+              }}>
+              View on CeloScan
+            </a>
+          )}
+        </div>
+
+        {/* x402 Priority Payment Option */}
+        <div style={{
+          background: 'var(--dt-surface-raised)',
+          border: '1px solid var(--dt-border-default)',
+          borderRadius: 'var(--dt-radius-xl)',
+          padding: 'var(--dt-space-6)',
+        }}>
+          <h4 style={{
+            fontFamily: 'var(--dt-font-display)',
+            fontSize: 'var(--dt-text-lg)',
+            fontWeight: 400,
+            color: 'var(--dt-text-primary)',
+            marginBottom: 'var(--dt-space-1)',
+            margin: 0
+          }}>Speed Up Your Match</h4>
+          <p style={{
+            color: 'var(--dt-text-secondary)',
+            fontSize: 'var(--dt-text-sm)',
+            margin: 0,
+            marginBottom: 'var(--dt-space-4)'
+          }}>
+            Pay a small agent fee for priority matching — get results in hours instead of days.
+          </p>
+          <X402Payment 
+            intentId={0} // Intent ID would be extracted from transaction receipt in production
+            agentUrl={process.env.REACT_APP_AGENT_URL || "http://localhost:3002"}
+            endpoint="/api/match-intent"
+            onPaymentComplete={(receipt) => {
+              console.log("Priority payment confirmed", receipt);
+            }}
+            onPaymentError={(error) => {
+              console.error("Priority payment failed", error);
+            }}
+          />
+        </div>
       </div>
     );
   }
