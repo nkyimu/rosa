@@ -1,7 +1,25 @@
 # IntentCircles — Variant.com Design Prompts
 
 > 10 screens covering the full user flow. Paste each prompt into Variant's input field.
-> Design system: Light mode, #FAFAF8 background, #D4AF37 gold accent, Instrument Serif headlines, Manrope body, JetBrains Mono data.
+> **Foundation: LUMO STUDIOS editorial style** — warm cream/peach backgrounds, bold serif headlines (all-caps), editorial grid layout, clean form fields, magazine-like hierarchy.
+> Design tokens: #FAFAF8 warm off-white, #D4AF37 gold accent, Instrument Serif headlines, Manrope body, JetBrains Mono data.
+
+## Existing Variant Projects → Screen Mapping
+| Existing Project | Maps To |
+|---|---|
+| Savings Circle Onboarding | Screen 1 (Landing) |
+| Savings Circle Dashboard | Screen 3 (Dashboard) |
+| Agent Powered Rosca | Screens 2/4/5 (Chat, Detail, Confirmation) |
+| Fintech Agent Reputation | Screen 9 (ERC-8004 Profile) |
+| Strong Design Variations | Screen 10 (Payout) |
+| Agent Fleet Dashboard | Screen 7 (Activity Feed) |
+| Mission Control Dashboard | Screen 7 alternate |
+
+**Priority prompts** — screens NOT yet covered by existing projects:
+- Screen 6 (Trust Network) — new
+- Screen 8 (Privacy/Nightfall) — new
+- Screen 2 (Agent Chat) — refine with LUMO style
+- Screen 10 (Payout Celebration) — refine
 
 ---
 
@@ -9,13 +27,13 @@
 
 **Variant Prompt:**
 
-Mobile-first landing screen for IntentCircles savings app. Header: "Save smarter with AI" in warm off-white background (#FAFAF8). Subtitle: "Your personal AI agent coordinates community savings circles."
+Mobile-first landing screen for IntentCircles savings app, LUMO STUDIOS editorial style. Warm cream background (#FAFAF8). Bold all-caps serif headline: "THE ART OF SAVING TOGETHER" in Instrument Serif, large and editorial like a magazine cover. Below: smaller sans-serif subtitle in Manrope: "Your AI agent coordinates community savings circles on Celo."
 
-Three benefit cards stacked vertically: 1) AI handles the planning (icon: agent sparkle), 2) Save with friends (icon: people), 3) Transparent & fair (icon: shield). Each card has 2-line copy.
+Editorial grid layout with three sections stacked: 1) "AI-POWERED" — agent handles matching and payouts, 2) "COMMUNITY-DRIVEN" — save with people you trust, 3) "TRANSPARENT" — every transaction on-chain. Each has a section number (01, 02, 03) and 2-line copy.
 
-Below cards: Large CTA button "Start Saving" with gold accent background (#D4AF37), dark text. Secondary button "Learn more" with transparent background and gold border.
+Category markers in small caps at the top: "INTENTCIRCLES · SAVINGS · COORDINATION". Large CTA button "START SAVING" with gold accent background (#D4AF37), dark text. Secondary: "LEARN MORE" with gold border.
 
-Footer: Simple text "Powered by Celo" with small footer spacing. Use Instrument Serif for headline ("Save smarter with AI"), Manrope for body text. Generous padding between sections. Mobile viewport 390px wide. Clean, trustworthy fintech feel — think Wise landing page, not crypto.
+Footer: "Powered by Celo" small text. Mobile viewport 390px wide. Editorial fintech feel — like a design studio portfolio that happens to be a savings app. Generous whitespace, bold typography hierarchy.
 
 **Key Elements:**
 - Clear value prop hierarchy (AI first, then community, then trust)
@@ -30,17 +48,15 @@ Footer: Simple text "Powered by Celo" with small footer spacing. Use Instrument 
 
 **Variant Prompt:**
 
-Conversational chat interface for AI agent interaction. Mobile-first, 390px. Dark-ish message bubbles (user) and light cards (agent response).
+Conversational chat interface for AI savings agent. Mobile-first, 390px. LUMO STUDIOS editorial style — warm cream background, bold serif section headers.
 
-User message: "I want to save 50 cUSD monthly for 6 months." Left-aligned, gold accent border on left edge.
+Top: "AGENT" category marker in small caps, then editorial headline "Your Savings Advisor" in Instrument Serif.
 
-Agent response card below (right-aligned): "Intent Parsed ✓" with parsed data shown in JetBrains Mono small font. Shows: "50 cUSD/month, 6 months, Total: 300 cUSD. Confidence: 98%."
+Chat area: User message bubble (warm dark card): "I want to save 50 cUSD monthly for 6 months." Agent response below in light editorial card with gold left border: Section header "INTENT PARSED ✓" in small caps. Data block in JetBrains Mono: "50 cUSD/month · 6 months · Total: 300 cUSD · Confidence: 98%". Reasoning in Manrope: "You'll rotate payout every 2 months. Current circle matches."
 
-Agent includes reasoning line: "You'll rotate payout every 2 months. Current circle matches."
+Below agent card: "SUBMIT INTENT" button (gold #D4AF37 background, dark text, editorial caps). Secondary: "REFINE" in gold outline.
 
-Below agent card: Green "Submit Intent" button (gold accent, visible when intent valid). Optional "Refine" button secondary style.
-
-Conversational tone in agent text — friendly, clear, not robotic. Use warm off-white (#FAFAF8) as card background. Input field at bottom with placeholder "Tell me your savings goal..."
+Bottom: Input field with placeholder "Tell me your savings goal..." Clean, magazine-style chat — not a generic chatbot UI. Generous whitespace between messages.
 
 **Key Elements:**
 - Bubble layout clarity (user vs agent differentiation)
