@@ -13,15 +13,15 @@ export const CELO_ALFAJORES_RPC = CELO_SEPOLIA_RPC;
 
 export const CONTRACT_ADDRESSES = {
   intentRegistry:  (process.env.INTENT_REGISTRY_ADDRESS  ?? "0x6Bddd66698206c9956e5ac65F9083A132B574844") as `0x${string}`,
-  circleFactory:   (process.env.CIRCLE_FACTORY_ADDRESS   ?? "0x0c2098e90A078b2183b765eFB38Bd912FcDBb8Ba") as `0x${string}`,
-  circleTrust:     (process.env.CIRCLE_TRUST_ADDRESS     ?? "0x0c2098e90A078b2183b765eFB38Bd912FcDBb8Ba") as `0x${string}`,
-  demoCircle:      (process.env.DEMO_CIRCLE_ADDRESS      ?? "0xfaDA25f4CD0f311d7F512B748E3242976e7AD3CF") as `0x${string}`,
+  circleFactory:   (process.env.CIRCLE_FACTORY_ADDRESS   ?? "0x87cd271485e7838607d19bc5b33dc0dc6297f1e3") as `0x${string}`,
+  circleTrust:     (process.env.CIRCLE_TRUST_ADDRESS     ?? "0x58c26ba12128e68b203442ac081656b525892b83") as `0x${string}`,
+  demoCircle:      (process.env.DEMO_CIRCLE_ADDRESS      ?? "0x7d938c7326ec34fb26f3af4a61259d2a0d19d8e4") as `0x${string}`,
   // Celo Sepolia cUSD
   cUSD:            (process.env.CUSD_ADDRESS             ?? "0xB3567F61d19506A023ae7216a27848B13e5c331B") as `0x${string}`,
   // Agent registry (ERC-8004)
-  agentRegistry8004: (process.env.AGENT_REGISTRY_8004_ADDRESS ?? "0xDaCE1481D99fb8184196e5Db28A16d7FcF006CA7") as `0x${string}`,
+  agentRegistry8004: (process.env.AGENT_REGISTRY_8004_ADDRESS ?? "0x2978474676279F2E697d5Dd3A54816ff200Ab136") as `0x${string}`,
   // x402 Payment collection contract
-  agentPayment:    (process.env.AGENT_PAYMENT_ADDRESS    ?? "0x5F1fD5655C42f77253E17Ec1FB9F65AC86400Ed4") as `0x${string}`,
+  agentPayment:    (process.env.AGENT_PAYMENT_ADDRESS    ?? "0xc9DA0e584B4A652B508A0d59D2bbF4418e1775aD") as `0x${string}`,
   // Moola / Aave lending pool (Sepolia - TBD)
   moolaLendingPool:(process.env.MOOLA_LENDING_POOL       ?? "0x0000000000000000000000000000000000000000") as `0x${string}`,
 };
