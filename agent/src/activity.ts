@@ -15,7 +15,18 @@ export type ActivityAction =
   | "CONTRIBUTION"
   | "PRIVACY_CHECK"
   | "EXECUTE"
-  | "ERROR";
+  | "ERROR"
+  // Trust & credit activities
+  | "CREDIT_ISSUED"
+  | "CREDIT_ACTIVATED"
+  | "CREDIT_DRAWN"
+  | "CREDIT_REPAID"
+  | "CREDIT_DEFAULTED"
+  | "TRUST_TIER_CHANGED"
+  // Barter activities
+  | "BARTER_SUBMITTED"
+  | "BARTER_MATCHED"
+  | "BARTER_SETTLED";
 
 export interface Activity {
   id: string;

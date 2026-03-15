@@ -22,6 +22,26 @@ import { IntentMatcher } from "./matcher.js";
 import { CONTRACT_ADDRESSES } from "./config.js";
 import { handleChat } from "./chat.js";
 import { getActivities } from "./activity.js";
+import { 
+  getAgentTrustScore, 
+  getAgentTier, 
+  assessCreditworthiness,
+  getTrustCacheStats 
+} from "./trust.js";
+import {
+  issueCreditLine,
+  getCreditLines,
+  getCredit,
+  getAllCredits,
+  checkCreditHealth,
+} from "./credit.js";
+import {
+  submitBarterIntent,
+  matchBarterIntents,
+  getOpenBarterIntents,
+  getAgentBarterIntents,
+  getAllBarterIntents,
+} from "./barter.js";
 
 // ──────────────────────────────────────────────────────────────────────────
 // Type Definitions
@@ -387,6 +407,348 @@ app.get("/api/match-intent", async (c: any) => {
 });
 
 // ──────────────────────────────────────────────────────────────────────────
+// Trust & Reputation Endpoints
+// ──────────────────────────────────────────────────────────────────────────
+
+/**
+ * GET /api/trust/:address
+ * Get agent trust score and tier
+ *
+ * @example
+ * curl http://localhost:3002/api/trust/0x742d35Cc6634C0532925a3b844Bc9e7595f8bEb6
+ * {
+ *   "success": true,
+ *   "address": "0x...",
+ *   "score": 85,
+ *   "tier": "CREDITOR",
+ *   "circlesCompleted": 6,
+ *   "defaults": 0,
+ *   "avgPeerRating": 4.8,
+ *   "capabilities": {
+ *     "canIssueCredit": true,
+ *     "canBarterSettle": false,
+ *     "maxCircleSize": 16
+ *   }
+ * }
+ */
+app.get("/api/trust/:address", async (c: any) => {
+  try {
+    const address = c.req.param("address");
+    const trustScore = await getAgentTrustScore(address);
+
+    return c.json({
+      success: true,
+      address,
+      ...trustScore,
+      capabilities: {
+        canIssueCredit: trustScore.score >= 80,
+        canBarterSettle: trustScore.score >= 95,
+        maxCircleSize:
+          trustScore.score >= 95
+            ? 32
+            : trustScore.score >= 80
+              ? 16
+              : trustScore.score >= 50
+                ? 8
+                : 3,
+      },
+    });
+  } catch (error) {
+    console.error("[x402-server] Error in /api/trust:", error);
+    return c.json(
+      {
+        success: false,
+        error: error instanceof Error ? error.message : "Failed to fetch trust score",
+      },
+      { status: 500 }
+    );
+  }
+});
+
+// ──────────────────────────────────────────────────────────────────────────
+// Credit Management Endpoints
+// ──────────────────────────────────────────────────────────────────────────
+
+/**
+ * GET /api/credit-lines/:address
+ * Get active credit lines for an address
+ *
+ * @example
+ * curl http://localhost:3002/api/credit-lines/0x742d35Cc6634C0532925a3b844Bc9e7595f8bEb6
+ * {
+ *   "success": true,
+ *   "address": "0x...",
+ *   "issued": [...],
+ *   "received": [...],
+ *   "totalIssued": "500000000000000000000",
+ *   "totalReceived": "100000000000000000000"
+ * }
+ */
+app.get("/api/credit-lines/:address", async (c: any) => {
+  try {
+    const address = c.req.param("address");
+    const { issued, received } = getCreditLines(address);
+
+    const totalIssued = issued.reduce((sum, cl) => sum + cl.amount, BigInt(0));
+    const totalReceived = received.reduce((sum, cl) => sum + cl.amount, BigInt(0));
+
+    return c.json({
+      success: true,
+      address,
+      issued,
+      received,
+      totalIssued: totalIssued.toString(),
+      totalReceived: totalReceived.toString(),
+      count: {
+        issued: issued.length,
+        received: received.length,
+      },
+    });
+  } catch (error) {
+    console.error("[x402-server] Error in /api/credit-lines:", error);
+    return c.json(
+      {
+        success: false,
+        error: error instanceof Error ? error.message : "Failed to fetch credit lines",
+      },
+      { status: 500 }
+    );
+  }
+});
+
+/**
+ * POST /api/credit/issue
+ * Issue a credit line
+ *
+ * Request body:
+ * {
+ *   "issuerAddress": "0x...",
+ *   "borrowerAddress": "0x...",
+ *   "amount": "50000000000000000000",
+ *   "termWeeks": 8,
+ *   "circleIdRequired": 1
+ * }
+ *
+ * @example
+ * curl -X POST http://localhost:3002/api/credit/issue \
+ *   -H "Content-Type: application/json" \
+ *   -d '{"issuerAddress":"0x...","borrowerAddress":"0x...","amount":"50000000000000000000","termWeeks":8,"circleIdRequired":1}'
+ */
+app.post("/api/credit/issue", async (c: any) => {
+  try {
+    const body = await c.req.json();
+    const { issuerAddress, borrowerAddress, amount, termWeeks, circleIdRequired } = body;
+
+    if (!issuerAddress || !borrowerAddress || !amount || !termWeeks) {
+      return c.json(
+        { error: "Missing required fields: issuerAddress, borrowerAddress, amount, termWeeks" },
+        { status: 400 }
+      );
+    }
+
+    const creditId = await issueCreditLine(
+      issuerAddress,
+      borrowerAddress,
+      BigInt(amount),
+      termWeeks,
+      circleIdRequired || 1
+    );
+
+    return c.json({
+      success: true,
+      creditId,
+      message: `Credit line issued. Borrower must join circle ${circleIdRequired} to activate.`,
+    });
+  } catch (error) {
+    console.error("[x402-server] Error in /api/credit/issue:", error);
+    return c.json(
+      {
+        success: false,
+        error: error instanceof Error ? error.message : "Failed to issue credit",
+      },
+      { status: 500 }
+    );
+  }
+});
+
+/**
+ * GET /api/credit-report/:address
+ * Get portable credit report (JSON export)
+ *
+ * @example
+ * curl http://localhost:3002/api/credit-report/0x742d35Cc6634C0532925a3b844Bc9e7595f8bEb6
+ */
+app.get("/api/credit-report/:address", async (c: any) => {
+  try {
+    const address = c.req.param("address");
+    const trustScore = await getAgentTrustScore(address);
+    const { issued, received } = getCreditLines(address);
+    const health = await checkCreditHealth();
+
+    return c.json({
+      success: true,
+      reportDate: new Date().toISOString(),
+      agentAddress: address,
+      reputation: trustScore,
+      credits: {
+        issued,
+        received,
+      },
+      summary: {
+        trustTier: trustScore.tier,
+        reputationScore: trustScore.score,
+        circlesCompleted: trustScore.circlesCompleted,
+        creditsIssued: issued.length,
+        creditsReceived: received.length,
+        defaultsOnRecord: trustScore.defaults,
+      },
+    });
+  } catch (error) {
+    console.error("[x402-server] Error in /api/credit-report:", error);
+    return c.json(
+      {
+        success: false,
+        error: error instanceof Error ? error.message : "Failed to generate credit report",
+      },
+      { status: 500 }
+    );
+  }
+});
+
+// ──────────────────────────────────────────────────────────────────────────
+// Barter & Intent Matching Endpoints
+// ──────────────────────────────────────────────────────────────────────────
+
+/**
+ * POST /api/barter/submit
+ * Submit a barter intent
+ *
+ * Request body:
+ * {
+ *   "agentAddress": "0x...",
+ *   "offering": "web design (40 hours)",
+ *   "seeking": "childcare (10 hrs/week)"
+ * }
+ *
+ * @example
+ * curl -X POST http://localhost:3002/api/barter/submit \
+ *   -H "Content-Type: application/json" \
+ *   -d '{"agentAddress":"0x...","offering":"web design","seeking":"childcare"}'
+ */
+app.post("/api/barter/submit", async (c: any) => {
+  try {
+    const body = await c.req.json();
+    const { agentAddress, offering, seeking } = body;
+
+    if (!agentAddress || !offering || !seeking) {
+      return c.json(
+        { error: "Missing required fields: agentAddress, offering, seeking" },
+        { status: 400 }
+      );
+    }
+
+    const intentId = await submitBarterIntent(agentAddress, offering, seeking);
+
+    return c.json({
+      success: true,
+      intentId,
+      message: `Barter intent submitted. Agent must be ELDER tier (95+ reputation) to settle.`,
+    });
+  } catch (error) {
+    console.error("[x402-server] Error in /api/barter/submit:", error);
+    return c.json(
+      {
+        success: false,
+        error: error instanceof Error ? error.message : "Failed to submit barter intent",
+      },
+      { status: 500 }
+    );
+  }
+});
+
+/**
+ * GET /api/barter/matches
+ * Get available barter matches
+ *
+ * @example
+ * curl http://localhost:3002/api/barter/matches
+ */
+app.get("/api/barter/matches", async (c: any) => {
+  try {
+    const matches = await matchBarterIntents();
+    const openIntents = getOpenBarterIntents();
+
+    return c.json({
+      success: true,
+      totalOpenIntents: openIntents.length,
+      matchesFound: matches.length,
+      matches: matches.slice(0, 10), // Top 10 matches
+      topMatch: matches.length > 0 ? matches[0] : null,
+    });
+  } catch (error) {
+    console.error("[x402-server] Error in /api/barter/matches:", error);
+    return c.json(
+      {
+        success: false,
+        error: error instanceof Error ? error.message : "Failed to match barter intents",
+      },
+      { status: 500 }
+    );
+  }
+});
+
+// ──────────────────────────────────────────────────────────────────────────
+// Monitoring & Status Endpoints
+// ──────────────────────────────────────────────────────────────────────────
+
+/**
+ * GET /api/status/system
+ * Get system health and statistics
+ *
+ * @example
+ * curl http://localhost:3002/api/status/system
+ */
+app.get("/api/status/system", async (c: any) => {
+  try {
+    const cacheStats = getTrustCacheStats();
+    const allCredits = getAllCredits();
+    const allBarterIntents = getAllBarterIntents();
+
+    return c.json({
+      success: true,
+      timestamp: new Date().toISOString(),
+      stats: {
+        trustCache: cacheStats,
+        credits: {
+          total: allCredits.length,
+          byStatus: {
+            open: allCredits.filter((c) => c.status === "OPEN").length,
+            active: allCredits.filter((c) => c.status === "ACTIVE").length,
+            repaid: allCredits.filter((c) => c.status === "REPAID").length,
+            defaulted: allCredits.filter((c) => c.status === "DEFAULT").length,
+          },
+        },
+        barter: {
+          totalIntents: allBarterIntents.length,
+          open: allBarterIntents.filter((i) => i.status === "OPEN").length,
+          matched: allBarterIntents.filter((i) => i.status === "MATCHED").length,
+          settled: allBarterIntents.filter((i) => i.status === "SETTLED").length,
+        },
+      },
+    });
+  } catch (error) {
+    console.error("[x402-server] Error in /api/status/system:", error);
+    return c.json(
+      {
+        success: false,
+        error: error instanceof Error ? error.message : "Failed to get system status",
+      },
+      { status: 500 }
+    );
+  }
+});
+
+// ──────────────────────────────────────────────────────────────────────────
 // 404 Handler
 // ──────────────────────────────────────────────────────────────────────────
 
@@ -396,12 +758,19 @@ app.notFound((c) => {
       error: "Not Found",
       message: `${c.req.method} ${c.req.path} does not exist`,
       availableEndpoints: [
-        "/",
-        "/api/payment-details",
-        "/api/current-fee",
-        "/api/chat (POST)",
-        "/api/activity (GET)",
-        "/api/match-intent",
+        "GET /",
+        "GET /api/payment-details",
+        "GET /api/current-fee",
+        "POST /api/chat",
+        "GET /api/activity",
+        "GET /api/match-intent",
+        "GET /api/trust/:address",
+        "GET /api/credit-lines/:address",
+        "POST /api/credit/issue",
+        "GET /api/credit-report/:address",
+        "POST /api/barter/submit",
+        "GET /api/barter/matches",
+        "GET /api/status/system",
       ],
     },
     { status: 404 }
@@ -439,12 +808,23 @@ export async function startX402Server(): Promise<void> {
     (info: any) => {
       console.log(`[x402-server] 🌐 Listening on http://localhost:${info.port}`);
       console.log(`[x402-server] Endpoints:`);
-      console.log(`[x402-server]   GET /`);
-      console.log(`[x402-server]   GET /api/payment-details`);
-      console.log(`[x402-server]   GET /api/current-fee`);
+      console.log(`[x402-server]   GET / — health check`);
+      console.log(`[x402-server]   GET /api/payment-details — x402 payment info`);
+      console.log(`[x402-server]   GET /api/current-fee — current agent fee`);
       console.log(`[x402-server]   POST /api/chat — conversational intent parser`);
       console.log(`[x402-server]   GET /api/activity — live agent activity feed`);
-      console.log(`[x402-server]   GET /api/match-intent?intentId=<id>`);
+      console.log(`[x402-server]   GET /api/match-intent?intentId=<id> — match intent (x402 protected)`);
+      console.log(`[x402-server] Trust & Reputation:`);
+      console.log(`[x402-server]   GET /api/trust/:address — agent trust score & tier`);
+      console.log(`[x402-server] Credit Management:`);
+      console.log(`[x402-server]   GET /api/credit-lines/:address — active credits`);
+      console.log(`[x402-server]   POST /api/credit/issue — issue a credit line`);
+      console.log(`[x402-server]   GET /api/credit-report/:address — portable credit report`);
+      console.log(`[x402-server] Barter & Matching:`);
+      console.log(`[x402-server]   POST /api/barter/submit — submit barter intent`);
+      console.log(`[x402-server]   GET /api/barter/matches — find compatible barter matches`);
+      console.log(`[x402-server] Monitoring:`);
+      console.log(`[x402-server]   GET /api/status/system — system health & statistics`);
     }
   );
 }

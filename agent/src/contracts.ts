@@ -9,6 +9,8 @@ export const publicClient = createPublicClient({
   transport: http(CELO_SEPOLIA_RPC),
 });
 
+export { agentAccount } from "./config.js";
+
 export const walletClient = agentAccount
   ? createWalletClient({
       account: agentAccount,

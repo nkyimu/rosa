@@ -15,10 +15,22 @@
 import { parseUnits } from "viem";
 
 export interface ParsedIntent {
-  type: "JOIN_CIRCLE" | "CONTRIBUTE" | "EXIT_CIRCLE" | "STATUS" | "UNKNOWN";
+  type: 
+    | "JOIN_CIRCLE" 
+    | "CONTRIBUTE" 
+    | "EXIT_CIRCLE" 
+    | "STATUS" 
+    | "TRUST_SCORE"
+    | "ISSUE_CREDIT"
+    | "SHOW_CREDITS"
+    | "BARTER_OFFER"
+    | "UNKNOWN";
   amount?: string; // Wei (e.g., "50000000000000000000" for 50 cUSD)
-  duration?: number; // months
+  duration?: number; // months or weeks
   currency?: string;
+  recipientAddress?: string; // for credit issuance
+  offering?: string; // for barter
+  seeking?: string; // for barter
   confidence: number;
 }
 
@@ -83,6 +95,47 @@ export function parseMessage(message: string): ParsedIntent {
   if (/(?:check|view|show)\s+(?:my\s+)?circle|status|progress/i.test(lower)) {
     return {
       type: "STATUS",
+      confidence: 0.85,
+    };
+  }
+
+  // Pattern 5: "What's my trust score" / "Check my reputation"
+  if (/(?:what'?s|check|show|view)\s+(?:my\s+)?trust|reputation|tier|score/i.test(lower)) {
+    return {
+      type: "TRUST_SCORE",
+      confidence: 0.9,
+    };
+  }
+
+  // Pattern 6: "Issue X cUSD credit to 0x..." or "Issue credit"
+  const creditPattern = /issue\s+(\d+(?:\.\d+)?)\s*cUSD\s+credit\s+to\s+(0x[a-fA-F0-9]{40})/i;
+  const creditMatch = lower.match(creditPattern);
+  if (creditMatch && creditMatch[1] && creditMatch[2]) {
+    return {
+      type: "ISSUE_CREDIT",
+      amount: parseUnits(creditMatch[1], 18).toString(),
+      recipientAddress: creditMatch[2] as `0x${string}`,
+      duration: 8, // default 8 weeks
+      confidence: 0.9,
+    };
+  }
+
+  // Pattern 7: "Can I issue credit?" / "Show my credits"
+  if (/(?:can i|can i|show|list)\s+(?:issue\s+)?credit|my\s+credit/i.test(lower)) {
+    return {
+      type: lower.includes("show") || lower.includes("list") ? "SHOW_CREDITS" : "ISSUE_CREDIT",
+      confidence: 0.85,
+    };
+  }
+
+  // Pattern 8: "I want to offer X for Y" / "I can provide X, seeking Y"
+  const barterPattern = /(?:offer|provide|can)\s+(.+?)\s+(?:for|seeking|need)\s+(.+?)(?:\.|$)/i;
+  const barterMatch = lower.match(barterPattern);
+  if (barterMatch && (lower.includes("offer") || lower.includes("provide") || lower.includes("seeking"))) {
+    return {
+      type: "BARTER_OFFER",
+      offering: barterMatch[1].trim(),
+      seeking: barterMatch[2].trim(),
       confidence: 0.85,
     };
   }
@@ -153,12 +206,67 @@ export function generateResponse(parsed: ParsedIntent, originalMessage: string):
       break;
     }
 
+    case "TRUST_SCORE": {
+      reasoning.push(`Parsed trust score request`);
+      reasoning.push(`User wants to see their reputation tier and score`);
+
+      reply = `I'll fetch your trust score and tier. This shows your reputation from completed circles and peer ratings.`;
+
+      suggestedAction = "viewStatus";
+      break;
+    }
+
+    case "ISSUE_CREDIT": {
+      if (parsed.recipientAddress) {
+        const amountCUSD = parsed.amount ? (Number(parsed.amount) / 1e18).toFixed(2) : "?";
+        reasoning.push(`Parsed credit issuance: ${amountCUSD} cUSD to ${parsed.recipientAddress}`);
+        reasoning.push(`Must verify issuer is CREDITOR tier (80+ reputation)`);
+        reasoning.push(`Must verify recipient is MEMBER tier (50+ reputation)`);
+
+        reply = `I'll issue **${amountCUSD} cUSD** credit to ${parsed.recipientAddress}.\n\nPlease note: You must be CREDITOR tier (80+ reputation) to issue credit.`;
+      } else {
+        reasoning.push(`Parsed credit inquiry`);
+        reasoning.push(`User asking if they can issue credit`);
+
+        reply = `To issue micro-credit, you need to be at **CREDITOR tier** (80+ reputation).\n\nHave you completed 6+ circles? Check your trust score to see if you qualify!`;
+      }
+
+      suggestedAction = "viewStatus";
+      break;
+    }
+
+    case "SHOW_CREDITS": {
+      reasoning.push(`Parsed credit list request`);
+      reasoning.push(`User wants to see their issued and received credits`);
+
+      reply = `Let me show you all your active credit lines — both credits you've issued and credits you've received.`;
+
+      suggestedAction = "viewStatus";
+      break;
+    }
+
+    case "BARTER_OFFER": {
+      if (parsed.offering && parsed.seeking) {
+        reasoning.push(`Parsed barter intent: offering "${parsed.offering}", seeking "${parsed.seeking}"`);
+        reasoning.push(`Must verify agent is ELDER tier (95+ reputation) for barter matching`);
+        reasoning.push(`Will submit intent for automated matching with compatible agents`);
+
+        reply = `Great! I'll submit your barter intent:\n\n**Offering:** ${parsed.offering}\n**Seeking:** ${parsed.seeking}\n\nNote: You need ELDER tier (95+ reputation) to settle barter intents. Your reputation score will help find compatible matches!`;
+      } else {
+        reasoning.push(`Parsed barter inquiry`);
+
+        reply = `To participate in barter exchanges (no currency needed!), you need to reach **ELDER tier** (95+ reputation).\n\nOnce you're there, you can offer services and seek services from other high-trust agents!`;
+      }
+
+      break;
+    }
+
     case "UNKNOWN":
     default: {
       reasoning.push(`Message did not match known patterns`);
       reasoning.push(`Falling back to helpful guidance`);
 
-      reply = `I'm here to help with your savings circle! You can:\n\n💰 **Save:** "I want to save 50 cUSD/month for 6 months"\n📤 **Contribute:** "Contribute 50 cUSD"\n👁️ **Check status:** "Check my circle"\n👋 **Leave:** "Exit my circle"`;
+      reply = `I'm here to help with your savings circle and trust network! You can:\n\n💰 **Save:** "I want to save 50 cUSD/month for 6 months"\n📤 **Contribute:** "Contribute 50 cUSD"\n✅ **Trust:** "What's my trust score?"\n💳 **Credit:** "Can I issue credit?" or "Show my credits"\n🔄 **Barter:** "I can offer [service] for [service]"\n👁️ **Status:** "Check my circle"`;
 
       break;
     }

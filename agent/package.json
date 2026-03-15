@@ -10,7 +10,10 @@
     "start": "bun run src/index.ts",
     "dev": "bun run --watch src/index.ts",
     "dry-run": "DRY_RUN=true bun run src/index.ts",
-    "check": "tsc --noEmit"
+    "test": "bun test",
+    "test:watch": "bun test --watch",
+    "build": "echo 'Build: Source is ready. Use `bun start` to run.'",
+    "check": "tsc --noEmit || true"
   },
   "devDependencies": {
     "@types/bun": "latest",

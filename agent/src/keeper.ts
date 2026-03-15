@@ -15,6 +15,9 @@ import {
   KEEPER_CONFIG,
   DRY_RUN,
 } from "./config.js";
+import { checkCreditHealth, handleDefault } from "./credit.js";
+import { matchBarterIntents } from "./barter.js";
+import { addActivity } from "./activity.js";
 
 // ─── CircleKeeper ─────────────────────────────────────────────────────────────
 
@@ -93,6 +96,60 @@ export class CircleKeeper {
           // Member contributed or penalty not applicable — expected, skip silently
         }
       }
+    }
+  }
+
+  /**
+   * Check for overdue/defaulted credit lines
+   * Called periodically by keeper loop
+   */
+  private async checkCreditHealth(): Promise<void> {
+    try {
+      const defaultedCredits = await checkCreditHealth();
+
+      if (defaultedCredits.length > 0) {
+        addActivity(
+          "CIRCLE_HEALTH",
+          `Credit health check: ${defaultedCredits.length} credit(s) defaulted`,
+          `Default triggered on credits: ${defaultedCredits.join(", ")}`,
+          0.8
+        );
+
+        console.log(`[keeper] Credit health: ${defaultedCredits.length} defaulted`);
+
+        for (const creditId of defaultedCredits) {
+          try {
+            await handleDefault(creditId);
+          } catch (err) {
+            console.error(`[keeper] Error handling default for credit ${creditId}:`, err);
+          }
+        }
+      }
+    } catch (err) {
+      console.error("[keeper] Error checking credit health:", err);
+    }
+  }
+
+  /**
+   * Find and match barter intents
+   * Called periodically by keeper loop
+   */
+  private async checkBarterMatches(): Promise<void> {
+    try {
+      const matches = await matchBarterIntents();
+
+      if (matches.length > 0) {
+        addActivity(
+          "CIRCLE_MATCH",
+          `Barter matching: ${matches.length} match(es) found`,
+          `Top match: ${matches[0].matchId} (${matches[0].compatibility}% compatible)`,
+          matches[0].compatibility / 100
+        );
+
+        console.log(`[keeper] Barter matches: ${matches.length} found`);
+      }
+    } catch (err) {
+      console.error("[keeper] Error checking barter matches:", err);
     }
   }
 
@@ -227,39 +284,50 @@ export class CircleKeeper {
     }
   }
 
-  /** Main keeper tick — process all active circles */
+  /** Main keeper tick — process all active circles and credit/barter management */
   async tick(): Promise<void> {
     try {
       const circles = await this.getActiveCircles();
       if (circles.length === 0) {
         console.log("[keeper] No circles to maintain");
-        return;
-      }
+      } else {
+        console.log(`[keeper] Maintaining ${circles.length} circle(s)...`);
 
-      console.log(`[keeper] Maintaining ${circles.length} circle(s)...`);
+        for (const circleAddress of circles) {
+          try {
+            const state = await this.getCircleState(circleAddress);
 
-      for (const circleAddress of circles) {
-        try {
-          const state = await this.getCircleState(circleAddress);
+            if (state !== CircleState.ACTIVE) {
+              console.log(`[keeper] Circle ${circleAddress} is not active (state: ${CircleState[state]}), skipping`);
+              continue;
+            }
 
-          if (state !== CircleState.ACTIVE) {
-            console.log(`[keeper] Circle ${circleAddress} is not active (state: ${CircleState[state]}), skipping`);
-            continue;
+            // Run all keeper tasks in parallel for efficiency
+            if (walletClient && agentAccount) {
+              await Promise.allSettled([
+                this.checkAndPenalizeMissed(circleAddress),
+                this.checkAndAdvanceRound(circleAddress),
+                this.sweepIdleCapital(circleAddress),
+                this.harvestYieldIfProfitable(circleAddress),
+              ]);
+            } else {
+              console.warn(`[keeper] Wallet client not available — skipping transaction tasks for ${circleAddress}`);
+            }
+
+            console.log(`[keeper] ✓ Processed circle ${circleAddress}`);
+          } catch (err) {
+            console.error(`[keeper] Error processing circle ${circleAddress}:`, err);
           }
-
-          // Run all keeper tasks in parallel for efficiency
-          await Promise.allSettled([
-            this.checkAndPenalizeMissed(circleAddress),
-            this.checkAndAdvanceRound(circleAddress),
-            this.sweepIdleCapital(circleAddress),
-            this.harvestYieldIfProfitable(circleAddress),
-          ]);
-
-          console.log(`[keeper] ✓ Processed circle ${circleAddress}`);
-        } catch (err) {
-          console.error(`[keeper] Error processing circle ${circleAddress}:`, err);
         }
       }
+
+      // Run credit and barter checks (separate from circle loop)
+      await Promise.allSettled([
+        this.checkCreditHealth(),
+        this.checkBarterMatches(),
+      ]);
+
+      console.log("[keeper] ✓ Keeper tick complete");
     } catch (err) {
       console.error("[keeper] tick error:", err);
     }
