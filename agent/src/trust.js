@@ -25,6 +25,25 @@ export var TrustTier;
 const CACHE_TTL_MS = 5 * 60 * 1000; // 5 minutes
 const trustScoreCache = new Map();
 /**
+ * Test override map — allows tests to set deterministic trust scores
+ * Key: lowercase address, Value: score (0-100)
+ */
+const testOverrides = new Map();
+/**
+ * Set a test override for an agent's trust score (for testing only)
+ */
+export function setTestTrustScore(agentId, score) {
+    testOverrides.set(agentId.toLowerCase(), score);
+    trustScoreCache.delete(agentId.toLowerCase());
+}
+/**
+ * Clear all test overrides and cache
+ */
+export function clearTrustOverrides() {
+    testOverrides.clear();
+    trustScoreCache.clear();
+}
+/**
  * Compute trust tier from score (0-100)
  * @param score Reputation score
  * @returns Trust tier
@@ -51,15 +70,17 @@ export async function getAgentTrustScore(agentId) {
     if (cached && cached.expiresAt > Date.now()) {
         return cached;
     }
-    // For now, return mock data (contracts being built in parallel)
+    // Check test overrides first, then mock
     // In production, this will read from ERC-8004 Reputation Registry
+    const overrideScore = testOverrides.get(agentId.toLowerCase());
+    const score = overrideScore !== undefined ? overrideScore : Math.floor(Math.random() * 100);
     const mockScore = {
         agentId,
-        score: Math.floor(Math.random() * 100),
-        tier: computeTrustTier(Math.floor(Math.random() * 100)),
-        circlesCompleted: Math.floor(Math.random() * 10),
+        score,
+        tier: computeTrustTier(score),
+        circlesCompleted: overrideScore !== undefined ? Math.floor(score / 10) : Math.floor(Math.random() * 10),
         defaults: 0,
-        avgPeerRating: 3.5 + Math.random() * 1.5,
+        avgPeerRating: overrideScore !== undefined ? Math.min(5, score / 20) : 3.5 + Math.random() * 1.5,
         lastUpdated: Date.now(),
     };
     // Cache the result

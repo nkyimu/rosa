@@ -4,9 +4,15 @@
  */
 import { describe, it, expect, beforeEach } from "bun:test";
 import { issueCreditLine, activateCredit, repayCredit, getCreditLines, getCredit, CreditStatus, clearCredits, getAllCredits, } from "../credit.js";
+import { setTestTrustScore, clearTrustOverrides } from "../trust.js";
 describe("Credit Management Module", () => {
     beforeEach(() => {
         clearCredits();
+        clearTrustOverrides();
+        // Set deterministic trust scores for test addresses
+        setTestTrustScore("0x1111111111111111111111111111111111111111", 85); // CREDITOR
+        setTestTrustScore("0x2222222222222222222222222222222222222222", 60); // MEMBER (borrower)
+        setTestTrustScore("0x3333333333333333333333333333333333333333", 40); // NOVICE
     });
     describe("issueCreditLine", () => {
         it("should issue a credit line with valid parameters", async () => {

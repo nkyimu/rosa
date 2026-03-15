@@ -14,10 +14,16 @@ import {
   getAllBarterIntents,
   clearBarterIntents,
 } from "../barter.js";
+import { setTestTrustScore, clearTrustOverrides } from "../trust.js";
 
 describe("Barter Matching Module", () => {
   beforeEach(() => {
     clearBarterIntents();
+    clearTrustOverrides();
+    // Set ELDER tier for barter test addresses
+    setTestTrustScore("0x1111111111111111111111111111111111111111", 96); // ELDER
+    setTestTrustScore("0x2222222222222222222222222222222222222222", 97); // ELDER
+    setTestTrustScore("0x3333333333333333333333333333333333333333", 95); // ELDER
   });
 
   describe("submitBarterIntent", () => {

@@ -44,6 +44,14 @@ export interface CreditworthinessAssessment {
     riskScore: number;
 }
 /**
+ * Set a test override for an agent's trust score (for testing only)
+ */
+export declare function setTestTrustScore(agentId: string, score: number): void;
+/**
+ * Clear all test overrides and cache
+ */
+export declare function clearTrustOverrides(): void;
+/**
  * Compute trust tier from score (0-100)
  * @param score Reputation score
  * @returns Trust tier

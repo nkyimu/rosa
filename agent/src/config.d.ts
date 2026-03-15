@@ -13,7 +13,7 @@ export declare const CONTRACT_ADDRESSES: {
     moolaLendingPool: `0x${string}`;
 };
 export declare const agentAccount: {
-    address: import("abitype").Address;
+    address: import("viem").Address;
     nonceManager?: import("viem").NonceManager | undefined;
     sign: ((parameters: {
         hash: import("viem").Hash;
@@ -25,7 +25,7 @@ export declare const agentAccount: {
     signTransaction: <serializer extends import("viem").SerializeTransactionFn<import("viem").TransactionSerializable> = import("viem").SerializeTransactionFn<import("viem").TransactionSerializable>, transaction extends Parameters<serializer>[0] = Parameters<serializer>[0]>(transaction: transaction, options?: {
         serializer?: serializer | undefined;
     } | undefined) => Promise<Hex>;
-    signTypedData: <const typedData extends import("abitype").TypedData | Record<string, unknown>, primaryType extends keyof typedData | "EIP712Domain" = keyof typedData>(parameters: import("viem").TypedDataDefinition<typedData, primaryType>) => Promise<Hex>;
+    signTypedData: <const typedData extends import("viem").TypedData | Record<string, unknown>, primaryType extends keyof typedData | "EIP712Domain" = keyof typedData>(parameters: import("viem").TypedDataDefinition<typedData, primaryType>) => Promise<Hex>;
     publicKey: Hex;
     source: "privateKey";
     type: "local";
