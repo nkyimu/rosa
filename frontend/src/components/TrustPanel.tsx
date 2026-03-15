@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useAccount, useReadContract, useWriteContract, useWaitForTransactionReceipt } from "wagmi";
+import { useTrustScore } from "../hooks/useAgent";
 import { CONTRACT_ADDRESSES } from "../config/wagmi";
 
 const circleTrustAbi = [
@@ -11,6 +12,20 @@ const circleTrustAbi = [
 
 type TrustEdge = { trustee: `0x${string}`; expiresAt: bigint };
 
+const TIER_COLORS: Record<string, string> = {
+  "NEWCOMER": "#EF4444",
+  "MEMBER": "#F59E0B",
+  "CREDITOR": "#3B82F6",
+  "ELDER": "#16A34A",
+};
+
+const TIER_EMOJI: Record<string, string> = {
+  "NEWCOMER": "🌱",
+  "MEMBER": "⭐",
+  "CREDITOR": "💳",
+  "ELDER": "👑",
+};
+
 export function TrustPanel() {
   const { address, isConnected } = useAccount();
   const [vouchAddress, setVouchAddress] = useState("");
@@ -20,6 +35,7 @@ export function TrustPanel() {
   const { writeContract, data: txHash, isPending } = useWriteContract();
   const { isLoading: isConfirming, isSuccess } = useWaitForTransactionReceipt({ hash: txHash });
 
+  // Fetch from on-chain contract
   const { data: trustScore } = useReadContract({
     address: CONTRACT_ADDRESSES.circleTrust,
     abi: circleTrustAbi,
@@ -35,6 +51,9 @@ export function TrustPanel() {
     args: address ? [address] : undefined,
     query: { enabled: !!address },
   });
+
+  // Fetch tier data from API
+  const { data: tierData } = useTrustScore(address);
 
   function handleVouch(e: React.FormEvent) {
     e.preventDefault();
@@ -64,6 +83,9 @@ export function TrustPanel() {
 
   const score = Number((trustScore as bigint | undefined) ?? 0n);
   const edges = (givenEdges ?? []) as TrustEdge[];
+  const tier = tierData?.tier || "NEWCOMER";
+  const capabilities = tierData?.capabilities || [];
+  const progressToNext = tierData?.progressToNextTier || 0;
 
   // Mock three-dimension breakdown
   const reliability = Math.min(score * 0.9 + 5, 100);
@@ -72,7 +94,7 @@ export function TrustPanel() {
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--dt-space-6)' }}>
-      {/* Trust Score Display — Three Dimensions */}
+      {/* Trust Score Display with Tier Badge — Three Dimensions */}
       <div style={{
         background: 'var(--dt-surface-raised)',
         border: '1px solid var(--dt-border-default)',
@@ -86,18 +108,105 @@ export function TrustPanel() {
           margin: 0
         }}>Trust Score</p>
 
-        {/* Large score display */}
-        <div style={{ display: 'flex', alignItems: 'baseline', gap: 'var(--dt-space-2)', marginBottom: 'var(--dt-space-5)' }}>
-          <span style={{
-            fontFamily: 'var(--dt-font-display)',
-            fontSize: 'var(--dt-text-4xl)', fontWeight: 400,
-            color: score >= 80 ? 'var(--dt-trust-community)' : score >= 50 ? 'var(--dt-trust-credit)' : '#EF4444'
-          }}>{score}</span>
-          <span style={{
-            color: 'var(--dt-text-muted)', fontSize: 'var(--dt-text-xl)',
-            fontFamily: 'var(--dt-font-mono)'
-          }}>/ 100</span>
+        {/* Large score display with tier badge */}
+        <div style={{ display: 'flex', alignItems: 'baseline', gap: 'var(--dt-space-3)', marginBottom: 'var(--dt-space-5)' }}>
+          <div style={{ display: 'flex', alignItems: 'baseline', gap: 'var(--dt-space-2)' }}>
+            <span style={{
+              fontFamily: 'var(--dt-font-display)',
+              fontSize: 'var(--dt-text-4xl)', fontWeight: 400,
+              color: score >= 80 ? 'var(--dt-trust-community)' : score >= 50 ? 'var(--dt-trust-credit)' : '#EF4444'
+            }}>{score}</span>
+            <span style={{
+              color: 'var(--dt-text-muted)', fontSize: 'var(--dt-text-xl)',
+              fontFamily: 'var(--dt-font-mono)'
+            }}>/ 100</span>
+          </div>
+
+          {/* Tier Badge */}
+          <div style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: 'var(--dt-space-1)',
+            padding: 'var(--dt-space-2) var(--dt-space-3)',
+            borderRadius: 'var(--dt-radius-full)',
+            background: `${TIER_COLORS[tier]}20`,
+            border: `1px solid ${TIER_COLORS[tier]}40`,
+            marginLeft: 'auto'
+          }}>
+            <span style={{ fontSize: 16 }}>{TIER_EMOJI[tier]}</span>
+            <span style={{
+              fontFamily: 'var(--dt-font-body)',
+              fontSize: 'var(--dt-text-xs)',
+              fontWeight: 600,
+              color: TIER_COLORS[tier],
+              letterSpacing: 'var(--dt-tracking-wide)',
+              textTransform: 'uppercase'
+            }}>
+              {tier}
+            </span>
+          </div>
         </div>
+
+        {/* Tier Capabilities */}
+        <div style={{
+          marginBottom: 'var(--dt-space-4)',
+          padding: 'var(--dt-space-3) var(--dt-space-4)',
+          background: `${TIER_COLORS[tier]}10`,
+          borderRadius: 'var(--dt-radius-md)',
+          border: `1px solid ${TIER_COLORS[tier]}25`
+        }}>
+          <p style={{
+            fontSize: 'var(--dt-text-xs)',
+            fontWeight: 600,
+            color: 'var(--dt-text-muted)',
+            margin: 0,
+            marginBottom: 'var(--dt-space-2)'
+          }}>
+            You can:
+          </p>
+          <ul style={{
+            margin: 0,
+            paddingLeft: 'var(--dt-space-4)',
+            fontSize: 'var(--dt-text-sm)',
+            color: 'var(--dt-text-secondary)',
+            lineHeight: 'var(--dt-leading-relaxed)'
+          }}>
+            {capabilities.length > 0 ? (
+              capabilities.map((cap, idx) => <li key={idx}>{cap}</li>)
+            ) : (
+              <li>Get started by joining circles and building reputation</li>
+            )}
+          </ul>
+        </div>
+
+        {/* Progress to next tier */}
+        {progressToNext > 0 && progressToNext < 100 && (
+          <div style={{ marginBottom: 'var(--dt-space-4)' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 'var(--dt-space-1)' }}>
+              <span style={{
+                fontSize: 'var(--dt-text-xs)', color: 'var(--dt-text-secondary)',
+                fontWeight: 500
+              }}>
+                Progress to next tier
+              </span>
+              <span style={{
+                fontSize: 'var(--dt-text-xs)', fontFamily: 'var(--dt-font-mono)',
+                color: 'var(--dt-accent)'
+              }}>
+                {Math.round(progressToNext)} points
+              </span>
+            </div>
+            <div style={{
+              width: '100%', height: 6, borderRadius: 'var(--dt-radius-full)',
+              background: 'var(--dt-surface-overlay)', overflow: 'hidden'
+            }}>
+              <div style={{
+                width: `${Math.min(progressToNext, 100)}%`, height: '100%', borderRadius: 'inherit',
+                background: 'var(--dt-accent)', transition: 'width 0.6s cubic-bezier(0.4,0,0.2,1)'
+              }} />
+            </div>
+          </div>
+        )}
 
         {/* Three dimension bars */}
         {[
@@ -204,8 +313,8 @@ export function TrustPanel() {
                 boxSizing: 'border-box',
                 transition: 'border-color 0.2s ease'
               }}
-              onFocus={(e) => e.target.style.borderColor = 'var(--dt-accent)'}
-              onBlur={(e) => e.target.style.borderColor = 'var(--dt-border-default)'}
+              onFocus={(e) => e.currentTarget.style.borderColor = 'var(--dt-accent)'}
+              onBlur={(e) => e.currentTarget.style.borderColor = 'var(--dt-border-default)'}
             />
           </div>
 

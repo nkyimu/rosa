@@ -6,16 +6,19 @@ import { MiniPayDetector } from "./components/MiniPayDetector";
 import { IntentForm }       from "./components/IntentForm";
 import { CircleDashboard }  from "./components/CircleDashboard";
 import { TrustPanel }       from "./components/TrustPanel";
+import { CreditPanel }      from "./components/CreditPanel";
+import { BarterMarketplace } from "./components/BarterMarketplace";
 import { AgentChat }        from "./components/AgentChat";
 import { ActivityFeed }     from "./components/ActivityFeed";
 import { checkMiniPay, CONTRACT_ADDRESSES, celoSepolia }     from "./config/wagmi";
 
-type Tab = "intent" | "circles" | "trust" | "agent";
+type Tab = "intent" | "circles" | "credit" | "agent" | "trust";
 
 const TABS: { id: Tab; label: string; icon: string }[] = [
-  { id: "intent",  label: "Save",    icon: "🎯" },
+  { id: "intent",  label: "Save",   icon: "🎯" },
   { id: "circles", label: "Circles", icon: "💰" },
   { id: "agent",   label: "Agent",   icon: "🤖" },
+  { id: "credit",  label: "Credit",  icon: "💳" },
   { id: "trust",   label: "Trust",   icon: "🤝" },
 ];
 
@@ -240,6 +243,7 @@ export default function App() {
           </MiniPayDetector>
         )}
         {activeTab === "circles" && <CircleDashboard />}
+        {activeTab === "credit" && <CreditPanel />}
         {activeTab === "agent" && (
           <div className="agent-layout" style={{
             display: 'flex',
@@ -258,7 +262,12 @@ export default function App() {
             </div>
           </div>
         )}
-        {activeTab === "trust" && <TrustPanel />}
+        {activeTab === "trust" && (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--dt-space-6)' }}>
+            <TrustPanel />
+            <BarterMarketplace />
+          </div>
+        )}
       </main>
 
       {/* Bottom navigation — 44px+ touch targets */}
