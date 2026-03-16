@@ -29,19 +29,20 @@ function ConnectButton() {
       onClick={() => connect({ connector: injected() })}
       disabled={isPending}
       style={{
-        padding: '8px 16px',
+        padding: '6px 14px',
         background: '#C45C3B',
-        border: '1px solid #C45C3B',
-        borderRadius: '20px',
+        border: 'none',
+        borderRadius: '6px',
         color: '#F5F0E8',
-        fontSize: 'var(--dt-text-sm)',
+        fontSize: '11px',
         fontWeight: 600,
-        letterSpacing: '0.05em',
+        letterSpacing: '0.08em',
         textTransform: 'uppercase',
         cursor: isPending ? 'not-allowed' : 'pointer',
         opacity: isPending ? 0.6 : 1,
         transition: 'all 0.2s ease',
-        whiteSpace: 'nowrap'
+        whiteSpace: 'nowrap',
+        flexShrink: 0,
       }}
     >
       {isPending ? "..." : "Login"}
@@ -136,9 +137,9 @@ export default function App() {
           justifyContent: 'space-between',
           boxSizing: 'border-box',
           width: '100%',
-          gap: 'var(--dt-space-2)',
+          gap: '8px',
           minHeight: 48,
-          overflow: 'hidden'
+          overflow: 'visible'
         }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--dt-space-2)', minWidth: 0 }}>
             {/* Logo icon */}
@@ -220,24 +221,41 @@ export default function App() {
       }}>
         {activeTab === "intent" && (
           <MiniPayDetector connectButton={
-            <div style={{ textAlign: 'center', padding: 'var(--dt-space-12) var(--dt-space-4)' }}>
-              <div style={{ fontSize: 48, marginBottom: 'var(--dt-space-4)' }}>🎯</div>
+            <div style={{
+              textAlign: 'center',
+              padding: 'var(--dt-space-8) var(--dt-space-4)',
+              background: '#2A2A24',
+              borderRadius: '16px',
+              boxShadow: '0 8px 32px rgba(0,0,0,0.4), 0 2px 8px rgba(0,0,0,0.2)',
+              marginTop: 'var(--dt-space-4)',
+            }}>
+              <div style={{
+                width: 48, height: 48, borderRadius: '50%',
+                background: 'rgba(196,92,59,0.15)',
+                border: '1px solid rgba(196,92,59,0.3)',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                margin: '0 auto var(--dt-space-4)',
+              }}>
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#C45C3B" strokeWidth="1.5">
+                  <circle cx="12" cy="12" r="9"/>
+                  <path d="M12 6v6l4 2"/>
+                </svg>
+              </div>
               <h3 style={{
                 fontFamily: 'var(--dt-font-display)',
-                fontSize: 'var(--dt-text-lg)',
+                fontSize: '20px',
                 fontWeight: 400,
                 color: '#F5F0E8',
-                marginBottom: 'var(--dt-space-2)'
-              }}>Login to get started</h3>
+                margin: '0 0 8px 0',
+              }}>Connect to begin</h3>
               <p style={{
-                color: '#B8B0A0',
-                fontSize: 'var(--dt-text-sm)',
-                marginBottom: 'var(--dt-space-4)',
-                margin: 0
-              }}>Login with your Celo wallet to submit a savings circle intent</p>
-              <div style={{ marginTop: 'var(--dt-space-4)' }}>
-                <ConnectButton />
-              </div>
+                color: '#7A7468',
+                fontSize: '13px',
+                lineHeight: '1.5',
+                margin: '0 0 20px 0',
+                padding: '0 16px',
+              }}>Link your Celo wallet to join savings circles, build trust, and access credit.</p>
+              <ConnectButton />
             </div>
           }>
             <IntentForm />
@@ -291,45 +309,35 @@ export default function App() {
           display: 'flex',
           width: '100%'
         }}>
-          {TABS.map((tab) => (
+          {TABS.map((tab) => {
+            const isActive = activeTab === tab.id;
+            return (
             <button key={tab.id} onClick={() => setActiveTab(tab.id)}
               style={{
                 flex: 1, 
-                padding: 'var(--dt-space-2) var(--dt-space-1)',
-                minHeight: 56, // 44px+ touch target with padding
-                display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 'var(--dt-space-1)',
-                borderTop: `2px solid ${activeTab === tab.id ? 'var(--dt-accent)' : 'transparent'}`,
-                color: activeTab === tab.id ? 'var(--dt-accent)' : 'var(--dt-text-muted)',
-                background: 'none', border: 'none', cursor: 'pointer',
+                padding: '8px 2px 6px',
+                minHeight: 52,
+                display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 2,
+                borderTop: isActive ? '2px solid #C45C3B' : '2px solid transparent',
+                borderLeft: 'none', borderRight: 'none', borderBottom: 'none',
+                color: isActive ? '#C45C3B' : '#7A7468',
+                background: 'none', cursor: 'pointer',
                 transition: 'all 0.2s ease',
-                fontFamily: 'var(--dt-font-body)',
-                fontSize: 'var(--dt-text-xs)',
+                fontFamily: 'var(--dt-font-mono, monospace)',
+                fontSize: '9px',
                 fontWeight: 500,
-                letterSpacing: 'var(--dt-tracking-wide)',
-                textTransform: 'uppercase'
+                letterSpacing: '0.12em',
+                textTransform: 'uppercase',
               }}>
-              <span style={{ fontSize: 20, lineHeight: 1 }}>{tab.icon}</span>
+              <span style={{ fontSize: 18, lineHeight: 1 }}>{tab.icon}</span>
               <span style={{ whiteSpace: 'nowrap' }}>{tab.label}</span>
             </button>
-          ))}
+            );
+          })}
         </div>
       </nav>
 
-      {/* Footer */}
-      <footer style={{
-        maxWidth: 480,
-        margin: '0 auto',
-        padding: 'var(--dt-space-4)',
-        textAlign: 'center',
-        fontSize: 'var(--dt-text-xs)',
-        color: '#7A7468',
-        position: 'relative',
-        zIndex: 1,
-        boxSizing: 'border-box',
-        width: '100%'
-      }}>
-        Built on Celo · Hackathon prototype
-      </footer>
+      {/* Footer — inside main content area, not after nav */}
     </div>
   );
 }
