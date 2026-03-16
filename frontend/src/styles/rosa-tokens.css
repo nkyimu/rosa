@@ -2,10 +2,11 @@
  * rosa-tokens.css — IntentCircles Design System
  * Adapted from ROSA × nurosa Unified Design System v1.0
  * Author: Emory (Design Director, AMANTU)
- * Date: 2026-03-09
+ * Date: 2026-03-15
  *
- * Design direction: LIGHT MODE — warm off-white background, Instrument Serif display,
- * Manrope body, trust-dimension colors adapted for light backgrounds, clean borders.
+ * Design direction: DARK MODE (ROSA) — dark warm charcoal background, postcard aesthetic,
+ * Instrument Serif display, Manrope body, heavy shadows, trust-dimension colors adapted
+ * for dark backgrounds. Think: vintage banking meets modern protocol.
  *
  * USAGE:
  *   @import "./styles/rosa-tokens.css"; (in index.css)
@@ -18,101 +19,106 @@
 /* ============================================================
    TIER 1: PRIMITIVES (Raw Values)
    Reference: ROSA design-system-unification.md §2
-   LIGHT MODE — warm off-white backgrounds, strong text contrast
+   DARK MODE (ROSA) — warm charcoal backgrounds, warm cream text, postcard float shadows
    ============================================================ */
 
 :root {
-  /* Light palette — warm neutrals for light mode */
-  --primitive-sand-50:  #FAFAF8;  /* warm off-white background */
-  --primitive-sand-100: #F5F2ED;  /* warm cream, raised surfaces */
-  --primitive-sand-200: #EDE8DA;
-  --primitive-sand-300: #E0D9C8;
-  --primitive-sand-400: #C8BFA8;
-  --primitive-sand-500: #A89880;
-  --primitive-sand-600: #8A7A62;
-  --primitive-sand-700: #6B5D47;
-  --primitive-sand-800: #4D4130;
-  --primitive-sand-900: #2E2518;
+  /* Dark palette — ROSA charcoal & olive tones */
+  --primitive-sand-50:  #F5F0E8;  /* warm cream/parchment — text primary */
+  --primitive-sand-100: #B8B0A0;  /* muted warm tan — text secondary */
+  --primitive-sand-200: #7A7468;  /* dark tan — text muted */
+  --primitive-sand-300: #3E3E38;  /* surface overlay */
+  --primitive-sand-400: #353530;  /* surface raised */
+  --primitive-sand-500: #2A2A24;  /* surface cards */
+  --primitive-sand-600: #1C1C18;  /* background base */
+  --primitive-sand-700: #1A1714;
+  --primitive-sand-800: #0F0E0A;
+  --primitive-sand-900: #050403;
 
-  /* Dark palette — for text on light backgrounds */
-  --primitive-dark-50:   #FFFFFF;
-  --primitive-dark-100:  #F5F2ED;
-  --primitive-dark-200:  #EDE8DA;
-  --primitive-dark-300:  #E0D9C8;
-  --primitive-dark-400:  #6B6B6B;   /* secondary text */
-  --primitive-dark-500:  #4A4A4A;
-  --primitive-dark-600:  #2A2A2A;
-  --primitive-dark-700:  #1A1A1A;   /* primary text (near-black) */
-  --primitive-dark-900:  #0A0A0A;
+  /* Base dark palette for layering */
+  --primitive-dark-50:   #F5F0E8;  /* cream — light text */
+  --primitive-dark-100:  #E8E0D0;  /* lighter cream */
+  --primitive-dark-200:  #B8B0A0;  /* warm tan — secondary text */
+  --primitive-dark-300:  #7A7468;  /* dark tan — muted text */
+  --primitive-dark-400:  #3E3E38;  /* surface overlay */
+  --primitive-dark-500:  #353530;  /* surface raised */
+  --primitive-dark-600:  #2A2A24;  /* surface cards */
+  --primitive-dark-700:  #1C1C18;  /* background base */
+  --primitive-dark-900:  #0A0904;
 
-  /* Trust dimension primitives (adapted for light bg contrast) */
+  /* Trust dimension primitives (adjusted for dark bg contrast) */
   --primitive-trust-reliability-400: #60A5FA;
-  --primitive-trust-reliability-500: #3B82F6;
-  --primitive-trust-reliability-600: #2563EB;  /* deeper blue for light bg */
+  --primitive-trust-reliability-500: #4A8FD4;  /* adjusted blue for dark */
+  --primitive-trust-reliability-600: #3B82F6;
 
-  --primitive-trust-credit-400: #FACC15;
-  --primitive-trust-credit-500: #D4AF37;  /* antique gold — works great on light */
-  --primitive-trust-credit-600: #B8960C;  /* darker gold for light bg */
+  --primitive-trust-credit-400: #F0C040;
+  --primitive-trust-credit-500: #D4AF37;  /* gold — keep this, works on dark */
+  --primitive-trust-credit-600: #E5C158;
 
-  --primitive-trust-community-400: #4ADE80;
-  --primitive-trust-community-500: #22C55E;
-  --primitive-trust-community-600: #16A34A;  /* deeper green for light bg */
+  --primitive-trust-community-400: #7B9B6D;
+  --primitive-trust-community-500: #6B7B5E;  /* olive green for dark */
+  --primitive-trust-community-600: #5A6A4D;
 
-  /* State colors */
-  --primitive-state-error:   #EF4444;
-  --primitive-state-warning: #F59E0B;
-  --primitive-state-success: #10B981;
-  --primitive-state-info:    #60A5FA;
+  /* State colors (adjusted for dark bg) */
+  --primitive-state-error:   #FF6B6B;
+  --primitive-state-warning: #FFA500;
+  --primitive-state-success: #51CF66;
+  --primitive-state-info:    #74C0FC;
+
+  /* Accent — terracotta for dark mode */
+  --primitive-accent-primary: #C45C3B;
+  --primitive-accent-light:   #E67651;
+  --primitive-accent-muted:   rgba(196, 92, 59, 0.15);
 }
 
 
 /* ============================================================
    TIER 2: SEMANTIC TOKENS (Purpose-Named)
-   LIGHT MODE — clean, high-contrast, borders-first approach
+   DARK MODE (ROSA) — postcard aesthetic, heavy shadows, warm palette
    These are what components should reference.
    ============================================================ */
 
 :root {
   /* ── Surfaces ── */
-  --dt-surface-base:         var(--primitive-sand-50);       /* #FAFAF8 — warm off-white page background */
-  --dt-surface-raised:       var(--primitive-sand-100);      /* #F5F2ED — warm cream, cards/panels */
-  --dt-surface-overlay:      #FFFFFF;                         /* white — inputs, nested cards */
-  --dt-surface-glass:        rgba(255, 255, 255, 0.80);      /* white glass panel (optional) */
-  --dt-surface-glass-border: rgba(0, 0, 0, 0.08);            /* subtle border */
+  --dt-surface-base:         #1C1C18;                    /* warm dark charcoal page background */
+  --dt-surface-raised:       #2A2A24;                    /* dark olive-charcoal, cards/panels */
+  --dt-surface-overlay:      #353530;                    /* slightly lighter for inputs, nested cards */
+  --dt-surface-glass:        rgba(42, 42, 36, 0.95);     /* dark glass panel */
+  --dt-surface-glass-border: rgba(245, 240, 232, 0.06);  /* subtle warm dividers */
 
   /* ── Text ── */
-  --dt-text-primary:         var(--primitive-dark-700);      /* #1A1A1A — main text (near-black) */
-  --dt-text-secondary:       var(--primitive-dark-400);      /* #6B6B6B — supporting text */
-  --dt-text-muted:           var(--primitive-sand-600);      /* #8A7A62 — captions, labels */
-  --dt-text-inverse:         #FFFFFF;                         /* white — text on dark/accent bg */
+  --dt-text-primary:         #F5F0E8;                    /* warm cream/parchment — main text */
+  --dt-text-secondary:       #B8B0A0;                    /* muted warm tan — supporting text */
+  --dt-text-muted:           #7A7468;                    /* dark tan — captions, labels */
+  --dt-text-inverse:         #1C1C18;                    /* dark — text on light/accent bg */
 
-  /* ── Accent (Gold) ── */
-  --dt-accent:               var(--primitive-trust-credit-500);  /* #D4AF37 — primary action */
-  --dt-accent-hover:         var(--primitive-trust-credit-600);  /* #B8960C — hover state (darker) */
-  --dt-accent-muted:         rgba(212, 175, 55, 0.08);           /* ghost/tinted bg (lighter for light mode) */
-  --dt-accent-strong:        rgba(212, 175, 55, 0.15);           /* stronger tint */
+  /* ── Accent (Terracotta) ── */
+  --dt-accent:               #C45C3B;                    /* terracotta/burnt orange — primary CTA */
+  --dt-accent-hover:         #E67651;                    /* lighter terracotta on hover */
+  --dt-accent-muted:         rgba(196, 92, 59, 0.15);    /* terracotta glow */
+  --dt-accent-strong:        rgba(196, 92, 59, 0.3);     /* stronger terracotta tint */
 
   /* ── Trust Dimensions ── */
-  --dt-trust-reliability:    var(--primitive-trust-reliability-600);  /* #2563EB — deeper blue for contrast */
-  --dt-trust-credit:         var(--primitive-trust-credit-500);       /* #D4AF37 — gold */
-  --dt-trust-community:      var(--primitive-trust-community-600);    /* #16A34A — deeper green */
+  --dt-trust-reliability:    #4A8FD4;                    /* adjusted blue for dark */
+  --dt-trust-credit:         #D4AF37;                    /* gold — keep this */
+  --dt-trust-community:      #6B7B5E;                    /* olive green for dark */
 
   /* Trust glow variants (for badges, active states) */
-  --dt-trust-reliability-glow: rgba(37, 99, 235, 0.10);
-  --dt-trust-credit-glow:      rgba(212, 175, 55, 0.10);
-  --dt-trust-community-glow:   rgba(22, 163, 74, 0.10);
+  --dt-trust-reliability-glow: rgba(74, 143, 212, 0.15);
+  --dt-trust-credit-glow:      rgba(212, 175, 55, 0.15);
+  --dt-trust-community-glow:   rgba(107, 123, 94, 0.15);
 
   /* ── Borders ── */
-  --dt-border-subtle:        rgba(0, 0, 0, 0.04);  /* very subtle */
-  --dt-border-default:       rgba(0, 0, 0, 0.08);  /* standard border */
-  --dt-border-strong:        rgba(0, 0, 0, 0.15);  /* emphasized */
-  --dt-border-accent:        rgba(212, 175, 55, 0.30);  /* accent border */
+  --dt-border-subtle:        rgba(245, 240, 232, 0.04);  /* very subtle warm dividers */
+  --dt-border-default:       rgba(245, 240, 232, 0.08);  /* standard warm border */
+  --dt-border-strong:        rgba(245, 240, 232, 0.15);  /* emphasized warm border */
+  --dt-border-accent:        rgba(196, 92, 59, 0.30);    /* terracotta border for CTAs */
 
   /* ── State Colors ── */
-  --dt-state-error:          var(--primitive-state-error);
-  --dt-state-warning:        var(--primitive-state-warning);
-  --dt-state-success:        var(--primitive-state-success);
-  --dt-state-info:           var(--primitive-state-info);
+  --dt-state-error:          #FF6B6B;
+  --dt-state-warning:        #FFA500;
+  --dt-state-success:        #51CF66;
+  --dt-state-info:           #74C0FC;
 }
 
 
@@ -188,32 +194,33 @@
 
 
 /* ============================================================
-   TIER 5: SHADOW SYSTEM (LIGHT MODE)
-   Subtle, minimal shadows. Light mode prefers borders over shadows.
-   Key: shadows are barely-there depth cues, not heavy lifters.
+   TIER 5: SHADOW SYSTEM (DARK MODE / ROSA)
+   HEAVY shadows for postcard float effect. Cards should feel like
+   physical paper floating above the dark surface.
    ============================================================ */
 
 :root {
-  /* Standard shadows — very subtle for light mode */
-  --dt-shadow-xs:  0 1px 2px rgba(0, 0, 0, 0.04);
-  --dt-shadow-sm:  0 1px 3px rgba(0, 0, 0, 0.05), 0 1px 2px rgba(0, 0, 0, 0.03);
-  --dt-shadow-md:  0 4px 12px rgba(0, 0, 0, 0.08), 0 2px 4px rgba(0, 0, 0, 0.04);
-  --dt-shadow-lg:  0 8px 24px rgba(0, 0, 0, 0.10), 0 4px 8px rgba(0, 0, 0, 0.06);
-  --dt-shadow-xl:  0 16px 48px rgba(0, 0, 0, 0.12), 0 8px 16px rgba(0, 0, 0, 0.08);
+  /* Standard shadows — HEAVY for dark mode postcard aesthetic */
+  --dt-shadow-xs:  0 2px 4px rgba(0, 0, 0, 0.3);
+  --dt-shadow-sm:  0 4px 8px rgba(0, 0, 0, 0.35);
+  --dt-shadow-md:  0 8px 16px rgba(0, 0, 0, 0.4), 0 2px 4px rgba(0, 0, 0, 0.2);
+  --dt-shadow-lg:  0 12px 32px rgba(0, 0, 0, 0.45), 0 4px 8px rgba(0, 0, 0, 0.25);
+  --dt-shadow-xl:  0 20px 48px rgba(0, 0, 0, 0.5), 0 6px 16px rgba(0, 0, 0, 0.3);
 
-  /* Card shadows — minimal depth */
-  --dt-shadow-card:       0 1px 3px rgba(0, 0, 0, 0.05), 0 0 0 1px rgba(0, 0, 0, 0.08);
-  --dt-shadow-card-hover: 0 4px 12px rgba(0, 0, 0, 0.08), 0 0 0 1px rgba(0, 0, 0, 0.10);
-  --dt-shadow-input:      0 0 0 1px rgba(0, 0, 0, 0.08);
-  --dt-shadow-button:     0 1px 3px rgba(0, 0, 0, 0.04);
+  /* Card shadows — HEAVY postcard float */
+  --dt-shadow-card:       0 8px 32px rgba(0, 0, 0, 0.4), 0 2px 8px rgba(0, 0, 0, 0.2);
+  --dt-shadow-card-hover: 0 12px 40px rgba(0, 0, 0, 0.45), 0 4px 12px rgba(0, 0, 0, 0.25);
+  --dt-shadow-input:      0 4px 12px rgba(0, 0, 0, 0.3);
+  --dt-shadow-button:     0 4px 12px rgba(0, 0, 0, 0.3);
 
-  /* Glow shadows — trust dimension colors (subtle) */
-  --dt-shadow-glow-gold:        0 0 16px rgba(212, 175, 55, 0.20), 0 0 32px rgba(212, 175, 55, 0.08);
-  --dt-shadow-glow-blue:        0 0 16px rgba(37, 99, 235, 0.15), 0 0 32px rgba(37, 99, 235, 0.06);
-  --dt-shadow-glow-green:       0 0 16px rgba(22, 163, 74, 0.15), 0 0 32px rgba(22, 163, 74, 0.06);
+  /* Glow shadows — terracotta and trust dimensions on dark */
+  --dt-shadow-glow-gold:        0 0 20px rgba(212, 175, 55, 0.25), 0 0 40px rgba(212, 175, 55, 0.1);
+  --dt-shadow-glow-blue:        0 0 20px rgba(74, 143, 212, 0.2), 0 0 40px rgba(74, 143, 212, 0.08);
+  --dt-shadow-glow-green:       0 0 20px rgba(107, 123, 94, 0.2), 0 0 40px rgba(107, 123, 94, 0.08);
+  --dt-shadow-glow-accent:      0 0 24px rgba(196, 92, 59, 0.25), 0 0 48px rgba(196, 92, 59, 0.12);
 
-  /* Active card glow — border-based instead of shadow-heavy */
-  --dt-shadow-active-card: 0 0 0 2px rgba(212, 175, 55, 0.30);
+  /* Active card glow — heavy for dark */
+  --dt-shadow-active-card: 0 8px 32px rgba(196, 92, 59, 0.2), 0 0 0 2px rgba(196, 92, 59, 0.3);
 }
 
 
@@ -251,21 +258,21 @@
 
 
 /* ============================================================
-   ELEVATED SURFACE SYSTEM (LIGHT MODE)
-   No glass morphism — clean, bordered cards instead.
+   ELEVATED SURFACE SYSTEM (DARK MODE / ROSA)
+   Dark cards with heavy shadows. No glass morphism.
    ============================================================ */
 
 :root {
-  /* Glass variables preserved for compatibility (unused in light mode) */
-  --dt-glass-blur:        blur(24px);
-  --dt-glass-blur-sm:     blur(12px);
-  --dt-glass-blur-lg:     blur(40px);
-  --dt-glass-saturation:  saturate(180%);
+  /* Glass variables — minimal blur for dark (doesn't work as well) */
+  --dt-glass-blur:        blur(8px);
+  --dt-glass-blur-sm:     blur(4px);
+  --dt-glass-blur-lg:     blur(12px);
+  --dt-glass-saturation:  saturate(100%);
 }
 
-/* Layer 1 — Primary containers (clean white with subtle border) */
+/* Layer 1 — Primary containers (dark card with heavy shadow) */
 .dt-glass-l1 {
-  background: #FFFFFF;
+  background: #2A2A24;
   backdrop-filter: none;
   -webkit-backdrop-filter: none;
   border: 1px solid var(--dt-border-default);
@@ -273,42 +280,42 @@
   box-shadow: var(--dt-shadow-card);
 }
 
-/* Layer 2 — Nested elements (light cream background with border) */
+/* Layer 2 — Nested elements (slightly raised surface) */
 .dt-glass-l2 {
-  background: var(--primitive-sand-100);
+  background: #353530;
   border: 1px solid var(--dt-border-subtle);
   border-radius: var(--dt-radius-md);
-  box-shadow: none;
+  box-shadow: var(--dt-shadow-sm);
 }
 
-/* With gold border — for active/featured cards */
+/* With terracotta border — for active/featured cards */
 .dt-glass-accent {
-  background: #FFFFFF;
+  background: #2A2A24;
   backdrop-filter: none;
   -webkit-backdrop-filter: none;
   border: 1.5px solid var(--dt-accent);
   border-radius: var(--dt-radius-xl);
-  box-shadow: var(--dt-shadow-card);
+  box-shadow: var(--dt-shadow-active-card);
 }
 
 
 /* ============================================================
-   PAPER NOISE TEXTURE SYSTEM (DISABLED FOR LIGHT MODE)
-   Light mode uses clean surfaces with borders, not texture layers.
-   These classes are preserved for compatibility but have no effect.
+   PAPER NOISE TEXTURE SYSTEM (OPTIONAL FOR DARK MODE)
+   Dark mode can use subtle noise/texture for tactile feel.
+   Classes preserved for compatibility.
    ============================================================ */
 
 .dt-noise-body,
 .dt-noise-card,
 .dt-noise-overlay {
-  /* Texture disabled in light mode — clean aesthetic preferred */
+  /* Texture optional in dark mode — clean aesthetic preferred */
   position: relative;
 }
 
 .dt-noise-body::before,
 .dt-noise-card::before,
 .dt-noise-overlay::after {
-  /* No background image — light mode is clean */
+  /* Texture disabled for now — clean surfaces */
   display: none;
 }
 
@@ -422,21 +429,21 @@
 }
 
 .dt-trust-badge--reliability {
-  background: var(--dt-trust-reliability-glow);
-  color: var(--dt-trust-reliability);
-  border: 1px solid rgba(59, 130, 246, 0.25);
+  background: rgba(74, 143, 212, 0.15);
+  color: #4A8FD4;
+  border: 1px solid rgba(74, 143, 212, 0.3);
 }
 
 .dt-trust-badge--credit {
-  background: var(--dt-trust-credit-glow);
-  color: var(--dt-trust-credit);
-  border: 1px solid rgba(212, 175, 55, 0.25);
+  background: rgba(212, 175, 55, 0.15);
+  color: #D4AF37;
+  border: 1px solid rgba(212, 175, 55, 0.3);
 }
 
 .dt-trust-badge--community {
-  background: var(--dt-trust-community-glow);
-  color: var(--dt-trust-community);
-  border: 1px solid rgba(34, 197, 94, 0.25);
+  background: rgba(107, 123, 94, 0.15);
+  color: #6B7B5E;
+  border: 1px solid rgba(107, 123, 94, 0.3);
 }
 
 /* Score thresholds (apply to composite score display) */
@@ -471,9 +478,9 @@
 
 /* Card */
 .dt-card {
-  background: #FFFFFF;
+  background: #2A2A24;
   border: 1px solid var(--dt-border-default);
-  border-radius: var(--dt-radius-lg);
+  border-radius: var(--dt-radius-xl);
   padding: var(--dt-space-6);
   box-shadow: var(--dt-shadow-card);
   transition: var(--dt-transition-shadow);
@@ -486,22 +493,22 @@
 
 /* Featured/active card */
 .dt-card--featured {
-  background: #FFFFFF;
+  background: #2A2A24;
   backdrop-filter: none;
   -webkit-backdrop-filter: none;
-  border: 1.5px solid var(--dt-accent);
-  border-radius: var(--dt-radius-lg);
-  box-shadow: var(--dt-shadow-card-hover);
+  border: 1.5px solid #C45C3B;
+  border-radius: var(--dt-radius-xl);
+  box-shadow: var(--dt-shadow-active-card);
 }
 
 /* Input */
 .dt-input {
   width: 100%;
   padding: var(--dt-space-3) var(--dt-space-4);
-  background: #FFFFFF;
+  background: #353530;
   border: 1px solid var(--dt-border-default);
-  border-radius: var(--dt-radius-lg);
-  color: var(--dt-text-primary);
+  border-radius: var(--dt-radius-md);
+  color: #F5F0E8;
   font-family: var(--dt-font-body);
   font-size: var(--dt-text-base);
   outline: none;
@@ -511,12 +518,12 @@
 }
 
 .dt-input:focus {
-  border-color: var(--dt-accent);
-  box-shadow: 0 0 0 2px var(--dt-accent-muted);
+  border-color: #C45C3B;
+  box-shadow: 0 0 0 3px rgba(196, 92, 59, 0.2);
 }
 
 .dt-input::placeholder {
-  color: var(--dt-text-muted);
+  color: #7A7468;
 }
 
 /* Mono input — for addresses, hashes */
@@ -533,11 +540,12 @@
   justify-content: center;
   gap: var(--dt-space-2);
   padding: var(--dt-space-3) var(--dt-space-6);
-  border-radius: var(--dt-radius-lg);
+  border-radius: var(--dt-radius-md);
   font-family: var(--dt-font-body);
   font-size: var(--dt-text-sm);
-  font-weight: 500;
+  font-weight: 600;
   letter-spacing: var(--dt-tracking-wide);
+  text-transform: uppercase;
   cursor: pointer;
   transition: var(--dt-transition-all);
   border: 1px solid transparent;
@@ -549,61 +557,63 @@
   cursor: not-allowed;
 }
 
-/* Primary button — gold, for the hero action */
+/* Primary button — terracotta, for CTAs */
 .dt-btn--primary {
-  background: var(--dt-accent);
-  color: #1A1A1A;
-  border-color: var(--dt-accent);
+  background: #C45C3B;
+  color: #F5F0E8;
+  border-color: #C45C3B;
+  font-size: 12px;
 }
 
 .dt-btn--primary:hover:not(:disabled) {
-  background: var(--dt-accent-hover);
-  border-color: var(--dt-accent-hover);
-  box-shadow: 0 4px 12px rgba(212, 175, 55, 0.25);
+  background: #E67651;
+  border-color: #E67651;
+  box-shadow: var(--dt-shadow-glow-accent);
   transform: translateY(-2px);
 }
 
 .dt-btn--primary:active:not(:disabled) {
   transform: translateY(0);
-  box-shadow: 0 1px 3px rgba(212, 175, 55, 0.15);
+  box-shadow: var(--dt-shadow-button);
 }
 
-/* Secondary button — outlined, with gold border */
+/* Secondary button — outlined, with warm border */
 .dt-btn--secondary {
   background: transparent;
-  color: var(--dt-accent);
-  border-color: var(--dt-accent);
+  color: #F5F0E8;
+  border-color: rgba(245, 240, 232, 0.15);
 }
 
 .dt-btn--secondary:hover:not(:disabled) {
-  background: var(--dt-accent-muted);
+  background: rgba(245, 240, 232, 0.05);
+  border-color: rgba(245, 240, 232, 0.25);
   transform: translateY(-2px);
 }
 
-/* Ghost button — no background, gray border */
+/* Ghost button — no background, muted text */
 .dt-btn--ghost {
   background: transparent;
-  color: var(--dt-text-secondary);
-  border-color: var(--dt-border-default);
+  color: #B8B0A0;
+  border-color: transparent;
 }
 
 .dt-btn--ghost:hover:not(:disabled) {
-  background: var(--primitive-sand-100);
-  color: var(--dt-text-primary);
-  border-color: var(--dt-border-strong);
+  color: #F5F0E8;
+  background: rgba(245, 240, 232, 0.05);
+  border-color: rgba(245, 240, 232, 0.15);
 }
 
-/* Community button — green, for contribute/join */
+/* Community button — olive green */
 .dt-btn--community {
-  background: var(--dt-trust-community);
-  color: #FFFFFF;
-  border-color: var(--dt-trust-community);
+  background: #6B7B5E;
+  color: #F5F0E8;
+  border-color: #6B7B5E;
   font-weight: 600;
 }
 
 .dt-btn--community:hover:not(:disabled) {
-  background: var(--primitive-trust-community-600);
-  box-shadow: 0 4px 12px rgba(22, 163, 74, 0.25);
+  background: #7A8A6D;
+  box-shadow: 0 0 20px rgba(107, 123, 94, 0.2);
   transform: translateY(-2px);
 }
 
@@ -690,9 +700,9 @@
   left: 0;
   right: 0;
   z-index: 20;
-  background: #FFFFFF;
+  background: #2A2A24;
   border-top: 1px solid var(--dt-border-default);
-  box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.04);
+  box-shadow: 0 -8px 32px rgba(0, 0, 0, 0.4);
 }
 
 .dt-nav-bottom__inner {
@@ -707,11 +717,11 @@
   flex-direction: column;
   align-items: center;
   gap: var(--dt-space-1);
-  padding: var(--dt-space-3) var(--dt-space-1) var(--dt-space-4);
+  padding: var(--dt-space-2) var(--dt-space-1) var(--dt-space-3);
   border: none;
-  border-top: 2px solid transparent;
+  border-top: 3px solid transparent;
   background: none;
-  color: var(--dt-text-muted);
+  color: #7A7468;
   font-family: var(--dt-font-body);
   font-size: var(--dt-text-xs);
   font-weight: 500;
@@ -722,8 +732,8 @@
 }
 
 .dt-nav-tab--active {
-  border-top-color: var(--dt-accent);
-  color: var(--dt-accent);
+  border-top-color: #C45C3B;
+  color: #C45C3B;
 }
 
 .dt-nav-tab__icon {
@@ -740,9 +750,9 @@
   position: sticky;
   top: 0;
   z-index: 20;
-  background: #FFFFFF;
+  background: #2A2A24;
   border-bottom: 1px solid var(--dt-border-default);
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
 }
 
 .dt-header__inner {
@@ -764,8 +774,8 @@
   width: 36px;
   height: 36px;
   border-radius: var(--dt-radius-full);
-  background: var(--dt-accent-muted);
-  border: 1px solid var(--dt-border-accent);
+  background: rgba(196, 92, 59, 0.15);
+  border: 1px solid rgba(196, 92, 59, 0.3);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -776,13 +786,13 @@
   font-family: var(--dt-font-display);
   font-size: var(--dt-text-lg);
   font-weight: 400;
-  color: var(--dt-text-primary);
+  color: #F5F0E8;
   line-height: var(--dt-leading-tight);
 }
 
 .dt-logo__sub {
   font-size: var(--dt-text-xs);
-  color: var(--dt-text-muted);
+  color: #B8B0A0;
   letter-spacing: var(--dt-tracking-wide);
   line-height: var(--dt-leading-tight);
 }
@@ -794,12 +804,12 @@
 
 /* Testnet banner */
 .dt-banner--testnet {
-  background: rgba(245, 158, 11, 0.08);
-  border: 1px solid rgba(245, 158, 11, 0.20);
+  background: rgba(196, 92, 59, 0.15);
+  border: 1px solid rgba(196, 92, 59, 0.3);
   border-radius: var(--dt-radius-md);
   padding: var(--dt-space-2) var(--dt-space-4);
   font-size: var(--dt-text-xs);
-  color: var(--primitive-state-warning);
+  color: #E67651;
   display: flex;
   align-items: center;
   gap: var(--dt-space-2);
@@ -811,28 +821,28 @@
   font-weight: 600;
   padding: 2px var(--dt-space-2);
   border-radius: var(--dt-radius-full);
-  background: var(--dt-accent-muted);
-  color: var(--dt-accent);
-  border: 1px solid rgba(212, 175, 55, 0.30);
+  background: rgba(196, 92, 59, 0.15);
+  color: #E67651;
+  border: 1px solid rgba(196, 92, 59, 0.3);
 }
 
 /* Error message */
 .dt-error {
-  background: rgba(239, 68, 68, 0.08);
-  border: 1px solid rgba(239, 68, 68, 0.20);
+  background: rgba(255, 107, 107, 0.15);
+  border: 1px solid rgba(255, 107, 107, 0.3);
   border-radius: var(--dt-radius-md);
   padding: var(--dt-space-3) var(--dt-space-4);
-  color: var(--dt-state-error);
+  color: #FF6B6B;
   font-size: var(--dt-text-sm);
 }
 
 /* Success message */
 .dt-success {
-  background: rgba(34, 197, 94, 0.08);
-  border: 1px solid rgba(34, 197, 94, 0.20);
+  background: rgba(81, 207, 102, 0.15);
+  border: 1px solid rgba(81, 207, 102, 0.3);
   border-radius: var(--dt-radius-md);
   padding: var(--dt-space-3) var(--dt-space-4);
-  color: var(--dt-trust-community);
+  color: #51CF66;
   font-size: var(--dt-text-sm);
 }
 
@@ -842,6 +852,7 @@
   padding: var(--dt-space-16) var(--dt-space-6);
   border: 1px dashed var(--dt-border-default);
   border-radius: var(--dt-radius-xl);
+  background: #353530;
 }
 
 .dt-empty__icon {
@@ -853,13 +864,13 @@
   font-family: var(--dt-font-display);
   font-size: var(--dt-text-xl);
   font-weight: 400;
-  color: var(--dt-text-primary);
+  color: #F5F0E8;
   margin-bottom: var(--dt-space-2);
 }
 
 .dt-empty__body {
   font-size: var(--dt-text-sm);
-  color: var(--dt-text-muted);
+  color: #7A7468;
   max-width: 260px;
   margin: 0 auto;
 }
@@ -878,13 +889,13 @@
 .dt-wallet-chip__address {
   font-family: var(--dt-font-mono);
   font-size: var(--dt-text-xs);
-  color: var(--dt-text-secondary);
+  color: #B8B0A0;
   letter-spacing: 0.02em;
 }
 
 .dt-wallet-chip__chain {
   font-size: var(--dt-text-xs);
-  color: var(--dt-text-muted);
+  color: #7A7468;
 }
 
 .dt-wallet-chip__disconnect {
@@ -894,7 +905,7 @@
   align-items: center;
   justify-content: center;
   font-size: 12px;
-  color: var(--dt-text-muted);
+  color: #7A7468;
   background: none;
   border: none;
   cursor: pointer;
@@ -903,8 +914,8 @@
 }
 
 .dt-wallet-chip__disconnect:hover {
-  color: var(--dt-text-primary);
-  background: var(--dt-surface-overlay);
+  color: #F5F0E8;
+  background: rgba(245, 240, 232, 0.08);
 }
 
 

@@ -30,13 +30,14 @@ function ConnectButton() {
       disabled={isPending}
       style={{
         padding: '8px 16px',
-        background: 'var(--dt-accent-muted)',
-        border: '1px solid var(--dt-accent)',
-        borderRadius: 'var(--dt-radius-full)',
-        color: 'var(--dt-accent)',
+        background: '#C45C3B',
+        border: '1px solid #C45C3B',
+        borderRadius: '20px',
+        color: '#F5F0E8',
         fontSize: 'var(--dt-text-sm)',
-        fontWeight: 500,
-        letterSpacing: 'var(--dt-tracking-wide)',
+        fontWeight: 600,
+        letterSpacing: '0.05em',
+        textTransform: 'uppercase',
         cursor: isPending ? 'not-allowed' : 'pointer',
         opacity: isPending ? 0.6 : 1,
         transition: 'all 0.2s ease',
@@ -78,30 +79,30 @@ function WalletStatus() {
       {isMiniPay && (
         <span style={{
           fontSize: 'var(--dt-text-xs)', fontWeight: 600,
-          padding: '2px 8px', borderRadius: 'var(--dt-radius-full)',
-          background: 'var(--dt-accent-muted)', color: 'var(--dt-accent)',
-          border: '1px solid rgba(212,175,55,0.3)'
+          padding: '2px 8px', borderRadius: '12px',
+          background: 'rgba(196,92,59,0.15)', color: '#E67651',
+          border: '1px solid rgba(196,92,59,0.3)'
         }}>MiniPay</span>
       )}
       <div style={{
         display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 2,
         fontSize: 'var(--dt-text-xs)', fontFamily: 'var(--dt-font-mono)',
-        color: 'var(--dt-text-secondary)'
+        color: '#B8B0A0'
       }}>
         <div>{celoDisplay} CELO</div>
         <div>{cUSDDisplay} cUSD</div>
       </div>
       <span style={{
         fontSize: 'var(--dt-text-xs)', fontFamily: 'var(--dt-font-mono)',
-        color: 'var(--dt-text-secondary)', letterSpacing: '0.02em',
-        borderLeft: '1px solid var(--dt-border-subtle)',
+        color: '#B8B0A0', letterSpacing: '0.02em',
+        borderLeft: '1px solid rgba(245,240,232,0.08)',
         paddingLeft: 'var(--dt-space-2)'
       }}>{shortAddr}</span>
       <button
         onClick={() => disconnect()}
         aria-label="Disconnect wallet"
         style={{
-          fontSize: 12, color: 'var(--dt-text-muted)',
+          fontSize: 12, color: '#7A7468',
           background: 'none', border: 'none', cursor: 'pointer', padding: 4
         }}
       >×</button>
@@ -113,15 +114,15 @@ export default function App() {
   const [activeTab, setActiveTab] = useState<Tab>("intent");
 
   return (
-    <div style={{ minHeight: '100vh', background: 'var(--dt-surface-base)' }}>
+    <div style={{ minHeight: '100vh', background: '#1C1C18' }}>
       {/* Header */}
       <header style={{
         position: 'sticky',
         top: 0,
         zIndex: 20,
-        background: 'var(--dt-surface-raised)',
-        borderBottom: '1px solid var(--dt-border-default)',
-        boxShadow: 'var(--dt-shadow-sm)',
+        background: '#2A2A24',
+        borderBottom: '1px solid rgba(245,240,232,0.08)',
+        boxShadow: '0 4px 16px rgba(0,0,0,0.3)',
         width: '100%',
         boxSizing: 'border-box',
         paddingTop: 'env(safe-area-inset-top)'
@@ -143,12 +144,12 @@ export default function App() {
             {/* Logo icon */}
             <div style={{
               width: 32, height: 32, borderRadius: '50%',
-              background: 'var(--dt-accent-muted)',
-              border: '1px solid var(--dt-border-accent)',
+              background: 'rgba(196,92,59,0.15)',
+              border: '1px solid rgba(196,92,59,0.3)',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
               flexShrink: 0
             }}>
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--dt-accent)" strokeWidth="1.5">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#C45C3B" strokeWidth="1.5">
                 <circle cx="12" cy="12" r="9"/>
                 <path d="M12 6v6l4 2"/>
               </svg>
@@ -158,14 +159,14 @@ export default function App() {
                 fontFamily: 'var(--dt-font-display)',
                 fontSize: 'var(--dt-text-base)',
                 fontWeight: 400,
-                color: 'var(--dt-text-primary)',
+                color: '#F5F0E8',
                 lineHeight: 'var(--dt-leading-tight)',
                 margin: 0,
                 whiteSpace: 'nowrap'
               }}>IntentCircles</h1>
               <p style={{
                 fontSize: 'var(--dt-text-xs)',
-                color: 'var(--dt-text-muted)',
+                color: '#B8B0A0',
                 letterSpacing: 'var(--dt-tracking-wide)',
                 margin: 0,
                 lineHeight: '1.0',
@@ -192,12 +193,12 @@ export default function App() {
         width: '100%'
       }}>
         <div style={{
-          background: 'rgba(245,158,11,0.08)',
-          border: '1px solid rgba(245,158,11,0.2)',
+          background: 'rgba(196,92,59,0.15)',
+          border: '1px solid rgba(196,92,59,0.3)',
           borderRadius: 'var(--dt-radius-md)',
           padding: 'var(--dt-space-2) var(--dt-space-3)',
           fontSize: 'var(--dt-text-xs)',
-          color: '#F59E0B',
+          color: '#E67651',
           display: 'flex', alignItems: 'center', gap: 'var(--dt-space-2)',
           flexWrap: 'nowrap'
         }}>
@@ -225,11 +226,11 @@ export default function App() {
                 fontFamily: 'var(--dt-font-display)',
                 fontSize: 'var(--dt-text-lg)',
                 fontWeight: 400,
-                color: 'var(--dt-text-primary)',
+                color: '#F5F0E8',
                 marginBottom: 'var(--dt-space-2)'
               }}>Login to get started</h3>
               <p style={{
-                color: 'var(--dt-text-secondary)',
+                color: '#B8B0A0',
                 fontSize: 'var(--dt-text-sm)',
                 marginBottom: 'var(--dt-space-4)',
                 margin: 0
@@ -277,9 +278,9 @@ export default function App() {
         left: 0,
         right: 0,
         zIndex: 20,
-        background: 'var(--dt-surface-raised)',
-        borderTop: '1px solid var(--dt-border-default)',
-        boxShadow: '0 -4px 24px rgba(10,8,4,0.4)',
+        background: '#2A2A24',
+        borderTop: '1px solid rgba(245,240,232,0.08)',
+        boxShadow: '0 -8px 32px rgba(0,0,0,0.4)',
         width: '100%',
         boxSizing: 'border-box',
         paddingBottom: 'env(safe-area-inset-bottom)'
@@ -321,7 +322,7 @@ export default function App() {
         padding: 'var(--dt-space-4)',
         textAlign: 'center',
         fontSize: 'var(--dt-text-xs)',
-        color: 'var(--dt-text-muted)',
+        color: '#7A7468',
         position: 'relative',
         zIndex: 1,
         boxSizing: 'border-box',

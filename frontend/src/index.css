@@ -13,8 +13,8 @@ html, body {
 }
 
 body {
-  background-color: var(--dt-surface-base);
-  color: var(--dt-text-primary);
+  background-color: #1C1C18;
+  color: #F5F0E8;
   font-family: var(--dt-font-body);
   margin: 0;
   padding: 0;
@@ -24,7 +24,7 @@ body {
   user-select: none;
 }
 
-/* No paper noise in light mode — clean aesthetic */
+/* Dark theme background */
 body::before {
   display: none;
 }
@@ -38,34 +38,34 @@ body::before {
   flex-direction: column;
 }
 
-/* Focus ring — gold */
+/* Focus ring — terracotta */
 :focus-visible {
-  outline: 2px solid var(--dt-accent);
+  outline: 2px solid #C45C3B;
   outline-offset: 2px;
 }
 
-/* Selection — gold background */
+/* Selection — terracotta background */
 ::selection {
-  background: var(--dt-accent);
-  color: var(--dt-text-inverse);
+  background: #C45C3B;
+  color: #F5F0E8;
 }
 
-/* Scrollbar — warm */
+/* Scrollbar — warm dark */
 ::-webkit-scrollbar {
-  width: 6px;
+  width: 8px;
 }
 
 ::-webkit-scrollbar-track {
-  background: var(--dt-surface-base);
+  background: #1C1C18;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: var(--dt-border-default);
+  background: rgba(245, 240, 232, 0.1);
   border-radius: var(--dt-radius-full);
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--dt-border-strong);
+  background: rgba(245, 240, 232, 0.2);
 }
 
 /* Input range accent */
