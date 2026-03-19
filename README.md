@@ -1,8 +1,10 @@
 # IntentCircles 🎯🔒
 
-> Private, Agent-Managed Savings Circles on Celo
+> A keeper agent that coordinates tanda/susu circles — the savings mechanism used by $100B+ in informal economies across Africa, LatAm, and Asia — on Celo. The agent enforces contributions, rotates payouts, and settles without a bank.
 
-IntentCircles automates and protects African savings circles (ROSCAs/chamas) using AI agents, zero-knowledge privacy, and Celo's fast, affordable infrastructure.
+**MiniPay compatible.** Built for the 12M+ Celo wallet users who already participate in savings circles.
+
+IntentCircles automates and protects savings circles (known as tanda, susu, hui, or chama) using autonomous keeper agents, zero-knowledge privacy, and Celo's fast, affordable infrastructure.
 
 ## The Problem
 
@@ -12,11 +14,13 @@ Savings circles—known as ROSCAs, chamas, or merry-go-rounds across Africa—ar
 
 IntentCircles uses **intent-based coordination** to match members into circles, **Nightfall zero-knowledge proofs** to keep contributions and payouts private, and **autonomous agents** to run the operation. The result: savings circles that are **transparent to members, opaque to outsiders, and automated end-to-end**.
 
-- **Intent-based matching** let members express "I want to save 100 cUSD monthly" once, and the agent handles matching and coordination
+- **Keeper agent** enforces contributions, rotates payouts, and settles without any central coordinator — the agent makes decisions, not just a UI
+- **Intent-based matching** lets members express "I want to save 100 cUSD monthly" once; the agent handles matching and circle deployment
+- **MiniPay compatible** — mobile-first, built for Celo's 12M+ wallet users across Africa and LatAm; supports fee abstraction (gas paid in cUSD, no CELO required)
 - **Nightfall privacy layer** hides contribution amounts and payout recipients behind cryptographic commitments
 - **ERC-8004 agent identity** registers the coordinator on-chain with reputation tracking
 - **x402 HTTP payment protocol** lets the agent charge fees directly via HTTP requests, no approval flows needed
-- **Celo Sepolia testnet** for fast, low-cost deployment
+- **Celo Alfajores testnet** for fast, low-cost deployment ($0.001 transactions)
 
 ## How It Works
 

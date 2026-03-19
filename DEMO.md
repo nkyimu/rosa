@@ -1,7 +1,10 @@
 # IntentCircles Hackathon Demo (3 min)
 
 ## Overview
-IntentCircles is an intent-centric protocol for coordinating digital ROSCAs (rotating savings and credit associations) on Celo. This demo shows how a keeper agent autonomously manages savings circles while members submit intents.
+
+> **ROSA is a keeper agent that coordinates tanda/susu circles — the same savings mechanism used by $100B+ in informal economies across Africa, LatAm, and Asia — on Celo. The agent enforces contributions, rotates payouts, and settles without a bank.**
+
+IntentCircles automates ROSCAs (rotating savings and credit associations — known as tanda, susu, hui, or chama depending on the community) on Celo. Members express an intent once ("I want to save 10 cUSD weekly"). A keeper agent handles the rest: matching, enforcement, rotation, and settlement. No coordinator. No trust required. **MiniPay compatible** — works on the 12M+ mobile wallets Celo has deployed across Africa and LatAm.
 
 ---
 
@@ -57,17 +60,23 @@ IntentCircles is an intent-centric protocol for coordinating digital ROSCAs (rot
 
 ## Key Takeaways
 
-✅ **Intent-Centric Coordination**  
-Members express intents (save 10 cUSD weekly). Protocol matches and executes automatically.
+✅ **Keeper Agent Autonomy**  
+Autonomous background agent manages the full ROSCA lifecycle: contribution enforcement, penalty assessment, payout rotation, yield harvesting. Judges see the agent making decisions — not just a UI.
 
-✅ **Keeper Agent**  
-Autonomous background agent manages lifecycle: penalties, rotations, yield harvesting.
+✅ **Real-World Impact ($100B+ Market)**  
+Tanda (Mexico), susu (Caribbean/West Africa), hui (China), chama (Kenya) — the same savings model, digitized on Celo for the communities that already use it.
+
+✅ **MiniPay Compatible**  
+Built mobile-first, optimized for Celo's flagship wallet (12M+ users, Africa/LatAm). Includes MiniPay auto-detection and fee currency abstraction (users pay gas in cUSD, no CELO needed).
 
 ✅ **Privacy-Preserving**  
-Uses Nightfall for zero-knowledge proofs (on-chain privacy without exposing amounts).
+Nightfall ZK-ZK rollup hides contribution amounts and payout recipients. Members see their data; outsiders see only cryptographic proofs.
+
+✅ **Intent-Centric Coordination**  
+Members express intent once. Agent handles matching, circle deployment, and lifecycle — fully autonomous end-to-end.
 
 ✅ **Yield Optimization**  
-Idle funds earn interest in Moola protocol — members benefit from surplus.
+Idle funds swept to Moola yield vault. Members earn interest on their savings while waiting for rotation.
 
 ---
 
