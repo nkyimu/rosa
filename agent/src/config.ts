@@ -22,8 +22,8 @@ export const CONTRACT_ADDRESSES = {
   agentRegistry8004: (process.env.AGENT_REGISTRY_8004_ADDRESS ?? "0x2978474676279F2E697d5Dd3A54816ff200Ab136") as `0x${string}`,
   // x402 Payment collection contract
   agentPayment:    (process.env.AGENT_PAYMENT_ADDRESS    ?? "0xc9DA0e584B4A652B508A0d59D2bbF4418e1775aD") as `0x${string}`,
-  // Moola / Aave lending pool (Sepolia - TBD)
-  moolaLendingPool:(process.env.MOOLA_LENDING_POOL       ?? "0x0000000000000000000000000000000000000000") as `0x${string}`,
+  // Moola / Aave lending pool (Sepolia - Mock for testnet)
+  moolaLendingPool:(process.env.MOOLA_LENDING_POOL       ?? "0x4078B0950F3D12676C09F9997729b40a787b865b") as `0x${string}`,
 };
 
 // ─── Agent Wallet ────────────────────────────────────────────────────────────

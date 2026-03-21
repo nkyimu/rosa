@@ -46,15 +46,14 @@ export type IntentGroup = {
 export class IntentMatcher {
   private intentRegistry = getIntentRegistry();
   private circleFactory = getCircleFactory();
+  // Cache: paramsHash → raw ABI-encoded params (recovered from tx calldata)
+  private paramsCache = new Map<`0x${string}`, `0x${string}`>();
+  private lastScannedBlock = 0n;
 
-  /** Decode JOIN_CIRCLE intent params from bytes */
-  private decodeParams(paramsHash: `0x${string}`): JoinCircleParams | null {
-    // NOTE: paramsHash in the contract is keccak256(params) — the raw params
-    // are emitted in the IntentSubmitted event or stored separately.
-    // For this prototype we treat stored paramsHash as the encoded params
-    // (in production you'd read from calldata / event logs).
+  /** Decode JOIN_CIRCLE intent params from raw ABI bytes */
+  private decodeParams(rawParams: `0x${string}`): JoinCircleParams | null {
     try {
-      const decoded = decodeAbiParameters(INTENT_PARAMS_SCHEMA, paramsHash);
+      const decoded = decodeAbiParameters(INTENT_PARAMS_SCHEMA, rawParams);
       return {
         contributionAmount: decoded[0],
         cycleDuration: decoded[1],
@@ -65,9 +64,80 @@ export class IntentMatcher {
     }
   }
 
+  /**
+   * Build paramsHash → rawParams cache by scanning IntentSubmitted events
+   * and recovering the original params from transaction input calldata.
+   */
+  private async buildParamsCache(): Promise<void> {
+    try {
+      const currentBlock = await publicClient.getBlockNumber();
+      // Scan from last scanned block (or last 5000 blocks on first run)
+      // Scan last 2000 blocks max on first run (Celo Sepolia is fast, ~5s blocks)
+      const SCAN_DEPTH = 2000n;
+      const fromBlock = this.lastScannedBlock > 0n
+        ? this.lastScannedBlock + 1n
+        : currentBlock > SCAN_DEPTH ? currentBlock - SCAN_DEPTH : 0n;
+
+      if (fromBlock > currentBlock) return;
+
+      console.log(`[matcher] Scanning blocks ${fromBlock}–${currentBlock} for IntentSubmitted events...`);
+
+      // Get IntentSubmitted events
+      const logs = await publicClient.getLogs({
+        address: CONTRACT_ADDRESSES.intentRegistry,
+        event: {
+          type: 'event' as const,
+          name: 'IntentSubmitted',
+          inputs: [
+            { name: 'intentId', type: 'uint256', indexed: true },
+            { name: 'intentType', type: 'uint8', indexed: true },
+            { name: 'creator', type: 'address', indexed: true },
+            { name: 'expiresAt', type: 'uint256', indexed: false },
+          ],
+        },
+        fromBlock,
+        toBlock: currentBlock,
+      });
+
+      console.log(`[matcher] Found ${logs.length} IntentSubmitted event(s) in range`);
+
+      const { keccak256 } = await import("viem");
+
+      for (const log of logs) {
+        const txHash = log.transactionHash;
+        if (!txHash) continue;
+
+        try {
+          const tx = await publicClient.getTransaction({ hash: txHash });
+          // submitIntent(uint8,bytes,uint256) — skip 4-byte selector
+          const argsData = ('0x' + tx.input.slice(10)) as `0x${string}`;
+          const decoded = decodeAbiParameters(
+            parseAbiParameters("uint8 intentType, bytes params, uint256 expiresAt"),
+            argsData
+          );
+          const rawParams = decoded[1] as `0x${string}`;
+          const hash = keccak256(rawParams) as `0x${string}`;
+          this.paramsCache.set(hash, rawParams);
+          console.log(`[matcher] Cached params for intent ${log.args?.intentId} (hash: ${hash.slice(0, 10)}...)`);
+        } catch (err) {
+          console.warn(`[matcher] Could not recover params from tx ${txHash}: ${err}`);
+        }
+      }
+
+      this.lastScannedBlock = currentBlock;
+    } catch (err: any) {
+      console.error("[matcher] Failed to build params cache:", err?.message ?? err);
+      console.error("[matcher] Stack:", err?.stack?.split('\n')[0]);
+    }
+  }
+
   /** Fetch all open JOIN_CIRCLE intents from the registry */
   async scanJoinIntents(): Promise<Intent[]> {
     console.log("[matcher] Scanning for open JOIN_CIRCLE intents...");
+
+    // Always refresh params cache first (awaited — ensures cache is populated before scan)
+    await this.buildParamsCache();
+    console.log(`[matcher] Params cache has ${this.paramsCache.size} entries`);
 
     let rawIntents: readonly OnChainIntent[];
     try {
@@ -89,7 +159,14 @@ export class IntentMatcher {
       if (raw.fulfilled || raw.cancelled) continue;
       if (raw.expiresAt > 0n && raw.expiresAt < now) continue;
 
-      const params = this.decodeParams(raw.paramsHash);
+      // Look up raw params from cache using the stored paramsHash
+      const rawParams = this.paramsCache.get(raw.paramsHash);
+      if (!rawParams) {
+        console.warn(`[matcher] No cached params for intent ${raw.id} (hash: ${raw.paramsHash})`);
+        continue;
+      }
+
+      const params = this.decodeParams(rawParams);
       if (!params) {
         console.warn(`[matcher] Could not decode params for intent ${raw.id}`);
         continue;
@@ -196,8 +273,9 @@ export class IntentMatcher {
       args: [
         agentAccount.address,
         CONTRACT_ADDRESSES.circleTrust,
-        CONTRACT_ADDRESSES.moolaLendingPool,
-        50n, // minTrustScore (50/100)
+        CONTRACT_ADDRESSES.moolaLendingPool, // lendingPool (zero address = no yield)
+        CONTRACT_ADDRESSES.cUSD,             // aToken (using cUSD as placeholder)
+        0n,                                  // minTrustScore (0 for testnet demo)
         group.cycleDuration,
       ],
       account: agentAccount,
@@ -233,21 +311,25 @@ export class IntentMatcher {
     await walletClient.writeContract(initRequest);
 
     // 3. Encode solution (circle address) and batch-fulfill all intents
+    // Wait for nonce to update after createCircle + initialize txs
+    await new Promise((r) => setTimeout(r, 5000));
+
     const solution = encodeAbiParameters(
       parseAbiParameters("address circleAddress"),
       [circleAddress]
     );
-    const intentIds = group.intents.map((i) => i.id);
+    const intentIds = group.intents.map((i) => BigInt(i.id));
 
-    const { request: batchRequest } = await publicClient.simulateContract({
+    const nonce = await publicClient.getTransactionCount({ address: agentAccount.address });
+    const batchHash = await walletClient.writeContract({
       address: CONTRACT_ADDRESSES.intentRegistry,
       abi: intentRegistryAbi,
       functionName: "batchFulfill",
       args: [intentIds, solution],
       account: agentAccount,
+      chain: walletClient.chain,
+      nonce,
     });
-
-    const batchHash = await walletClient.writeContract(batchRequest);
     console.log(`[matcher] Batch fulfill tx: ${batchHash}`);
 
     return circleAddress;
@@ -267,7 +349,7 @@ export class IntentMatcher {
           const circleAddr = await this.matchAndDeploy(group);
           console.log(`[matcher] ✓ Circle deployed at ${circleAddr}`);
         } catch (err) {
-          console.error("[matcher] Failed to deploy group:", err);
+          console.error("[matcher] Failed to deploy group:", err instanceof Error ? err.message : String(err));
         }
       }
     } catch (err) {

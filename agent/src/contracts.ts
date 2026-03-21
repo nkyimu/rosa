@@ -41,7 +41,7 @@ export const intentRegistryAbi = [
 
 export const circleFactoryAbi = [
   { type: "constructor", inputs: [], stateMutability: "nonpayable" },
-  { type: "function", name: "createCircle", inputs: [{ name: "agent", type: "address" }, { name: "trustContract", type: "address" }, { name: "yieldVault", type: "address" }, { name: "minTrustScore", type: "uint256" }, { name: "roundDuration", type: "uint256" }], outputs: [{ name: "circleAddress", type: "address" }], stateMutability: "nonpayable" },
+  { type: "function", name: "createCircle", inputs: [{ name: "agent", type: "address" }, { name: "trustContract", type: "address" }, { name: "lendingPool", type: "address" }, { name: "aToken", type: "address" }, { name: "minTrustScore", type: "uint256" }, { name: "roundDuration", type: "uint256" }], outputs: [{ name: "circleAddress", type: "address" }], stateMutability: "nonpayable" },
   { type: "function", name: "getAllCircles", inputs: [], outputs: [{ name: "", type: "address[]" }], stateMutability: "view" },
   { type: "function", name: "getCircle", inputs: [{ name: "circleId", type: "uint256" }], outputs: [{ name: "", type: "address" }], stateMutability: "view" },
   { type: "function", name: "getCircleCount", inputs: [], outputs: [{ name: "", type: "uint256" }], stateMutability: "view" },
