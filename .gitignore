@@ -3,3 +3,6 @@ nightfall/
 out/
 cache/
 agent/.env
+broadcast/
+agent/dist/
+out/
