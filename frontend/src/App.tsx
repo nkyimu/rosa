@@ -15,11 +15,11 @@ import { checkMiniPay, CONTRACT_ADDRESSES, celoSepolia }     from "./config/wagm
 type Tab = "intent" | "circles" | "credit" | "agent" | "trust";
 
 const TABS: { id: Tab; label: string; icon: string }[] = [
-  { id: "intent",  label: "Save",   icon: "🎯" },
-  { id: "circles", label: "Circles", icon: "💰" },
-  { id: "agent",   label: "Agent",   icon: "🤖" },
+  { id: "intent",  label: "Save",    icon: "🔒" },
+  { id: "circles", label: "Circles", icon: "🔄" },
+  { id: "agent",   label: "ROSA",    icon: "🤖" },
   { id: "credit",  label: "Credit",  icon: "💳" },
-  { id: "trust",   label: "Trust",   icon: "🤝" },
+  { id: "trust",   label: "Trust",   icon: "🛡️" },
 ];
 
 function ConnectButton() {
@@ -30,10 +30,10 @@ function ConnectButton() {
       disabled={isPending}
       style={{
         padding: '6px 14px',
-        background: '#C45C3B',
+        background: 'var(--dt-accent)',
         border: 'none',
-        borderRadius: '6px',
-        color: '#F5F0E8',
+        borderRadius: 'var(--dt-radius-sm)',
+        color: 'var(--dt-text-primary)',
         fontSize: '11px',
         fontWeight: 600,
         letterSpacing: '0.08em',
@@ -45,7 +45,7 @@ function ConnectButton() {
         flexShrink: 0,
       }}
     >
-      {isPending ? "..." : "Login"}
+      {isPending ? "..." : "Connect Wallet"}
     </button>
   );
 }
@@ -115,15 +115,15 @@ export default function App() {
   const [activeTab, setActiveTab] = useState<Tab>("intent");
 
   return (
-    <div style={{ minHeight: '100vh', background: '#1C1C18' }}>
+    <div style={{ minHeight: '100vh', background: 'var(--dt-surface-base)' }}>
       {/* Header */}
       <header style={{
         position: 'sticky',
         top: 0,
         zIndex: 20,
-        background: '#2A2A24',
-        borderBottom: '1px solid rgba(245,240,232,0.08)',
-        boxShadow: '0 4px 16px rgba(0,0,0,0.3)',
+        background: 'var(--dt-surface-raised)',
+        borderBottom: '1px solid var(--dt-border-default)',
+        boxShadow: 'var(--dt-shadow-sm)',
         width: '100%',
         boxSizing: 'border-box',
         paddingTop: 'env(safe-area-inset-top)'
@@ -145,12 +145,12 @@ export default function App() {
             {/* Logo icon */}
             <div style={{
               width: 32, height: 32, borderRadius: '50%',
-              background: 'rgba(196,92,59,0.15)',
-              border: '1px solid rgba(196,92,59,0.3)',
+              background: 'var(--dt-accent-muted)',
+              border: '1px solid var(--dt-accent)',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
               flexShrink: 0
             }}>
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#C45C3B" strokeWidth="1.5">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--dt-accent)" strokeWidth="1.5">
                 <circle cx="12" cy="12" r="9"/>
                 <path d="M12 6v6l4 2"/>
               </svg>
@@ -160,21 +160,21 @@ export default function App() {
                 fontFamily: 'var(--dt-font-display)',
                 fontSize: 'var(--dt-text-base)',
                 fontWeight: 400,
-                color: '#F5F0E8',
+                color: 'var(--dt-text-primary)',
                 lineHeight: 'var(--dt-leading-tight)',
                 margin: 0,
                 whiteSpace: 'nowrap'
-              }}>IntentCircles</h1>
+              }}>ROSA</h1>
               <p style={{
                 fontSize: 'var(--dt-text-xs)',
-                color: '#B8B0A0',
+                color: 'var(--dt-text-secondary)',
                 letterSpacing: 'var(--dt-tracking-wide)',
                 margin: 0,
                 lineHeight: '1.0',
                 whiteSpace: 'nowrap',
                 textOverflow: 'ellipsis',
                 overflow: 'hidden'
-              }}>Celo agent</p>
+              }}>Private savings circles</p>
             </div>
           </div>
           <MiniPayDetector connectButton={<ConnectButton />}>
@@ -194,12 +194,12 @@ export default function App() {
         width: '100%'
       }}>
         <div style={{
-          background: 'rgba(196,92,59,0.15)',
-          border: '1px solid rgba(196,92,59,0.3)',
+          background: 'var(--dt-accent-muted)',
+          border: '1px solid var(--dt-accent)',
           borderRadius: 'var(--dt-radius-md)',
           padding: 'var(--dt-space-2) var(--dt-space-3)',
           fontSize: 'var(--dt-text-xs)',
-          color: '#E67651',
+          color: 'var(--dt-accent-hover)',
           display: 'flex', alignItems: 'center', gap: 'var(--dt-space-2)',
           flexWrap: 'nowrap'
         }}>
@@ -247,14 +247,22 @@ export default function App() {
                 fontWeight: 400,
                 color: '#F5F0E8',
                 margin: '0 0 8px 0',
-              }}>Connect to begin</h3>
+              }}>Your circle, your rules</h3>
+              <p style={{
+                color: '#B8B0A0',
+                fontSize: '13px',
+                lineHeight: '1.6',
+                margin: '0 0 8px 0',
+                padding: '0 12px',
+              }}>ROSA runs your savings circle so no one has to. Private contributions, automated payouts, on-chain trust — all managed by an autonomous agent.</p>
               <p style={{
                 color: '#7A7468',
-                fontSize: '13px',
+                fontSize: '11px',
                 lineHeight: '1.5',
                 margin: '0 0 20px 0',
                 padding: '0 16px',
-              }}>Link your Celo wallet to join savings circles, build trust, and access credit.</p>
+                fontStyle: 'italic',
+              }}>No coordinator chasing payments. No one sees your balance.</p>
               <ConnectButton />
             </div>
           }>

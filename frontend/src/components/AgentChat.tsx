@@ -28,7 +28,7 @@ export function AgentChat() {
       id: "0",
       role: "agent",
       content:
-        "👋 Hi! I'm your IntentCircles agent. I can help you set up savings circles, track contributions, and check your status.\n\nTry saying: \"I want to save 50 cUSD per month for 6 months\"",
+        "👋 I'm ROSA — I manage private savings circles on Celo.\n\nTell me what you want to save and I'll handle the rest: finding compatible members, deploying the circle, enforcing contributions, and rotating payouts. Your contribution amounts stay private.\n\nTry: **\"Save 100 cUSD weekly with 5 people\"**",
       reasoning: [],
     },
   ]);

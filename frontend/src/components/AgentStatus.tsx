@@ -167,7 +167,7 @@ export function AgentStatus() {
                 fontFamily: "var(--dt-font-display)",
               }}
             >
-              {agentInfo.name || "IntentCircles Agent"}
+              {agentInfo.name || "ROSA Agent"}
             </p>
           </div>
 

@@ -1,118 +1,103 @@
 /**
- * rosa-tokens.css — IntentCircles Design System
- * Adapted from ROSA × nurosa Unified Design System v1.0
- * Author: Emory (Design Director, AMANTU)
- * Date: 2026-03-15
+ * ROSA Design System — Design Tokens
+ * IntentCircles Frontend
  *
- * Design direction: DARK MODE (ROSA) — dark warm charcoal background, postcard aesthetic,
- * Instrument Serif display, Manrope body, heavy shadows, trust-dimension colors adapted
- * for dark backgrounds. Think: vintage banking meets modern protocol.
+ * Author: Emory (Design Director, AMANTU)
+ * Version: 2.0 (Restructured & Interchangeable)
+ *
+ * ARCHITECTURE:
+ *   Tier 1: Primitives — Raw hex values
+ *   Tier 2: Semantic tokens — Intent-named, purpose-driven
+ *   Tier 3: Component tokens — Specific element behaviors
+ *
+ * THEMING:
+ *   To swap themes, only modify this file. All components reference tokens.
+ *   Supported: dark (warm obsidian), light mode ready
  *
  * USAGE:
  *   @import "./styles/rosa-tokens.css"; (in index.css)
- *
- * TOKEN NAMING CONVENTION:
- *   --dt-*  = design token (all semantic tokens)
- *   --ic-*  = intentcircles-specific overrides/extensions
+ *   color: var(--dt-text-primary);
+ *   background: var(--dt-surface-raised);
  */
 
 /* ============================================================
-   TIER 1: PRIMITIVES (Raw Values)
-   Reference: ROSA design-system-unification.md §2
-   DARK MODE (ROSA) — warm charcoal backgrounds, warm cream text, postcard float shadows
+   TIER 1: PRIMITIVES
+   Raw color values — the foundation
    ============================================================ */
 
 :root {
-  /* Dark palette — ROSA charcoal & olive tones */
-  --primitive-sand-50:  #F5F0E8;  /* warm cream/parchment — text primary */
-  --primitive-sand-100: #B8B0A0;  /* muted warm tan — text secondary */
-  --primitive-sand-200: #7A7468;  /* dark tan — text muted */
-  --primitive-sand-300: #3E3E38;  /* surface overlay */
-  --primitive-sand-400: #353530;  /* surface raised */
-  --primitive-sand-500: #2A2A24;  /* surface cards */
-  --primitive-sand-600: #1C1C18;  /* background base */
-  --primitive-sand-700: #1A1714;
-  --primitive-sand-800: #0F0E0A;
-  --primitive-sand-900: #050403;
+  /* Warm Obsidian — Neutral surfaces (ROSA dark mode) */
+  --primitive-obsidian-50:   #F5F0E8;  /* warm cream/parchment — lightest */
+  --primitive-obsidian-100:  #E8DFD0;  /* light cream */
+  --primitive-obsidian-200:  #C8BFA8;  /* warm sand */
+  --primitive-obsidian-300:  #B8B0A0;  /* muted warm tan */
+  --primitive-obsidian-400:  #7A7468;  /* dark tan */
+  --primitive-obsidian-500:  #3E3E38;  /* charcoal overlay */
+  --primitive-obsidian-600:  #353530;  /* surface raised */
+  --primitive-obsidian-700:  #2A2A24;  /* surface base */
+  --primitive-obsidian-800:  #1C1C18;  /* darker surface */
+  --primitive-obsidian-900:  #0A0804;  /* warm black — page background */
 
-  /* Base dark palette for layering */
-  --primitive-dark-50:   #F5F0E8;  /* cream — light text */
-  --primitive-dark-100:  #E8E0D0;  /* lighter cream */
-  --primitive-dark-200:  #B8B0A0;  /* warm tan — secondary text */
-  --primitive-dark-300:  #7A7468;  /* dark tan — muted text */
-  --primitive-dark-400:  #3E3E38;  /* surface overlay */
-  --primitive-dark-500:  #353530;  /* surface raised */
-  --primitive-dark-600:  #2A2A24;  /* surface cards */
-  --primitive-dark-700:  #1C1C18;  /* background base */
-  --primitive-dark-900:  #0A0904;
+  /* Trust Dimension Colors */
+  --primitive-trust-blue:    #3B82F6;  /* Reliability — adjusted for dark bg */
+  --primitive-trust-gold:    #D4AF37;  /* Credit — timeless, works on dark */
+  --primitive-trust-green:   #22C55E;  /* Community — Celo aligned, warm */
 
-  /* Trust dimension primitives (adjusted for dark bg contrast) */
-  --primitive-trust-reliability-400: #60A5FA;
-  --primitive-trust-reliability-500: #4A8FD4;  /* adjusted blue for dark */
-  --primitive-trust-reliability-600: #3B82F6;
-
-  --primitive-trust-credit-400: #F0C040;
-  --primitive-trust-credit-500: #D4AF37;  /* gold — keep this, works on dark */
-  --primitive-trust-credit-600: #E5C158;
-
-  --primitive-trust-community-400: #7B9B6D;
-  --primitive-trust-community-500: #6B7B5E;  /* olive green for dark */
-  --primitive-trust-community-600: #5A6A4D;
-
-  /* State colors (adjusted for dark bg) */
+  /* State Colors */
   --primitive-state-error:   #FF6B6B;
   --primitive-state-warning: #FFA500;
   --primitive-state-success: #51CF66;
   --primitive-state-info:    #74C0FC;
 
-  /* Accent — terracotta for dark mode */
-  --primitive-accent-primary: #C45C3B;
-  --primitive-accent-light:   #E67651;
-  --primitive-accent-muted:   rgba(196, 92, 59, 0.15);
+  /* Accent — Terracotta for dark mode */
+  --primitive-accent:        #C45C3B;
+  --primitive-accent-light:  #E67651;
 }
 
-
 /* ============================================================
-   TIER 2: SEMANTIC TOKENS (Purpose-Named)
-   DARK MODE (ROSA) — postcard aesthetic, heavy shadows, warm palette
-   These are what components should reference.
+   TIER 2: SEMANTIC TOKENS
+   Purpose-named, intent-driven. Components use these.
    ============================================================ */
 
 :root {
   /* ── Surfaces ── */
-  --dt-surface-base:         #1C1C18;                    /* warm dark charcoal page background */
-  --dt-surface-raised:       #2A2A24;                    /* dark olive-charcoal, cards/panels */
-  --dt-surface-overlay:      #353530;                    /* slightly lighter for inputs, nested cards */
-  --dt-surface-glass:        rgba(42, 42, 36, 0.95);     /* dark glass panel */
-  --dt-surface-glass-border: rgba(245, 240, 232, 0.06);  /* subtle warm dividers */
+  /* Surface hierarchy: base → raised → overlay */
+  --dt-surface-base:         #0A0804;  /* Page background — warm black */
+  --dt-surface-raised:       #2A2A24;  /* Cards, panels — warm dark */
+  --dt-surface-overlay:      #353530;  /* Inputs, nested surfaces — lighter */
+  --dt-surface-glass:        rgba(42, 42, 36, 0.95);  /* Glass effect */
 
   /* ── Text ── */
-  --dt-text-primary:         #F5F0E8;                    /* warm cream/parchment — main text */
-  --dt-text-secondary:       #B8B0A0;                    /* muted warm tan — supporting text */
-  --dt-text-muted:           #7A7468;                    /* dark tan — captions, labels */
-  --dt-text-inverse:         #1C1C18;                    /* dark — text on light/accent bg */
-
-  /* ── Accent (Terracotta) ── */
-  --dt-accent:               #C45C3B;                    /* terracotta/burnt orange — primary CTA */
-  --dt-accent-hover:         #E67651;                    /* lighter terracotta on hover */
-  --dt-accent-muted:         rgba(196, 92, 59, 0.15);    /* terracotta glow */
-  --dt-accent-strong:        rgba(196, 92, 59, 0.3);     /* stronger terracotta tint */
-
-  /* ── Trust Dimensions ── */
-  --dt-trust-reliability:    #4A8FD4;                    /* adjusted blue for dark */
-  --dt-trust-credit:         #D4AF37;                    /* gold — keep this */
-  --dt-trust-community:      #6B7B5E;                    /* olive green for dark */
-
-  /* Trust glow variants (for badges, active states) */
-  --dt-trust-reliability-glow: rgba(74, 143, 212, 0.15);
-  --dt-trust-credit-glow:      rgba(212, 175, 55, 0.15);
-  --dt-trust-community-glow:   rgba(107, 123, 94, 0.15);
+  /* Text hierarchy: primary → secondary → muted → inverse */
+  --dt-text-primary:         #F5F0E8;  /* Main text — warm cream */
+  --dt-text-secondary:       #B8B0A0;  /* Supporting text — warm tan */
+  --dt-text-muted:           #7A7468;  /* Labels, captions — dark tan */
+  --dt-text-inverse:         #0A0804;  /* Text on light/accent backgrounds */
 
   /* ── Borders ── */
-  --dt-border-subtle:        rgba(245, 240, 232, 0.04);  /* very subtle warm dividers */
-  --dt-border-default:       rgba(245, 240, 232, 0.08);  /* standard warm border */
-  --dt-border-strong:        rgba(245, 240, 232, 0.15);  /* emphasized warm border */
-  --dt-border-accent:        rgba(196, 92, 59, 0.30);    /* terracotta border for CTAs */
+  /* Border hierarchy: subtle → default → strong → accent */
+  --dt-border-subtle:        rgba(245, 240, 232, 0.04);  /* Very soft dividers */
+  --dt-border-default:       rgba(245, 240, 232, 0.08);  /* Standard separation */
+  --dt-border-strong:        rgba(245, 240, 232, 0.15);  /* Emphasized borders */
+  --dt-border-accent:        rgba(196, 92, 59, 0.30);    /* Accent-tinted borders */
+
+  /* ── Accent ── */
+  /* Primary brand action color — terracotta */
+  --dt-accent:               #C45C3B;
+  --dt-accent-hover:         #E67651;  /* Lighter on hover */
+  --dt-accent-muted:         rgba(196, 92, 59, 0.15);    /* Soft background */
+  --dt-accent-strong:        rgba(196, 92, 59, 0.30);    /* Stronger tint */
+
+  /* ── Trust Dimensions ── */
+  /* Three-dimensional trust system */
+  --dt-trust-reliability:    #3B82F6;  /* Blue — on-time payments */
+  --dt-trust-credit:         #D4AF37;  /* Gold — borrowing history */
+  --dt-trust-community:      #22C55E;  /* Green — circle membership */
+
+  /* Trust glows (for badges, highlights) */
+  --dt-trust-reliability-glow: rgba(59, 130, 246, 0.15);
+  --dt-trust-credit-glow:      rgba(212, 175, 55, 0.15);
+  --dt-trust-community-glow:   rgba(34, 197, 94, 0.15);
 
   /* ── State Colors ── */
   --dt-state-error:          #FF6B6B;
@@ -121,17 +106,16 @@
   --dt-state-info:           #74C0FC;
 }
 
-
 /* ============================================================
    TIER 3: TYPOGRAPHY TOKENS
-   Instrument Serif (display) + Manrope (body) + JetBrains Mono (data)
+   Font families, scales, line heights
    ============================================================ */
 
 :root {
   /* Font Families */
-  --dt-font-display: 'Instrument Serif', Georgia, serif;
-  --dt-font-body:    'Manrope', system-ui, -apple-system, sans-serif;
-  --dt-font-mono:    'JetBrains Mono', 'Courier Prime', 'Courier New', monospace;
+  --dt-font-display: 'Instrument Serif', Georgia, serif;  /* Headlines, display */
+  --dt-font-body:    'Manrope', system-ui, -apple-system, sans-serif;  /* Body, UI */
+  --dt-font-mono:    'JetBrains Mono', 'Courier Prime', monospace;  /* Data, addresses */
 
   /* Type Scale — 1.25 Major Third modular scale */
   --dt-text-xs:   0.64rem;    /* ~10px  — tiny labels, metadata */
@@ -154,19 +138,19 @@
   /* Letter Spacing */
   --dt-tracking-tighter: -0.04em;
   --dt-tracking-tight:   -0.02em;
-  --dt-tracking-normal:   0em;
-  --dt-tracking-wide:     0.04em;
-  --dt-tracking-wider:    0.06em;
-  --dt-tracking-widest:   0.10em;
+  --dt-tracking-normal:  0em;
+  --dt-tracking-wide:    0.04em;
+  --dt-tracking-wider:   0.06em;
+  --dt-tracking-widest:  0.10em;
 }
 
-
 /* ============================================================
-   TIER 4: SPACING + RADIUS TOKENS
+   TIER 4: SPACING + RADIUS
+   Consistent spacing scale, border radius variants
    ============================================================ */
 
 :root {
-  /* Spacing scale (4px base) */
+  /* Spacing scale — 4px base unit */
   --dt-space-0:   0px;
   --dt-space-1:   4px;
   --dt-space-2:   8px;
@@ -181,7 +165,7 @@
   --dt-space-20:  80px;
   --dt-space-24:  96px;
 
-  /* Border radius */
+  /* Border Radius — rounded corners */
   --dt-radius-none:  0px;
   --dt-radius-sm:    4px;
   --dt-radius-md:    8px;
@@ -192,62 +176,57 @@
   --dt-radius-full:  9999px;
 }
 
-
 /* ============================================================
-   TIER 5: SHADOW SYSTEM (DARK MODE / ROSA)
-   HEAVY shadows for postcard float effect. Cards should feel like
-   physical paper floating above the dark surface.
+   TIER 5: SHADOW SYSTEM
+   Depth through elevation via shadows. HEAVY for postcard aesthetic.
    ============================================================ */
 
 :root {
-  /* Standard shadows — HEAVY for dark mode postcard aesthetic */
+  /* Standard shadows — layered for depth */
   --dt-shadow-xs:  0 2px 4px rgba(0, 0, 0, 0.3);
   --dt-shadow-sm:  0 4px 8px rgba(0, 0, 0, 0.35);
   --dt-shadow-md:  0 8px 16px rgba(0, 0, 0, 0.4), 0 2px 4px rgba(0, 0, 0, 0.2);
   --dt-shadow-lg:  0 12px 32px rgba(0, 0, 0, 0.45), 0 4px 8px rgba(0, 0, 0, 0.25);
   --dt-shadow-xl:  0 20px 48px rgba(0, 0, 0, 0.5), 0 6px 16px rgba(0, 0, 0, 0.3);
 
-  /* Card shadows — HEAVY postcard float */
-  --dt-shadow-card:       0 8px 32px rgba(0, 0, 0, 0.4), 0 2px 8px rgba(0, 0, 0, 0.2);
-  --dt-shadow-card-hover: 0 12px 40px rgba(0, 0, 0, 0.45), 0 4px 12px rgba(0, 0, 0, 0.25);
-  --dt-shadow-input:      0 4px 12px rgba(0, 0, 0, 0.3);
-  --dt-shadow-button:     0 4px 12px rgba(0, 0, 0, 0.3);
+  /* Card shadows — floating postcard effect */
+  --dt-shadow-card:        0 8px 32px rgba(0, 0, 0, 0.4), 0 2px 8px rgba(0, 0, 0, 0.2);
+  --dt-shadow-card-hover:  0 12px 40px rgba(0, 0, 0, 0.45), 0 4px 12px rgba(0, 0, 0, 0.25);
+  --dt-shadow-input:       0 4px 12px rgba(0, 0, 0, 0.3);
+  --dt-shadow-button:      0 4px 12px rgba(0, 0, 0, 0.3);
 
-  /* Glow shadows — terracotta and trust dimensions on dark */
+  /* Glow shadows — for trust colors and accents */
   --dt-shadow-glow-gold:        0 0 20px rgba(212, 175, 55, 0.25), 0 0 40px rgba(212, 175, 55, 0.1);
-  --dt-shadow-glow-blue:        0 0 20px rgba(74, 143, 212, 0.2), 0 0 40px rgba(74, 143, 212, 0.08);
-  --dt-shadow-glow-green:       0 0 20px rgba(107, 123, 94, 0.2), 0 0 40px rgba(107, 123, 94, 0.08);
+  --dt-shadow-glow-blue:        0 0 20px rgba(59, 130, 246, 0.2), 0 0 40px rgba(59, 130, 246, 0.08);
+  --dt-shadow-glow-green:       0 0 20px rgba(34, 197, 94, 0.2), 0 0 40px rgba(34, 197, 94, 0.08);
   --dt-shadow-glow-accent:      0 0 24px rgba(196, 92, 59, 0.25), 0 0 48px rgba(196, 92, 59, 0.12);
 
-  /* Active card glow — heavy for dark */
+  /* Active state glow */
   --dt-shadow-active-card: 0 8px 32px rgba(196, 92, 59, 0.2), 0 0 0 2px rgba(196, 92, 59, 0.3);
 }
 
-
 /* ============================================================
    TIER 6: ANIMATION TOKENS
-   Spring-based easing — physical, not mechanical.
+   Durations and easing functions
    ============================================================ */
 
 :root {
   /* Duration */
-  --dt-duration-instant:  50ms;
-  --dt-duration-fast:     150ms;
-  --dt-duration-normal:   250ms;
-  --dt-duration-slow:     400ms;
-  --dt-duration-slower:   600ms;
-  --dt-duration-card:     500ms;   /* Physical object feels: cards move slower */
+  --dt-duration-instant:   50ms;
+  --dt-duration-fast:      150ms;
+  --dt-duration-normal:    250ms;
+  --dt-duration-slow:      400ms;
+  --dt-duration-slower:    600ms;
 
-  /* Easing functions */
+  /* Easing */
   --dt-ease-linear:    linear;
   --dt-ease-in:        cubic-bezier(0.4, 0, 1, 1);
   --dt-ease-out:       cubic-bezier(0, 0, 0.2, 1);
   --dt-ease-in-out:    cubic-bezier(0.4, 0, 0.2, 1);
-  --dt-ease-spring:    cubic-bezier(0.34, 1.56, 0.64, 1);  /* slight overshoot — feels physical */
-  --dt-ease-back-out:  cubic-bezier(0.34, 1.4, 0.64, 1);   /* stronger overshoot */
-  --dt-ease-card:      cubic-bezier(0.4, 0, 0.2, 1);        /* deliberate, weighted */
+  --dt-ease-spring:    cubic-bezier(0.34, 1.56, 0.64, 1);
+  --dt-ease-back-out:  cubic-bezier(0.34, 1.4, 0.64, 1);
 
-  /* Standard transitions (shorthand values) */
+  /* Transitions (shorthand) */
   --dt-transition-colors:    color var(--dt-duration-fast) var(--dt-ease-out),
                              background-color var(--dt-duration-fast) var(--dt-ease-out),
                              border-color var(--dt-duration-fast) var(--dt-ease-out);
@@ -256,73 +235,21 @@
   --dt-transition-all:       all var(--dt-duration-normal) var(--dt-ease-out);
 }
 
-
 /* ============================================================
-   ELEVATED SURFACE SYSTEM (DARK MODE / ROSA)
-   Dark cards with heavy shadows. No glass morphism.
+   TIER 7: GLASS MORPHISM (OPTIONAL)
+   Backdrop filters for layered UI
    ============================================================ */
 
 :root {
-  /* Glass variables — minimal blur for dark (doesn't work as well) */
   --dt-glass-blur:        blur(8px);
   --dt-glass-blur-sm:     blur(4px);
   --dt-glass-blur-lg:     blur(12px);
   --dt-glass-saturation:  saturate(100%);
 }
 
-/* Layer 1 — Primary containers (dark card with heavy shadow) */
-.dt-glass-l1 {
-  background: #2A2A24;
-  backdrop-filter: none;
-  -webkit-backdrop-filter: none;
-  border: 1px solid var(--dt-border-default);
-  border-radius: var(--dt-radius-xl);
-  box-shadow: var(--dt-shadow-card);
-}
-
-/* Layer 2 — Nested elements (slightly raised surface) */
-.dt-glass-l2 {
-  background: #353530;
-  border: 1px solid var(--dt-border-subtle);
-  border-radius: var(--dt-radius-md);
-  box-shadow: var(--dt-shadow-sm);
-}
-
-/* With terracotta border — for active/featured cards */
-.dt-glass-accent {
-  background: #2A2A24;
-  backdrop-filter: none;
-  -webkit-backdrop-filter: none;
-  border: 1.5px solid var(--dt-accent);
-  border-radius: var(--dt-radius-xl);
-  box-shadow: var(--dt-shadow-active-card);
-}
-
-
 /* ============================================================
-   PAPER NOISE TEXTURE SYSTEM (OPTIONAL FOR DARK MODE)
-   Dark mode can use subtle noise/texture for tactile feel.
-   Classes preserved for compatibility.
-   ============================================================ */
-
-.dt-noise-body,
-.dt-noise-card,
-.dt-noise-overlay {
-  /* Texture optional in dark mode — clean aesthetic preferred */
-  position: relative;
-}
-
-.dt-noise-body::before,
-.dt-noise-card::before,
-.dt-noise-overlay::after {
-  /* Texture disabled for now — clean surfaces */
-  display: none;
-}
-
-
-/* ============================================================
-   TYPOGRAPHY UTILITY CLASSES
-   Role-specific type styles — always use these, never ad-hoc
+   UTILITY CLASSES — TYPOGRAPHY
+   Role-based text styles. Use instead of ad-hoc color/size combos.
    ============================================================ */
 
 .dt-display {
@@ -383,7 +310,6 @@
   color: var(--dt-text-secondary);
 }
 
-/* Uppercase label — for section dividers, input labels, metadata */
 .dt-label {
   font-family: var(--dt-font-body);
   font-size: var(--dt-text-xs);
@@ -393,7 +319,6 @@
   color: var(--dt-text-muted);
 }
 
-/* Mono — wallet addresses, amounts, tx hashes */
 .dt-mono {
   font-family: var(--dt-font-mono);
   font-size: var(--dt-text-sm);
@@ -409,13 +334,179 @@
   color: var(--dt-text-primary);
 }
 
-
 /* ============================================================
-   TRUST SCORE SYSTEM
-   Three dimensions, three colors, consistent across all components.
+   UTILITY CLASSES — SURFACES & CARDS
    ============================================================ */
 
-/* Badge variants */
+.dt-card {
+  background: var(--dt-surface-raised);
+  border: 1px solid var(--dt-border-default);
+  border-radius: var(--dt-radius-xl);
+  padding: var(--dt-space-6);
+  box-shadow: var(--dt-shadow-card);
+  transition: var(--dt-transition-shadow);
+}
+
+.dt-card:hover {
+  box-shadow: var(--dt-shadow-card-hover);
+  border-color: var(--dt-border-strong);
+}
+
+.dt-card--featured {
+  border: 1.5px solid var(--dt-accent);
+  box-shadow: var(--dt-shadow-active-card);
+}
+
+.dt-glass-l1 {
+  background: var(--dt-surface-raised);
+  border: 1px solid var(--dt-border-default);
+  border-radius: var(--dt-radius-xl);
+  box-shadow: var(--dt-shadow-card);
+}
+
+.dt-glass-l2 {
+  background: var(--dt-surface-overlay);
+  border: 1px solid var(--dt-border-subtle);
+  border-radius: var(--dt-radius-md);
+  box-shadow: var(--dt-shadow-sm);
+}
+
+/* ============================================================
+   UTILITY CLASSES — CONTROLS
+   Inputs, buttons, form elements
+   ============================================================ */
+
+.dt-input {
+  width: 100%;
+  padding: var(--dt-space-3) var(--dt-space-4);
+  background: var(--dt-surface-overlay);
+  border: 1px solid var(--dt-border-default);
+  border-radius: var(--dt-radius-md);
+  color: var(--dt-text-primary);
+  font-family: var(--dt-font-body);
+  font-size: var(--dt-text-base);
+  outline: none;
+  transition: border-color var(--dt-duration-fast) var(--dt-ease-out),
+              box-shadow var(--dt-duration-fast) var(--dt-ease-out);
+  box-sizing: border-box;
+  min-height: 44px;
+}
+
+.dt-input:focus {
+  border-color: var(--dt-accent);
+  box-shadow: 0 0 0 3px rgba(196, 92, 59, 0.2);
+}
+
+.dt-input::placeholder {
+  color: var(--dt-text-muted);
+}
+
+.dt-input--mono {
+  font-family: var(--dt-font-mono);
+  font-size: var(--dt-text-sm);
+  letter-spacing: 0.02em;
+}
+
+/* Button base */
+.dt-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--dt-space-2);
+  padding: var(--dt-space-3) var(--dt-space-6);
+  min-height: 44px;
+  border-radius: var(--dt-radius-md);
+  font-family: var(--dt-font-body);
+  font-size: var(--dt-text-sm);
+  font-weight: 600;
+  letter-spacing: var(--dt-tracking-wide);
+  text-transform: uppercase;
+  cursor: pointer;
+  border: 1px solid transparent;
+  text-decoration: none;
+  transition: var(--dt-transition-all);
+  box-sizing: border-box;
+}
+
+.dt-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Primary — terracotta, for CTAs */
+.dt-btn--primary {
+  background: var(--dt-accent);
+  color: var(--dt-text-inverse);
+  border-color: var(--dt-accent);
+}
+
+.dt-btn--primary:hover:not(:disabled) {
+  background: var(--dt-accent-hover);
+  border-color: var(--dt-accent-hover);
+  box-shadow: var(--dt-shadow-glow-accent);
+  transform: translateY(-2px);
+}
+
+.dt-btn--primary:active:not(:disabled) {
+  transform: translateY(0);
+  box-shadow: var(--dt-shadow-button);
+}
+
+/* Secondary — outlined */
+.dt-btn--secondary {
+  background: transparent;
+  color: var(--dt-text-primary);
+  border-color: var(--dt-border-strong);
+}
+
+.dt-btn--secondary:hover:not(:disabled) {
+  background: rgba(245, 240, 232, 0.05);
+  border-color: var(--dt-border-accent);
+  transform: translateY(-2px);
+}
+
+/* Ghost — minimal */
+.dt-btn--ghost {
+  background: transparent;
+  color: var(--dt-text-secondary);
+  border-color: transparent;
+}
+
+.dt-btn--ghost:hover:not(:disabled) {
+  color: var(--dt-text-primary);
+  background: rgba(245, 240, 232, 0.05);
+  border-color: rgba(245, 240, 232, 0.15);
+}
+
+/* Community — green */
+.dt-btn--community {
+  background: var(--dt-trust-community);
+  color: var(--dt-text-inverse);
+  border-color: var(--dt-trust-community);
+  font-weight: 600;
+}
+
+.dt-btn--community:hover:not(:disabled) {
+  background: #1ea853;
+  box-shadow: 0 0 20px rgba(34, 197, 94, 0.2);
+  transform: translateY(-2px);
+}
+
+.dt-btn--full {
+  width: 100%;
+}
+
+.dt-btn--lg {
+  padding: var(--dt-space-4) var(--dt-space-8);
+  font-size: var(--dt-text-base);
+  border-radius: var(--dt-radius-xl);
+}
+
+/* ============================================================
+   UTILITY CLASSES — TRUST SYSTEM
+   Three-dimensional trust badges and indicators
+   ============================================================ */
+
 .dt-trust-badge {
   display: inline-flex;
   align-items: center;
@@ -426,32 +517,28 @@
   font-size: var(--dt-text-xs);
   font-weight: 600;
   letter-spacing: var(--dt-tracking-wide);
+  background-size: 100% 100%;
+  border: 1px solid;
 }
 
 .dt-trust-badge--reliability {
-  background: rgba(74, 143, 212, 0.15);
-  color: #4A8FD4;
-  border: 1px solid rgba(74, 143, 212, 0.3);
+  background: var(--dt-trust-reliability-glow);
+  color: var(--dt-trust-reliability);
+  border-color: rgba(59, 130, 246, 0.3);
 }
 
 .dt-trust-badge--credit {
-  background: rgba(212, 175, 55, 0.15);
-  color: #D4AF37;
-  border: 1px solid rgba(212, 175, 55, 0.3);
+  background: var(--dt-trust-credit-glow);
+  color: var(--dt-trust-credit);
+  border-color: rgba(212, 175, 55, 0.3);
 }
 
 .dt-trust-badge--community {
-  background: rgba(107, 123, 94, 0.15);
-  color: #6B7B5E;
-  border: 1px solid rgba(107, 123, 94, 0.3);
+  background: var(--dt-trust-community-glow);
+  color: var(--dt-trust-community);
+  border-color: rgba(34, 197, 94, 0.3);
 }
 
-/* Score thresholds (apply to composite score display) */
-.dt-score--high  { color: var(--dt-trust-community); }   /* ≥ 80 — green */
-.dt-score--mid   { color: var(--dt-trust-credit);    }   /* 50-79 — gold */
-.dt-score--low   { color: var(--dt-state-error);     }   /* < 50 — red */
-
-/* Progress bar for dimension visualization */
 .dt-trust-bar {
   width: 100%;
   height: 4px;
@@ -470,194 +557,8 @@
 .dt-trust-bar__fill--credit      { background: var(--dt-trust-credit); }
 .dt-trust-bar__fill--community   { background: var(--dt-trust-community); }
 
-
 /* ============================================================
-   COMPONENT BASE STYLES
-   Low-specificity defaults — components should override as needed
-   ============================================================ */
-
-/* Card */
-.dt-card {
-  background: #2A2A24;
-  border: 1px solid var(--dt-border-default);
-  border-radius: var(--dt-radius-xl);
-  padding: var(--dt-space-6);
-  box-shadow: var(--dt-shadow-card);
-  transition: var(--dt-transition-shadow);
-}
-
-.dt-card:hover {
-  box-shadow: var(--dt-shadow-card-hover);
-  border-color: var(--dt-border-strong);
-}
-
-/* Featured/active card */
-.dt-card--featured {
-  background: #2A2A24;
-  backdrop-filter: none;
-  -webkit-backdrop-filter: none;
-  border: 1.5px solid #C45C3B;
-  border-radius: var(--dt-radius-xl);
-  box-shadow: var(--dt-shadow-active-card);
-}
-
-/* Input */
-.dt-input {
-  width: 100%;
-  padding: var(--dt-space-3) var(--dt-space-4);
-  background: #353530;
-  border: 1px solid var(--dt-border-default);
-  border-radius: var(--dt-radius-md);
-  color: #F5F0E8;
-  font-family: var(--dt-font-body);
-  font-size: var(--dt-text-base);
-  outline: none;
-  transition: border-color var(--dt-duration-fast) var(--dt-ease-out),
-              box-shadow var(--dt-duration-fast) var(--dt-ease-out);
-  box-sizing: border-box;
-}
-
-.dt-input:focus {
-  border-color: #C45C3B;
-  box-shadow: 0 0 0 3px rgba(196, 92, 59, 0.2);
-}
-
-.dt-input::placeholder {
-  color: #7A7468;
-}
-
-/* Mono input — for addresses, hashes */
-.dt-input--mono {
-  font-family: var(--dt-font-mono);
-  font-size: var(--dt-text-sm);
-  letter-spacing: 0.02em;
-}
-
-/* Buttons */
-.dt-btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: var(--dt-space-2);
-  padding: var(--dt-space-3) var(--dt-space-6);
-  border-radius: var(--dt-radius-md);
-  font-family: var(--dt-font-body);
-  font-size: var(--dt-text-sm);
-  font-weight: 600;
-  letter-spacing: var(--dt-tracking-wide);
-  text-transform: uppercase;
-  cursor: pointer;
-  transition: var(--dt-transition-all);
-  border: 1px solid transparent;
-  text-decoration: none;
-}
-
-.dt-btn:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-/* Primary button — terracotta, for CTAs */
-.dt-btn--primary {
-  background: #C45C3B;
-  color: #F5F0E8;
-  border-color: #C45C3B;
-  font-size: 12px;
-}
-
-.dt-btn--primary:hover:not(:disabled) {
-  background: #E67651;
-  border-color: #E67651;
-  box-shadow: var(--dt-shadow-glow-accent);
-  transform: translateY(-2px);
-}
-
-.dt-btn--primary:active:not(:disabled) {
-  transform: translateY(0);
-  box-shadow: var(--dt-shadow-button);
-}
-
-/* Secondary button — outlined, with warm border */
-.dt-btn--secondary {
-  background: transparent;
-  color: #F5F0E8;
-  border-color: rgba(245, 240, 232, 0.15);
-}
-
-.dt-btn--secondary:hover:not(:disabled) {
-  background: rgba(245, 240, 232, 0.05);
-  border-color: rgba(245, 240, 232, 0.25);
-  transform: translateY(-2px);
-}
-
-/* Ghost button — no background, muted text */
-.dt-btn--ghost {
-  background: transparent;
-  color: #B8B0A0;
-  border-color: transparent;
-}
-
-.dt-btn--ghost:hover:not(:disabled) {
-  color: #F5F0E8;
-  background: rgba(245, 240, 232, 0.05);
-  border-color: rgba(245, 240, 232, 0.15);
-}
-
-/* Community button — olive green */
-.dt-btn--community {
-  background: #6B7B5E;
-  color: #F5F0E8;
-  border-color: #6B7B5E;
-  font-weight: 600;
-}
-
-.dt-btn--community:hover:not(:disabled) {
-  background: #7A8A6D;
-  box-shadow: 0 0 20px rgba(107, 123, 94, 0.2);
-  transform: translateY(-2px);
-}
-
-/* Full width */
-.dt-btn--full { width: 100%; }
-
-/* Large */
-.dt-btn--lg {
-  padding: var(--dt-space-4) var(--dt-space-8);
-  font-size: var(--dt-text-base);
-  font-weight: 600;
-  border-radius: var(--dt-radius-xl);
-}
-
-
-/* ============================================================
-   INTENT STAMP — Physical document metaphor
-   The "INTENT" badge that labels the intent summary card.
-   ============================================================ */
-
-.dt-stamp {
-  display: inline-flex;
-  align-items: center;
-  padding: 2px var(--dt-space-3);
-  border-radius: var(--dt-radius-full);
-  background: var(--dt-accent);
-  color: var(--dt-text-inverse);
-  font-family: var(--dt-font-body);
-  font-size: var(--dt-text-xs);
-  font-weight: 700;
-  letter-spacing: var(--dt-tracking-widest);
-  text-transform: uppercase;
-}
-
-/* Floating stamp (positioned above card) */
-.dt-stamp--floating {
-  position: absolute;
-  top: -10px;
-  left: var(--dt-space-4);
-}
-
-
-/* ============================================================
-   PROGRESS BAR
+   UTILITY CLASSES — PROGRESS & STATE
    ============================================================ */
 
 .dt-progress {
@@ -674,185 +575,38 @@
   transition: width var(--dt-duration-slower) var(--dt-ease-out);
 }
 
-/* Gradient progress — for circle lifecycle */
 .dt-progress__fill--gradient {
-  background: linear-gradient(
-    90deg,
-    var(--dt-trust-reliability) 0%,
-    var(--dt-trust-community) 100%
-  );
+  background: linear-gradient(90deg, var(--dt-trust-reliability) 0%, var(--dt-trust-community) 100%);
 }
 
-/* Solid variants */
-.dt-progress__fill--community  { background: var(--dt-trust-community); }
-.dt-progress__fill--credit     { background: var(--dt-trust-credit); }
 .dt-progress__fill--reliability { background: var(--dt-trust-reliability); }
+.dt-progress__fill--credit      { background: var(--dt-trust-credit); }
+.dt-progress__fill--community   { background: var(--dt-trust-community); }
 
-
-/* ============================================================
-   NAVIGATION
-   ============================================================ */
-
-/* Bottom nav (primary on mobile/MiniPay) */
-.dt-nav-bottom {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  z-index: 20;
-  background: #2A2A24;
-  border-top: 1px solid var(--dt-border-default);
-  box-shadow: 0 -8px 32px rgba(0, 0, 0, 0.4);
-}
-
-.dt-nav-bottom__inner {
-  max-width: 512px;
-  margin: 0 auto;
-  display: flex;
-}
-
-.dt-nav-tab {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: var(--dt-space-1);
-  padding: var(--dt-space-2) var(--dt-space-1) var(--dt-space-3);
-  border: none;
-  border-top: 3px solid transparent;
-  background: none;
-  color: #7A7468;
-  font-family: var(--dt-font-body);
-  font-size: var(--dt-text-xs);
-  font-weight: 500;
-  letter-spacing: var(--dt-tracking-wide);
-  text-transform: uppercase;
-  cursor: pointer;
-  transition: var(--dt-transition-colors);
-}
-
-.dt-nav-tab--active {
-  border-top-color: #C45C3B;
-  color: #C45C3B;
-}
-
-.dt-nav-tab__icon {
-  font-size: 20px;
-  line-height: 1;
-}
-
-
-/* ============================================================
-   HEADER
-   ============================================================ */
-
-.dt-header {
-  position: sticky;
-  top: 0;
-  z-index: 20;
-  background: #2A2A24;
-  border-bottom: 1px solid var(--dt-border-default);
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
-}
-
-.dt-header__inner {
-  max-width: 512px;
-  margin: 0 auto;
-  padding: var(--dt-space-3) var(--dt-space-4);
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.dt-logo {
-  display: flex;
-  align-items: center;
-  gap: var(--dt-space-3);
-}
-
-.dt-logo__icon {
-  width: 36px;
-  height: 36px;
-  border-radius: var(--dt-radius-full);
-  background: rgba(196, 92, 59, 0.15);
-  border: 1px solid rgba(196, 92, 59, 0.3);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-}
-
-.dt-logo__name {
-  font-family: var(--dt-font-display);
-  font-size: var(--dt-text-lg);
-  font-weight: 400;
-  color: #F5F0E8;
-  line-height: var(--dt-leading-tight);
-}
-
-.dt-logo__sub {
-  font-size: var(--dt-text-xs);
-  color: #B8B0A0;
-  letter-spacing: var(--dt-tracking-wide);
-  line-height: var(--dt-leading-tight);
-}
-
-
-/* ============================================================
-   STATUS + STATE STYLES
-   ============================================================ */
-
-/* Testnet banner */
-.dt-banner--testnet {
-  background: rgba(196, 92, 59, 0.15);
-  border: 1px solid rgba(196, 92, 59, 0.3);
-  border-radius: var(--dt-radius-md);
-  padding: var(--dt-space-2) var(--dt-space-4);
-  font-size: var(--dt-text-xs);
-  color: #E67651;
-  display: flex;
-  align-items: center;
-  gap: var(--dt-space-2);
-}
-
-/* MiniPay badge */
-.dt-badge--minipay {
-  font-size: var(--dt-text-xs);
-  font-weight: 600;
-  padding: 2px var(--dt-space-2);
-  border-radius: var(--dt-radius-full);
-  background: rgba(196, 92, 59, 0.15);
-  color: #E67651;
-  border: 1px solid rgba(196, 92, 59, 0.3);
-}
-
-/* Error message */
 .dt-error {
-  background: rgba(255, 107, 107, 0.15);
-  border: 1px solid rgba(255, 107, 107, 0.3);
+  background: rgba(255, 107, 107, 0.08);
+  border: 1px solid rgba(255, 107, 107, 0.2);
   border-radius: var(--dt-radius-md);
   padding: var(--dt-space-3) var(--dt-space-4);
-  color: #FF6B6B;
+  color: var(--dt-state-error);
   font-size: var(--dt-text-sm);
 }
 
-/* Success message */
 .dt-success {
-  background: rgba(81, 207, 102, 0.15);
-  border: 1px solid rgba(81, 207, 102, 0.3);
+  background: rgba(81, 207, 102, 0.08);
+  border: 1px solid rgba(81, 207, 102, 0.2);
   border-radius: var(--dt-radius-md);
   padding: var(--dt-space-3) var(--dt-space-4);
-  color: #51CF66;
+  color: var(--dt-state-success);
   font-size: var(--dt-text-sm);
 }
 
-/* Empty state */
 .dt-empty {
   text-align: center;
   padding: var(--dt-space-16) var(--dt-space-6);
   border: 1px dashed var(--dt-border-default);
   border-radius: var(--dt-radius-xl);
-  background: #353530;
+  background: var(--dt-surface-overlay);
 }
 
 .dt-empty__icon {
@@ -864,60 +618,17 @@
   font-family: var(--dt-font-display);
   font-size: var(--dt-text-xl);
   font-weight: 400;
-  color: #F5F0E8;
+  color: var(--dt-text-primary);
   margin-bottom: var(--dt-space-2);
+  margin: 0 0 var(--dt-space-2) 0;
 }
 
 .dt-empty__body {
   font-size: var(--dt-text-sm);
-  color: #7A7468;
+  color: var(--dt-text-muted);
   max-width: 260px;
   margin: 0 auto;
 }
-
-
-/* ============================================================
-   WALLET ADDRESS CHIP
-   ============================================================ */
-
-.dt-wallet-chip {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--dt-space-2);
-}
-
-.dt-wallet-chip__address {
-  font-family: var(--dt-font-mono);
-  font-size: var(--dt-text-xs);
-  color: #B8B0A0;
-  letter-spacing: 0.02em;
-}
-
-.dt-wallet-chip__chain {
-  font-size: var(--dt-text-xs);
-  color: #7A7468;
-}
-
-.dt-wallet-chip__disconnect {
-  width: 20px;
-  height: 20px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 12px;
-  color: #7A7468;
-  background: none;
-  border: none;
-  cursor: pointer;
-  border-radius: var(--dt-radius-full);
-  transition: var(--dt-transition-colors);
-}
-
-.dt-wallet-chip__disconnect:hover {
-  color: #F5F0E8;
-  background: rgba(245, 240, 232, 0.08);
-}
-
 
 /* ============================================================
    ANIMATIONS
@@ -940,7 +651,7 @@
 
 @keyframes dt-glow-pulse {
   0%, 100% { box-shadow: var(--dt-shadow-glow-gold); }
-  50%       { box-shadow: 0 0 40px rgba(212,175,55,0.4), 0 0 80px rgba(212,175,55,0.15); }
+  50%      { box-shadow: 0 0 40px rgba(212, 175, 55, 0.4), 0 0 80px rgba(212, 175, 55, 0.15); }
 }
 
 @keyframes dt-spin {
@@ -948,23 +659,23 @@
   to   { transform: rotate(360deg); }
 }
 
-@keyframes dt-progress-fill {
-  from { width: 0%; }
+@keyframes dt-pulse {
+  0%, 100% { opacity: 1; }
+  50%      { opacity: 0.5; }
 }
 
-/* Utility animation classes */
 .dt-animate-fade-in     { animation: dt-fade-in var(--dt-duration-normal) var(--dt-ease-out) forwards; }
 .dt-animate-fade-in-up  { animation: dt-fade-in-up var(--dt-duration-slow) var(--dt-ease-spring) forwards; }
 .dt-animate-scale-in    { animation: dt-scale-in var(--dt-duration-normal) var(--dt-ease-spring) forwards; }
 .dt-animate-glow-pulse  { animation: dt-glow-pulse 2s var(--dt-ease-in-out) infinite; }
+.dt-animate-spin        { animation: dt-spin 1s linear infinite; }
+.dt-animate-pulse       { animation: dt-pulse 2s ease-in-out infinite; }
 
-/* Stagger delays for lists */
 .dt-stagger-1 { animation-delay: 50ms; }
 .dt-stagger-2 { animation-delay: 100ms; }
 .dt-stagger-3 { animation-delay: 150ms; }
 .dt-stagger-4 { animation-delay: 200ms; }
 .dt-stagger-5 { animation-delay: 250ms; }
-
 
 /* ============================================================
    LAYOUT UTILITIES
@@ -976,116 +687,46 @@
   padding: 0 var(--dt-space-4);
 }
 
-/* Space below content for bottom nav */
 .dt-main-content {
   padding-top: var(--dt-space-6);
-  padding-bottom: 80px;  /* clears fixed bottom nav */
+  padding-bottom: 80px;
 }
 
-/* Divider */
 .dt-divider {
   border: none;
   border-top: 1px solid var(--dt-border-subtle);
   margin: var(--dt-space-4) 0;
 }
 
-
 /* ============================================================
-   INTENTCIRCLES-SPECIFIC EXTENSIONS
-   Project overrides beyond the base ROSA system
+   FOCUS & ACCESSIBILITY
    ============================================================ */
 
-/* Intent summary "document" card */
-.ic-intent-summary {
-  background: var(--dt-surface-base);
-  border: 1px solid var(--dt-border-strong);
-  border-radius: var(--dt-radius-lg);
-  padding: var(--dt-space-4) var(--dt-space-5);
-  position: relative;
-  margin-top: var(--dt-space-5);
-}
-
-/* Claim payout — the most joyful CTA */
-.ic-claim-payout-btn {
-  background: var(--dt-accent);
-  color: var(--dt-text-inverse);
-  font-weight: 700;
-  border: 1px solid var(--dt-accent);
-  border-radius: var(--dt-radius-lg);
-  padding: var(--dt-space-3) var(--dt-space-6);
-  font-size: var(--dt-text-sm);
-  letter-spacing: var(--dt-tracking-wide);
-  cursor: pointer;
-  width: 100%;
-  transition: var(--dt-transition-all);
-  animation: dt-glow-pulse 2.5s ease-in-out infinite;
-}
-
-.ic-claim-payout-btn:hover {
-  transform: translateY(-2px);
-  box-shadow: var(--dt-shadow-glow-gold);
-}
-
-/* Trust score large display */
-.ic-trust-score-display {
-  font-family: var(--dt-font-display);
-  font-size: var(--dt-text-4xl);
-  font-weight: 300;
-  line-height: var(--dt-leading-none);
-  letter-spacing: var(--dt-tracking-tighter);
-}
-
-/* Cycle selector pills */
-.ic-cycle-pill {
-  padding: var(--dt-space-3) var(--dt-space-2);
-  border-radius: var(--dt-radius-md);
-  border: 1px solid var(--dt-border-default);
-  background: var(--dt-surface-overlay);
-  color: var(--dt-text-secondary);
-  font-weight: 500;
-  font-size: var(--dt-text-sm);
-  cursor: pointer;
-  transition: var(--dt-transition-all);
-  text-align: center;
-}
-
-.ic-cycle-pill:hover {
-  border-color: var(--dt-border-strong);
-  color: var(--dt-text-primary);
-}
-
-.ic-cycle-pill--active {
-  border-color: var(--dt-accent);
-  background: var(--dt-accent-muted);
-  color: var(--dt-accent);
-}
-
-/* Circle card active state */
-.ic-circle-card--your-turn {
-  animation: dt-glow-pulse 3s ease-in-out infinite;
-}
-
-/* Range slider track (accent color) */
-input[type="range"] {
-  accent-color: var(--dt-accent);
-  height: 44px;  /* minimum touch target */
-  cursor: pointer;
-}
-
-/* Selection color */
-::selection {
-  background: var(--dt-accent);
-  color: var(--dt-text-inverse);
-}
-
-/* Focus visible — gold ring */
 :focus-visible {
   outline: 2px solid var(--dt-accent);
   outline-offset: 2px;
 }
 
-/* Scrollbar styling (WebKit) */
-::-webkit-scrollbar { width: 6px; }
-::-webkit-scrollbar-track { background: var(--dt-surface-base); }
-::-webkit-scrollbar-thumb { background: var(--dt-border-default); border-radius: var(--dt-radius-full); }
-::-webkit-scrollbar-thumb:hover { background: var(--dt-border-strong); }
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--dt-surface-base);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--dt-border-default);
+  border-radius: var(--dt-radius-full);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--dt-border-strong);
+}
+
+/* Selection */
+::selection {
+  background: var(--dt-accent);
+  color: var(--dt-text-inverse);
+}
