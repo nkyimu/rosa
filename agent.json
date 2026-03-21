@@ -1,0 +1,58 @@
+{
+  "$schema": "https://erc8004.org/agent.json",
+  "name": "ROSA",
+  "description": "Private savings circles managed by an autonomous agent on Celo. ROSA creates, enforces, and privately manages ROSCAs — matching compatible savers, deploying SaveCircle contracts, enforcing contributions with penalties, rotating payouts, and hiding contribution amounts via ZK commit-reveal.",
+  "version": "0.1.0",
+  "agentAddress": "0x76990983caBF0B073a6E3Be8d04Fb590f64FA694",
+  "chainId": 11142220,
+  "rpcUrl": "https://forno.celo-sepolia.celo-testnet.org",
+  "registryAddress": "0xDaCE1481D99fb8184196e5Db28A16d7FcF006CA7",
+  "capabilities": [
+    "circle-creation",
+    "intent-matching",
+    "contribution-enforcement",
+    "rotation-payouts",
+    "yield-sweeps",
+    "trust-scoring",
+    "credit-lines",
+    "zk-privacy",
+    "barter-matching",
+    "x402-payments"
+  ],
+  "endpoints": {
+    "health": "http://localhost:3002/api/status/system",
+    "chat": "http://localhost:3002/api/chat",
+    "activity": "http://localhost:3002/api/activity",
+    "trust": "http://localhost:3002/api/trust/:address",
+    "credit": "http://localhost:3002/api/credit/:address",
+    "barter": "http://localhost:3002/api/barter/match"
+  },
+  "contracts": {
+    "IntentRegistry": "0x6Bddd66698206c9956e5ac65F9083A132B574844",
+    "CircleFactory": "0x87cd271485e7838607d19bc5b33dc0dc6297f1e3",
+    "CircleTrust": "0x0c2098e90A078b2183b765eFB38Bd912FcDBb8Ba",
+    "AgentRegistry8004": "0xDaCE1481D99fb8184196e5Db28A16d7FcF006CA7",
+    "AgentPayment": "0x5F1fD5655C42f77253E17Ec1FB9F65AC86400Ed4",
+    "MockLendingPool": "0x4078B0950F3D12676C09F9997729b40a787b865b",
+    "cUSD": "0xB3567F61d19506A023ae7216a27848B13e5c331B"
+  },
+  "standards": ["ERC-8004", "x402"],
+  "runtime": "bun",
+  "sourceCode": "https://github.com/nkyimu/rosa",
+  "license": "MIT",
+  "team": "AMANTU",
+  "hackathon": {
+    "name": "The Synthesis",
+    "tracks": [
+      "Agents that Cooperate",
+      "Agents that Keep Secrets",
+      "Agents that Trust",
+      "Agents that Pay"
+    ],
+    "bounties": [
+      "Best Agent on Celo",
+      "ERC-8004",
+      "Open Track"
+    ]
+  }
+}
