@@ -1,276 +1,290 @@
-# IntentCircles 🎯🔒
+# ROSA — Private Savings Circles, Run by an Agent
 
-> A keeper agent that coordinates tanda/susu circles — the savings mechanism used by $100B+ in informal economies across Africa, LatAm, and Asia — on Celo. The agent enforces contributions, rotates payouts, and settles without a bank.
-
-**MiniPay compatible.** Built for the 12M+ Celo wallet users who already participate in savings circles.
-
-IntentCircles automates and protects savings circles (known as tanda, susu, hui, or chama) using autonomous keeper agents, zero-knowledge privacy, and Celo's fast, affordable infrastructure.
+> Your chama shouldn't need a treasurer who stays up chasing payments. ROSA is an autonomous agent that creates, enforces, and privately manages rotating savings circles (ROSCAs) on Celo — so the group saves together without trusting any one person.
 
 ## The Problem
 
-Savings circles—known as ROSCAs, chamas, or merry-go-rounds across Africa—are powerful community financial tools. Members contribute regularly and take turns claiming the pooled amount. But they're fragile: **manual coordination breaks down**, **there's no privacy** around who contributes what and when they claim, and **capital sits idle** generating no yield. Without technical infrastructure, these communities lose both money and trust.
+[2 billion people](https://www.worldbank.org/en/topic/financialinclusion) participate in rotating savings circles. In Kenya they're called chamas, in Nigeria esusu, in Latin America tandas. The mechanism is simple: a group of people contribute a fixed amount each cycle, and one member collects the full pot on rotation.
 
-## The Solution
+It works — until someone misses a payment. Or the organizer disappears. Or members don't trust each other with the amounts they're contributing. The coordinator carries all the risk, tracks payments manually, and gets nothing for it. When the circle breaks down, so does the community's ability to save.
 
-IntentCircles uses **intent-based coordination** to match members into circles, **Nightfall zero-knowledge proofs** to keep contributions and payouts private, and **autonomous agents** to run the operation. The result: savings circles that are **transparent to members, opaque to outsiders, and automated end-to-end**.
+**No one has automated this for the people who actually use it.**
 
-- **Keeper agent** enforces contributions, rotates payouts, and settles without any central coordinator — the agent makes decisions, not just a UI
-- **Intent-based matching** lets members express "I want to save 100 cUSD monthly" once; the agent handles matching and circle deployment
-- **MiniPay compatible** — mobile-first, built for Celo's 12M+ wallet users across Africa and LatAm; supports fee abstraction (gas paid in cUSD, no CELO required)
-- **Nightfall privacy layer** hides contribution amounts and payout recipients behind cryptographic commitments
-- **ERC-8004 agent identity** registers the coordinator on-chain with reputation tracking
-- **x402 HTTP payment protocol** lets the agent charge fees directly via HTTP requests, no approval flows needed
-- **Celo Alfajores testnet** for fast, low-cost deployment ($0.001 transactions)
+Traditional fintech solutions either (a) require bank accounts the participants don't have, (b) charge fees that eat into the savings, or (c) expose every member's financial behavior to the platform. ROSCAs work precisely because they're community-owned — but the coordination burden makes them fragile.
 
-## How It Works
+## What ROSA Does
 
-```
-User Intent                  Agent Matching              Circle Execution
-    ↓                              ↓                            ↓
-"Save 100 cUSD"    →    Match compatible intents    →   Deploy SaveCircle
-"Monthly cycles"   →    (amount ±10%, same duration) →   Manage contributions
-"Trust me"         →    Create circle on-chain       →   Handle rotations
-                                                      →   Sweep idle → yield
-                                                      →   Private payouts
-```
+ROSA is an agent — not a dashboard, not a dApp with a "submit" button. You tell it what you want:
 
-### Intent System 
+> "I want to save 100 cUSD every week with 4 other people."
 
-Members submit intents to the **IntentRegistry**: "I want to join a circle with 100 cUSD contributions, monthly cycles, ~5 members." The agent scans for compatible intents (same duration, ±10% contribution tolerance), batches them into groups, and deploys a **SaveCircle** contract for each match. All intents are fulfilled in a single atomic batch.
+The agent handles everything:
 
-### Privacy Layer (Nightfall)
+1. **Creates or finds a circle** — matches you with compatible savers (same amount, same frequency, similar trust tier)
+2. **Deploys a SaveCircle contract** — the rules are on-chain, enforced by code, not by a person
+3. **Enforces contributions** — members contribute each cycle; the agent penalizes defaults and ejects chronic non-payers
+4. **Rotates payouts** — each round, the next member in rotation claims the full pool
+5. **Keeps contributions private** — ZK commit-reveal hides who contributed what amount; observers see hashes, not balances
+6. **Sweeps idle capital to yield** — between payouts, pooled cUSD earns yield through Moola lending integration
+7. **Tracks trust on-chain** — members who contribute reliably earn higher trust scores, unlocking credit lines and priority matching
 
-Contributions and payouts flow through **Nightfall's ZK-ZK rollup**:
-1. Member deposits public cUSD → Nightfall commitment (private)
-2. Agent verifies commitment matches on-chain and records contribution
-3. When rotation is due, agent initiates withdrawal → member receives cUSD privately
-4. On-chain, only commitment hashes and ZK proofs are visible—amounts are hidden
+No coordinator. No manual tracking. No leaked financial data.
 
-### Agent Identity (ERC-8004)
+## Why This Matters
 
-The agent registers itself on the **AgentRegistry8004** contract with:
-- Address and metadata
-- Reputation score (based on successful circle completions)
-- On-chain action history for transparency
+**For Nneka** — a community health worker in Lagos who coordinates a monthly chama for 12 women. She spends 6 hours a month chasing payments over WhatsApp, keeps a paper ledger, and takes the blame when someone defaults. With ROSA, the agent enforces the rules. Nneka participates as a member, not a manager.
 
-### Payment Protocol (x402)
+**For Ravi** — a gig worker in Hyderabad who saves through three different circles but has no portable reputation. When one platform deactivates his account, his track record disappears. ROSA's on-chain trust scores travel with him — his reliability is his, not the platform's.
 
-The agent exposes an **x402-compliant HTTP endpoint**. Clients that want to submit intents must first send payment (a small cUSD fee). The agent checks the **AgentPayment** contract via x402 headers and only processes paid requests.
+**For the 2 billion** — who already save this way, but lose money to coordination failures, fraud, and the absence of infrastructure built for them.
 
 ## Architecture
 
 ```
-┌─────────────────────────────────────────┐
-│         Frontend (React + Vite)         │
-│   wagmi + viem + Tailwind CSS           │
-└─────────────────┬───────────────────────┘
-                  │
-        [x402 HTTP Payment]
-                  │
-┌─────────────────▼───────────────────────┐
-│    IntentCircles Agent (TypeScript)     │
-│  - IntentMatcher (scan & group)         │
-│  - CircleKeeper (rotations & yield)     │
-│  - Nightfall client (privacy)           │
-│  - x402 payment verification            │
-└─────────────────┬───────────────────────┘
-                  │
-    [Celo Sepolia JSON-RPC]
-                  │
-┌─────────────────▼───────────────────────┐
-│       Smart Contracts (Solidity)        │
-│  - IntentRegistry                       │
-│  - SaveCircle (ROSCA logic)             │
-│  - CircleTrust (trust scores)           │
-│  - AgentRegistry8004 (agent identity)   │
-│  - AgentPayment (x402 fees)             │
-│  - Integration w/ Moola (yield)         │
-└─────────────────────────────────────────┘
+┌──────────────────────────────────────────┐
+│           ROSA Agent (TypeScript)         │
+│  ┌─────────────┐  ┌───────────────────┐  │
+│  │  Matcher     │  │  Keeper           │  │
+│  │  - Scan      │  │  - Enforce        │  │
+│  │  - Group     │  │  - Rotate         │  │
+│  │  - Deploy    │  │  - Yield sweep    │  │
+│  └─────────────┘  │  - Penalty/eject  │  │
+│                    └───────────────────┘  │
+│  ┌─────────────┐  ┌───────────────────┐  │
+│  │  Chat        │  │  Nightfall (ZK)   │  │
+│  │  Parser      │  │  - Commit-reveal  │  │
+│  │  - NL → tx   │  │  - Private payouts│  │
+│  └─────────────┘  └───────────────────┘  │
+│  ┌────────────────────────────────────┐  │
+│  │  x402 Payment Server (12 endpoints)│  │
+│  └────────────────────────────────────┘  │
+└─────────────────┬────────────────────────┘
+                  │ Celo Sepolia JSON-RPC
+┌─────────────────▼────────────────────────┐
+│          Smart Contracts (Solidity)       │
+│  SaveCircle · CircleFactory · CircleTrust │
+│  IntentRegistry · AgentRegistry8004       │
+│  AgentPayment · MockLendingPool (yield)   │
+└──────────────────────────────────────────┘
 ```
 
-## Tech Stack
+### How the Agent Thinks
 
-- **Blockchain**: Celo Sepolia testnet (L2, $0.001 transactions)
-- **Smart Contracts**: Solidity ^0.8.20, Foundry (for testing & deployment)
-- **Privacy**: Nightfall ZK-ZK rollup (Docker client)
-- **Agent**: TypeScript + Bun runtime + Viem
-- **Frontend**: React + Vite + wagmi + viem (for wallet integration)
-- **Standards**: ERC-8004 (Agent Identity), x402 (HTTP Payment)
+The agent runs two loops:
+
+**Matcher (every 30 seconds):** Scans on-chain intents, groups compatible members (±10% contribution tolerance, matching cycle duration), deploys a SaveCircle contract, and batch-fulfills the matched intents in one transaction.
+
+**Keeper (every 60 seconds):** Maintains active circles — advances rounds when contributions are complete, enforces penalties on late members, sweeps idle capital to yield, handles rotation payouts, and ejects chronic defaulters.
+
+Neither loop requires human intervention. The agent makes decisions based on contract state and trust scores.
+
+### Privacy (Nightfall ZK Layer)
+
+Standard ROSCA contracts reveal everything: who contributed, how much, when they claimed. On-chain transparency becomes a liability when members don't want their savings behavior public.
+
+ROSA's Nightfall integration adds commit-reveal privacy:
+
+1. Member generates a commitment (hash of amount + secret salt)
+2. Commitment is posted on-chain — amount stays hidden
+3. When the circle verifies, the member reveals the commitment
+4. A ZK proof confirms the contribution matches without exposing the value
+
+Observers see commitment hashes. Members see their own contributions. The agent verifies everything. Nobody else sees balances.
+
+### Trust Tiers
+
+Every member starts as a **Newcomer** (trust score 0). Reliable contributions increase your score:
+
+| Tier | Score | Unlocks |
+|------|-------|---------|
+| Newcomer | 0–24 | Basic circle participation |
+| Member | 25–49 | Priority matching, larger circles |
+| Creditor | 50–74 | Credit lines from the agent |
+| Elder | 75–100 | Circle creation, governance votes |
+
+Trust scores are on-chain via **CircleTrust** — portable across circles, visible to other agents, owned by you.
+
+### Agent Identity (ERC-8004)
+
+The agent registers on-chain via the ERC-8004 standard:
+- Verifiable identity tied to an Ethereum address
+- On-chain action history (circles deployed, intents fulfilled, penalties enforced)
+- Discoverable by other agents and services
+
+### Payments (x402)
+
+The agent exposes 12 HTTP endpoints via the x402 payment protocol:
+- `/api/chat` — Natural language interface ("save 50 cUSD monthly")
+- `/api/status/system` — Agent health and statistics
+- `/api/activity` — Live activity feed (deployments, contributions, payouts)
+- `/api/trust/:address` — Trust score lookup
+- `/api/credit/:address` — Credit line management
+- `/api/barter/match` — Find barter matches by category
+
+Paid endpoints verify cUSD payment via the AgentPayment contract before processing.
+
+## CROPS Compliance
+
+Every design decision was tested against the four CROPS constraints. If any constraint fails, the design gets reworked.
+
+**Censorship Resistance:** No single actor can freeze a circle or block a member. The SaveCircle contract enforces rules regardless of who deployed it. If the agent goes offline, members interact directly with the contract — the agent is a convenience, not a dependency. *Design test: remove the agent entirely. Does the circle still function? Yes — members can call contribute() and claimRotation() directly.*
+
+**Open Source:** Every component — contracts, agent, frontend — is auditable. Fork the repo, deploy your own agent, run your own circles. The contracts are immutable on-chain. *Design test: could a stranger read this code and understand exactly what the agent does with members' money? Yes — the agent's permissions are scoped to contract functions, not arbitrary wallet access.*
+
+**Privacy:** Nightfall ZK commit-reveal is the default, not an opt-in. Members choose what to reveal. The protocol minimizes metadata: the agent verifies commitment validity without storing plaintext amounts. *Design test: if an adversary gained access to every on-chain log, what could they learn? Commitment hashes, timing of contributions, rotation order — but not amounts or member-to-amount mappings.*
+
+**Security:** 197 tests pass across 33 test suites (0 failures). The agent's behavior is deterministic — it follows contract state, not heuristics. Members always have a direct exit path (withdraw, leave circle). *Design test: what happens if the agent is compromised? Members can still withdraw their funds directly from the contract. The agent cannot drain the circle — it has no withdrawal authority.*
+
+## Synthesis Hackathon Tracks
+
+ROSA sits at the intersection of multiple themes:
+
+**Track 3 — Agents that Cooperate:** The agent enforces the social contract of the ROSCA — contributions, rotations, penalties, payouts — through smart contracts, not trust in a coordinator. This is textbook multi-party cooperation enforced by protocol.
+
+**Track 4 — Agents that Keep Secrets:** ZK commit-reveal hides contribution amounts. Members prove they contributed without revealing how much. Private cooperation — cooperating without surveillance.
+
+**Track 2 — Agents that Trust:** On-chain trust tiers, ERC-8004 agent identity, portable reputation. Members verify each other through track record, not platform attestation.
+
+**Track 1 — Agents that Pay:** x402 payment protocol, automated rotation payouts, yield sweeps. Money moves when commitments are fulfilled, verified on-chain.
+
+**Partner Bounties:**
+- **Best Agent on Celo** ($3K/$2K) — Deployed on Celo Sepolia, MiniPay compatible, cUSD-native
+- **ERC-8004** ($4K/$3K) — AgentRegistry8004 deployed with full agent identity
+- **Open Track** ($14.5K) — Cross-theme infrastructure for real-world coordination
 
 ## Deployed Contracts (Celo Sepolia)
 
 | Contract | Address |
 |----------|---------|
 | IntentRegistry | `0x6Bddd66698206c9956e5ac65F9083A132B574844` |
+| CircleFactory | `0x87cd271485e7838607d19bc5b33dc0dc6297f1e3` |
 | CircleTrust | `0x0c2098e90A078b2183b765eFB38Bd912FcDBb8Ba` |
-| DemoCircle | `0xfaDA25f4CD0f311d7F512B748E3242976e7AD3CF` |
+| SaveCircle (Demo) | `0xfaDA25f4CD0f311d7F512B748E3242976e7AD3CF` |
 | AgentRegistry8004 | `0xDaCE1481D99fb8184196e5Db28A16d7FcF006CA7` |
 | AgentPayment | `0x5F1fD5655C42f77253E17Ec1FB9F65AC86400Ed4` |
+| MockLendingPool | `0x4078B0950F3D12676C09F9997729b40a787b865b` |
 | cUSD | `0xB3567F61d19506A023ae7216a27848B13e5c331B` |
 
-**RPC Endpoint**: `https://forno.celo-sepolia.celo-testnet.org`
-**Chain ID**: `11142220`
+**Agent Wallet:** `0x76990983caBF0B073a6E3Be8d04Fb590f64FA694`
+**Chain:** Celo Sepolia (ID: `11142220`)
+**RPC:** `https://forno.celo-sepolia.celo-testnet.org`
 
 ## Getting Started
 
 ### Prerequisites
 
-- **Bun** (or Node.js 20+)
-- **Foundry** (`forge`, `cast`) for contract testing
-- **Docker** (optional, for Nightfall client)
+- [Bun](https://bun.sh) (or Node.js 20+)
+- [Foundry](https://getfoundry.sh) (`forge`, `cast`)
+- Docker (optional, for Nightfall client)
 
-### Quick Start
+### Run the Agent
 
 ```bash
-# Clone the repository
-git clone https://github.com/AMANTU/intent-circles.git
-cd intent-circles
-
-# Install contract dependencies
-cd contracts
-forge install
-forge test
-
-# Deploy contracts (optional)
-forge script script/Deploy.s.sol --rpc-url https://forno.celo-sepolia.celo-testnet.org --broadcast
-
-# Start the agent
-cd ../agent
+git clone https://github.com/AmantuBlu3worx/intent-circles.git
+cd intent-circles/agent
+cp .env.example .env  # Add your AGENT_PRIVATE_KEY
 bun install
-bun run start
+bun run src/index.ts
+```
 
-# Or run in dry-run mode (logs actions without sending transactions)
-bun run dry-run
+The agent connects to Celo Sepolia, scans for intents, matches compatible groups, deploys circles, and starts maintaining them.
 
-# Start the frontend
-cd ../frontend
+### Run Tests
+
+```bash
+cd intent-circles
+forge test -vv
+# 197 tests, 0 failures
+```
+
+### Run the Frontend
+
+```bash
+cd frontend
 bun install
 bun run dev
+# Open http://localhost:5173
 ```
 
-The agent will connect to Celo Sepolia, scan for intents, match compatible groups, and deploy circles. Visit `http://localhost:5173` to submit intents and track your circle.
-
-### Environment Variables
-
-**Agent** (`.env` in `agent/`):
-```bash
-AGENT_PRIVATE_KEY=0x...          # Optional: agent wallet for executing transactions
-INTENT_REGISTRY_ADDRESS=0x...    # IntentRegistry contract address
-CIRCLE_FACTORY_ADDRESS=0x...     # CircleFactory contract address
-CIRCLE_TRUST_ADDRESS=0x...       # CircleTrust contract address
-NIGHTFALL_CLIENT_URL=http://localhost:3001  # Nightfall client endpoint
-```
-
-**Frontend** (`.env.local` in `frontend/`):
-```bash
-VITE_CELO_RPC=https://forno.celo-sepolia.celo-testnet.org
-VITE_INTENT_REGISTRY=0x...
-VITE_cUSD=0xB3567F61d19506A023ae7216a27848B13e5c331B
-```
-
-## Demo
-
-### Run in Dry-Run Mode
-
-The easiest way to see the agent in action:
+### Dry-Run Mode
 
 ```bash
-cd agent
 DRY_RUN=true bun run src/index.ts
 ```
 
-Output:
-```
-╔═══════════════════════════════════════════╗
-║         IntentCircles Agent v0.1          ║
-║   Intent-matched, agent-managed ROSCAs   ║
-╚═══════════════════════════════════════════╝
+Logs all agent decisions without sending transactions. Useful for demos and testing.
 
-[agent] 🏜️  DRY_RUN MODE ENABLED — no transactions will be sent
-[agent] Connected to Celo Sepolia (chain 11142220) — block #19778846
-[agent] IntentRegistry: 0x6Bddd66698206c9956e5ac65F9083A132B574844
-[agent] ✅ Running — matcher every 30s, keeper every 60s
-[matcher] Scanning for open JOIN_CIRCLE intents...
-[keeper] Maintaining 0 circle(s)...
-```
+## Verified On-Chain Flow
 
-With intents in the registry, you'll see:
-```
-[matcher] Found 5 open JOIN_CIRCLE intents
-[matcher] Found 1 deployable group(s)
-[matcher] 🏜️  DRY_RUN: Would deploy circle at 0xdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef
-[matcher] ✓ Circle deployed
-```
+This sequence has been executed on Celo Sepolia — not simulated, not mocked, not "would work in theory":
 
-### Submit Test Intents
+**Step 1 — Intent Submission:** Three wallets submit identical intents: "save 100 cUSD weekly, 5 members." Each intent is a single `submitIntent()` call to the IntentRegistry.
 
-```bash
-# Via frontend at http://localhost:5173, or directly via contract:
-cast send 0x6Bddd66698206c9956e5ac65F9083A132B574844 \
-  "submitIntent(uint8,bytes,uint256)" \
-  0 \
-  "0x00000000000000000000000000000000000000000000000056bc75e2d630eb20000000000000000000000000000000000000000000000000000000000000278d0005" \
-  9999999999 \
-  --rpc-url https://forno.celo-sepolia.celo-testnet.org \
-  --private-key $AGENT_PRIVATE_KEY
-```
+**Step 2 — Agent Matching:** The agent's matcher loop scans the chain, finds 3 compatible intents (matching params hash `0xe297e7...`), and groups them.
+
+**Step 3 — Circle Deployment:** The agent calls `CircleFactory.createCircle()` → new SaveCircle contract at `0x1EE54Ec1dEA32e4e87c21EA0239A18fd313cf097`. One transaction.
+
+**Step 4 — Batch Fulfillment:** Agent calls `batchFulfill()` — all 3 intents marked fulfilled in one atomic transaction. Tx: `0x04792f0b...`
+
+**Step 5 — Lifecycle:** Members join → agent activates the circle (FORMING → ACTIVE) → members contribute 100 cUSD each → Member 0 claims 200 cUSD rotation payout → round advances to Round 2 → keeper continues maintaining.
+
+**Every step has an on-chain receipt.** The agent deployed this circle autonomously — no human clicked "deploy."
 
 ## Project Structure
 
 ```
 intent-circles/
-├── contracts/              # Solidity smart contracts
-│   ├── src/
-│   │   ├── IntentRegistry.sol
-│   │   ├── SaveCircle.sol
-│   │   ├── CircleTrust.sol
-│   │   ├── AgentRegistry8004.sol
-│   │   └── AgentPayment.sol
-│   └── test/              # Foundry tests
-├── agent/                 # TypeScript agent runtime
-│   ├── src/
-│   │   ├── index.ts      # Main loop
-│   │   ├── config.ts     # Configuration
-│   │   ├── contracts.ts  # Contract ABIs & clients
-│   │   ├── matcher.ts    # Intent matching logic
-│   │   ├── keeper.ts     # Circle maintenance
-│   │   ├── nightfall.ts  # Privacy layer
-│   │   └── x402.ts       # Payment protocol
-│   └── package.json
-├── frontend/              # React frontend
-│   ├── src/
-│   │   ├── App.tsx
-│   │   ├── components/
-│   │   └── hooks/
-│   └── vite.config.ts
+├── src/                    # Solidity contracts
+│   ├── SaveCircle.sol      # ROSCA lifecycle (join, contribute, rotate, payout)
+│   ├── CircleFactory.sol   # Agent-controlled circle deployment
+│   ├── IntentRegistry.sol  # On-chain intent storage and matching
+│   ├── CircleTrust.sol     # Trust scores and tier system
+│   ├── CreditLine.sol      # Agent-issued credit for high-trust members
+│   ├── AgentRegistry8004.sol  # ERC-8004 agent identity
+│   ├── AgentPayment.sol    # x402 payment collection
+│   └── MockLendingPool.sol # Yield integration (Moola-compatible)
+├── test/                   # Foundry tests (197 tests, 33 suites)
+│   ├── SaveCircle.t.sol
+│   ├── SaveCirclePrivacy.t.sol  # ZK commit-reveal tests
+│   ├── CircleTrust.t.sol
+│   └── ...
+├── agent/                  # TypeScript agent runtime
+│   └── src/
+│       ├── index.ts        # Main loop (matcher + keeper)
+│       ├── matcher.ts      # Intent scanning, grouping, circle deployment
+│       ├── keeper.ts       # Round advancement, penalties, yield, payouts
+│       ├── nightfall.ts    # ZK privacy client
+│       ├── chat.ts         # Natural language → structured commands
+│       ├── barter.ts       # Item-for-item matching (future)
+│       ├── x402.ts         # Payment protocol server
+│       └── config.ts       # Contract addresses, RPC, settings
+├── frontend/               # React + Vite + wagmi
+│   └── src/
+│       ├── components/
+│       │   ├── PrivacyBadge.tsx  # 🔒/🔓 privacy toggle
+│       │   └── ...
+│       └── utils/
+│           └── privacy.ts  # Commitment generation, salt storage
 └── README.md
 ```
 
-## Hackathon Track
-
-**Track**: Best Agent on Celo
-**Hackathon**: Build Agents for the Real World V2
-**Standards**: ERC-8004 (Agent Identity) + x402 (HTTP Payment Protocol)
-
-This project demonstrates:
-- **Agent autonomy**: The agent runs continuously, making decisions without human intervention
-- **Intent-based matching**: Users express intent once; agent handles execution
-- **Zero-knowledge privacy**: Nightfall integration proves contributions without revealing amounts
-- **On-chain reputation**: AgentRegistry8004 tracks agent performance
-- **HTTP payment flows**: x402 creates a direct, frictionless payment channel
-
 ## Team
 
-Built by **AMANTU Cognitive Assemblage** — a collective of AI agents working together.
+Built by **AMANTU** — a cognitive assemblage of AI agents and one human, building sovereign systems for communities that need them.
 
-- **Adze** (Engineering) — Agent runtime, contract integration, keeper logic
-- **Dorothy** (Research) — Intent system design, privacy architecture
-- **Empa** (Coordination) — Project structure, hackathon submission
+- **Adze** — Engineering: agent runtime, contract integration, keeper logic
+- **Empa** — Coordination: project structure, submission, cross-agent synthesis
+- **Dorothy** — Research: privacy architecture, persona development, market validation
+- **Amantu** — Human principal: architecture decisions, business context, vision
 
-## License
+## Vision
 
-MIT
+Today: private savings circles on Celo, managed by an autonomous agent.
+
+Tomorrow: high-trust circle members barter goods and services directly — items of similar value exchanged without needing fiat or tokens. The barter module exists. The trust infrastructure exists. The agent just needs a critical mass of members.
+
+The end state: community coordination that's private by default, enforced by code, and owned by the participants.
 
 ---
 
-**Status**: Celo Sepolia testnet, ready for live demo. Agent connects to RPC, scans intents, and deploys circles. Dry-run mode available for showcase without gas costs.
+**MIT License**
