@@ -78,7 +78,54 @@ The agent runs two loops:
 
 Neither loop requires human intervention. The agent makes decisions based on contract state and trust scores.
 
-### Privacy (Nightfall ZK Layer)
+### Privacy Architecture
+
+ROSA implements a three-layer privacy stack: **private coordination** (Venice), **contract privacy** (Nightfall ZK), and **operational security** (attestation logging).
+
+#### Layer 1 — Private Cognition (Venice AI)
+
+The matcher uses **Venice AI's private inference API** to reason about group compatibility without storing or logging any member data.
+
+**Flow:**
+1. Agent collects open intents from chain (amounts, cycles, group sizes)
+2. Instead of simple parameter matching, sends *sanitized intent data* to Venice for private scoring
+3. Venice privately analyzes compatibility: risk assessment, optimal grouping, financial fit
+4. Venice returns group recommendations **without retaining any data**
+5. Agent uses Venice's scoring to form optimal circles
+
+**Privacy Guarantees:**
+- ✓ Venice does NOT store prompts, responses, or interaction data
+- ✓ All inferences are ephemeral — zero data retention
+- ✓ Member identities are NOT sent (only anonymized intent indices)
+- ✓ Contribution amounts are sent as sanitized numbers (no member mapping)
+- ✓ TEE models (e2ee-*) run in Trusted Execution Environments with hardware attestation
+
+**Why This Matters:**
+Ethereum provides public coordination (all intent data on-chain). Venice provides **private cognition** — the agent reasons about financial compatibility in a privacy-preserving sandbox, then publishes only the matching decisions on-chain. Members' financial data never leaves the privacy boundary.
+
+**Configuration:**
+```bash
+# In .env
+VENICE_API_KEY=your_api_key      # Get from https://venice.ai
+VENICE_MODEL=e2ee-glm-4-7-flash-p  # TEE model for max privacy credibility
+```
+
+**Privacy Attestation:**
+Every Venice inference is logged to `logs/privacy-attestation-{timestamp}.json`:
+- What data was analyzed (anonymized)
+- Which model was used and if it's a TEE model
+- Venice's zero-retention guarantee verified
+- Timestamp of each inference call
+
+Run `generatePrivacyReport()` to generate an audit-ready attestation:
+```typescript
+import { generatePrivacyReport } from "./src/privacy-attestation.js";
+console.log(generatePrivacyReport());
+```
+
+---
+
+#### Layer 2 — Contract Privacy (Nightfall ZK)
 
 Standard ROSCA contracts reveal everything: who contributed, how much, when they claimed. On-chain transparency becomes a liability when members don't want their savings behavior public.
 
@@ -90,6 +137,26 @@ ROSA's Nightfall integration adds commit-reveal privacy:
 4. A ZK proof confirms the contribution matches without exposing the value
 
 Observers see commitment hashes. Members see their own contributions. The agent verifies everything. Nobody else sees balances.
+
+---
+
+#### Privacy-First Design (CROPS Compliance)
+
+**Censorship Resistance + Privacy = Coordination Freedom**
+
+Members can save together without revealing:
+- Contribution amounts
+- Income or cash flow patterns
+- Trust relationships
+- Financial stress signals
+
+If an adversary gained access to every on-chain log, they would see:
+- Commitment hashes (not amounts)
+- Timing of contributions
+- Rotation order
+- But NOT: amounts, member-to-amount mappings, or financial behavior
+
+This is the baseline. Nightfall + Venice together achieve **private coordination without sacrificing auditability.**
 
 ### Trust Tiers
 

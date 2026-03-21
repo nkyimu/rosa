@@ -18,6 +18,12 @@ import {
   CYCLE_DURATIONS,
   DRY_RUN,
 } from "./config.js";
+import {
+  scoreIntentsWithVenice,
+  getGroupRecommendationsFromVenice,
+  getVeniceStatus,
+} from "./venice-privacy.js";
+import { recordPrivacyEvent, generatePrivacyReport } from "./privacy-attestation.js";
 
 // ─── Intent Params Schema ─────────────────────────────────────────────────────
 // Encoded as: (uint256 contributionAmount, uint256 cycleDuration, uint8 preferredSize)
@@ -242,6 +248,87 @@ export class IntentMatcher {
   }
 
   /**
+   * Group intents with Venice privacy layer:
+   * 1. Score each intent for risk via Venice (private inference)
+   * 2. Get Venice's grouping recommendations
+   * 3. Fall back to local matching if Venice unavailable
+   * 4. Return groups as IntentGroup[] for deployment
+   */
+  async groupByVeniceScoring(intents: Intent[]): Promise<IntentGroup[]> {
+    const veniceStatus = getVeniceStatus();
+    console.log(`[matcher] Venice mode: ${veniceStatus.mode}, model: ${veniceStatus.model} (TEE: ${veniceStatus.isTEE})`);
+
+    if (veniceStatus.mode !== "enabled") {
+      console.log("[matcher] Venice disabled — using local compatibility matching");
+      return this.groupByCompatibility(intents);
+    }
+
+    try {
+      // Get risk scores from Venice
+      const riskScores = await scoreIntentsWithVenice(intents);
+
+      // Get group recommendations from Venice
+      const recommendations = await getGroupRecommendationsFromVenice(intents, riskScores);
+
+      // Convert Venice recommendations to IntentGroup format
+      if (recommendations.length === 0) {
+        console.log("[matcher] No groups from Venice — falling back to local matching");
+        return this.groupByCompatibility(intents);
+      }
+
+      const groups: IntentGroup[] = [];
+
+      for (const rec of recommendations) {
+        // Validate group size
+        if (rec.group.length < MATCHER_CONFIG.minGroupSize) {
+          console.log(`[matcher] Skipping Venice group: too small (${rec.group.length} < ${MATCHER_CONFIG.minGroupSize})`);
+          continue;
+        }
+
+        if (rec.group.length > MATCHER_CONFIG.maxGroupSize) {
+          console.log(`[matcher] Skipping Venice group: too large (${rec.group.length} > ${MATCHER_CONFIG.maxGroupSize})`);
+          continue;
+        }
+
+        // Build IntentGroup from indices
+        const groupIntents = rec.group.map((idx) => intents[idx]).filter(Boolean);
+        if (groupIntents.length === 0) continue;
+
+        const amounts = groupIntents
+          .map((i) => i.params.contributionAmount)
+          .sort((a, b) => (a < b ? -1 : 1));
+        const median = amounts[Math.floor(amounts.length / 2)] ?? amounts[0]!;
+
+        groups.push({
+          intents: groupIntents,
+          targetContributionAmount: median,
+          cycleDuration: groupIntents[0]!.params.cycleDuration,
+        });
+
+        console.log(
+          `[matcher] ✓ Venice group: ${groupIntents.length} members, ` +
+          `${median} wei, confidence ${(rec.confidence * 100).toFixed(1)}%, ` +
+          `ROI ${(rec.estimatedROI * 100).toFixed(1)}%`
+        );
+
+        recordPrivacyEvent({
+          type: "grouping_decision",
+          intentsAnalyzed: intents.length,
+          groupsRecommended: groups.length,
+          veniceModel: veniceStatus.model,
+          timestamp: Date.now(),
+        });
+      }
+
+      return groups;
+    } catch (err) {
+      console.error("[matcher] Venice grouping error:", err instanceof Error ? err.message : String(err));
+      console.log("[matcher] Falling back to local compatibility matching");
+      return this.groupByCompatibility(intents);
+    }
+  }
+
+  /**
    * Deploy a SaveCircle via CircleFactory for a matched group,
    * then fulfill all their intents via batchFulfill.
    */
@@ -335,14 +422,15 @@ export class IntentMatcher {
     return circleAddress;
   }
 
-  /** Main matcher tick — scan, group, deploy */
+  /** Main matcher tick — scan, group with Venice, deploy */
   async tick(): Promise<void> {
     try {
       const intents = await this.scanJoinIntents();
       if (intents.length === 0) return;
 
-      const groups = this.groupByCompatibility(intents);
-      console.log(`[matcher] Found ${groups.length} deployable group(s)`);
+      // Use Venice-enhanced grouping (falls back to local if unavailable)
+      const groups = await this.groupByVeniceScoring(intents);
+      console.log(`[matcher] Found ${groups.length} deployable group(s) via Venice scoring`);
 
       for (const group of groups) {
         try {
