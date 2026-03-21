@@ -81,22 +81,22 @@ function WalletStatus() {
         <span style={{
           fontSize: 'var(--dt-text-xs)', fontWeight: 600,
           padding: '2px 8px', borderRadius: '12px',
-          background: 'rgba(196,92,59,0.15)', color: '#E67651',
-          border: '1px solid rgba(196,92,59,0.3)'
+          background: 'var(--dt-accent-muted)', color: 'var(--dt-accent-hover)',
+          border: '1px solid var(--dt-accent)'
         }}>MiniPay</span>
       )}
       <div style={{
         display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 2,
         fontSize: 'var(--dt-text-xs)', fontFamily: 'var(--dt-font-mono)',
-        color: '#B8B0A0'
+        color: 'var(--dt-text-secondary)'
       }}>
         <div>{celoDisplay} CELO</div>
         <div>{cUSDDisplay} cUSD</div>
       </div>
       <span style={{
         fontSize: 'var(--dt-text-xs)', fontFamily: 'var(--dt-font-mono)',
-        color: '#B8B0A0', letterSpacing: '0.02em',
-        borderLeft: '1px solid rgba(245,240,232,0.08)',
+        color: 'var(--dt-text-secondary)', letterSpacing: '0.02em',
+        borderLeft: '1px solid var(--dt-border-default)',
         paddingLeft: 'var(--dt-space-2)'
       }}>{shortAddr}</span>
       <button
@@ -224,19 +224,19 @@ export default function App() {
             <div style={{
               textAlign: 'center',
               padding: 'var(--dt-space-8) var(--dt-space-4)',
-              background: '#2A2A24',
+              background: 'var(--dt-surface-raised)',
               borderRadius: '16px',
-              boxShadow: '0 8px 32px rgba(0,0,0,0.4), 0 2px 8px rgba(0,0,0,0.2)',
+              boxShadow: 'var(--dt-shadow-md)',
               marginTop: 'var(--dt-space-4)',
             }}>
               <div style={{
                 width: 48, height: 48, borderRadius: '50%',
-                background: 'rgba(196,92,59,0.15)',
-                border: '1px solid rgba(196,92,59,0.3)',
+                background: 'var(--dt-accent-muted)',
+                border: '1px solid var(--dt-accent)',
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
                 margin: '0 auto var(--dt-space-4)',
               }}>
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#C45C3B" strokeWidth="1.5">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--dt-accent)" strokeWidth="1.5">
                   <circle cx="12" cy="12" r="9"/>
                   <path d="M12 6v6l4 2"/>
                 </svg>
@@ -304,9 +304,9 @@ export default function App() {
         left: 0,
         right: 0,
         zIndex: 20,
-        background: '#2A2A24',
-        borderTop: '1px solid rgba(245,240,232,0.08)',
-        boxShadow: '0 -8px 32px rgba(0,0,0,0.4)',
+        background: 'var(--dt-surface-raised)',
+        borderTop: '1px solid var(--dt-border-default)',
+        boxShadow: '0 -4px 24px rgba(0,0,0,0.4)',
         width: '100%',
         boxSizing: 'border-box',
         paddingBottom: 'env(safe-area-inset-bottom)'
@@ -326,9 +326,9 @@ export default function App() {
                 padding: '8px 2px 6px',
                 minHeight: 52,
                 display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 2,
-                borderTop: isActive ? '2px solid #C45C3B' : '2px solid transparent',
+                borderTop: isActive ? '2px solid var(--dt-accent)' : '2px solid transparent',
                 borderLeft: 'none', borderRight: 'none', borderBottom: 'none',
-                color: isActive ? '#C45C3B' : '#7A7468',
+                color: isActive ? 'var(--dt-accent)' : 'var(--dt-text-muted)',
                 background: 'none', cursor: 'pointer',
                 transition: 'all 0.2s ease',
                 fontFamily: 'var(--dt-font-mono, monospace)',
