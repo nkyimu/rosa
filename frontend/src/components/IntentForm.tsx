@@ -8,7 +8,6 @@ import {
   computeCommitment, 
   storeCommitmentData
 } from "../utils/privacy";
-import { PrivacyBadge } from "./PrivacyBadge";
 import { X402Payment } from "./X402Payment";
 
 const CYCLE_OPTIONS = [
@@ -25,7 +24,6 @@ export function IntentForm() {
   const [cycleDuration, setCycleDuration] = useState(CYCLE_OPTIONS[2]!.value);
   const [preferredSize, setPreferredSize] = useState(5);
   
-  // Privacy mode state
   const [isPrivacyMode, setIsPrivacyMode] = useState(false);
   const [privacyStep, setPrivacyStep] = useState<PrivacyStep>("input");
   const [commitmentData, setCommitmentData] = useState<any>(null);
@@ -34,8 +32,6 @@ export function IntentForm() {
   const { writeContract, data: txHash, isPending, error } = useWriteContract();
   const { isLoading: isConfirming, isSuccess } = useWaitForTransactionReceipt({ hash: txHash });
 
-  // Mock reading privacy mode from contract (would be useReadContract in production)
-  // For now, toggling is in a demo state
   function togglePrivacyMode() {
     setIsPrivacyMode(!isPrivacyMode);
   }
@@ -44,27 +40,20 @@ export function IntentForm() {
     e.preventDefault();
     if (!isConnected) return;
 
-    // Privacy mode: commit-reveal flow
     if (isPrivacyMode) {
-      // Step 1: Generate salt and compute commitment
       const salt = generateSalt();
       const commitment = computeCommitment(amount, salt);
       
       setCommitmentData({ amount, salt, commitment });
       setPrivacyStep("commit");
       
-      // For hackathon: simulate commitment submission
-      // In production: call SaveCircle.commitContribution(commitment)
       setTimeout(() => {
         setPrivacyStep("confirming");
         
-        // Simulate Nightfall deposit
         setTimeout(() => {
-          // Generate a mock proof ID
           const mockProofId = "0x" + Math.random().toString(16).slice(2, 18).padEnd(16, "0");
           setProofId(mockProofId);
           
-          // Store salt in localStorage for reveal
           storeCommitmentData(CONTRACT_ADDRESSES.demoCircle, {
             amount,
             salt,
@@ -79,13 +68,11 @@ export function IntentForm() {
       return;
     }
 
-    // Standard mode: direct contribution flow
     const params = encodeAbiParameters(
       parseAbiParameters("uint256 contributionAmount, uint256 cycleDuration, uint8 preferredSize"),
       [parseUnits(amount, 18), BigInt(cycleDuration), preferredSize]
     );
     const expiresAt = BigInt(Math.floor(Date.now() / 1000) + 30 * 24 * 60 * 60);
-    // intentType: 0 = JOIN_CIRCLE
     writeContract({ 
       address: CONTRACT_ADDRESSES.intentRegistry, 
       abi: IntentRegistryABI, 
@@ -100,16 +87,86 @@ export function IntentForm() {
     setProofId("");
   }
 
-  // Privacy mode: commit phase message
+  if (!isConnected) {
+    return (
+      <div style={{
+        textAlign: 'center',
+        padding: 'var(--dt-space-16) var(--dt-space-4)',
+        color: 'var(--dt-text-muted)'
+      }}>
+        <p style={{ fontSize: 'var(--dt-text-base)', margin: 0 }}>
+          Connect your wallet to submit an intent
+        </p>
+      </div>
+    );
+  }
+
+  // Success state
+  if (isSuccess) {
+    return (
+      <div style={{
+        background: 'var(--dt-surface-raised)',
+        border: '1px solid var(--dt-trust-community)',
+        borderRadius: 'var(--dt-radius-2xl)',
+        padding: 'var(--dt-space-8)',
+        textAlign: 'center',
+        boxShadow: 'var(--dt-shadow-card)'
+      }}>
+        <div style={{ fontSize: 48, marginBottom: 'var(--dt-space-4)' }}>✨</div>
+        <h3 style={{
+          fontFamily: 'var(--dt-font-display)',
+          fontSize: 'var(--dt-text-2xl)',
+          fontWeight: 400,
+          color: 'var(--dt-text-primary)',
+          margin: '0 0 var(--dt-space-2) 0'
+        }}>Intent Recorded</h3>
+        <p style={{
+          color: 'var(--dt-text-secondary)',
+          fontSize: 'var(--dt-text-sm)',
+          margin: '0 0 var(--dt-space-6) 0'
+        }}>
+          Your intent has been submitted. You'll be matched into a circle based on your preferences.
+        </p>
+        <button
+          onClick={() => {
+            setAmount("10");
+            setCycleDuration(CYCLE_OPTIONS[2]!.value);
+            setPreferredSize(5);
+          }}
+          style={{
+            padding: 'var(--dt-space-3) var(--dt-space-6)',
+            background: 'var(--dt-accent)',
+            color: '#FFF',
+            border: 'none',
+            borderRadius: 'var(--dt-radius-lg)',
+            fontWeight: 600,
+            cursor: 'pointer',
+            transition: 'all var(--dt-duration-fast) var(--dt-ease-out)',
+            minHeight: 44
+          }}
+          onMouseEnter={(e) => {
+            (e.currentTarget as HTMLButtonElement).style.background = '#E8704D'
+          }}
+          onMouseLeave={(e) => {
+            (e.currentTarget as HTMLButtonElement).style.background = '#C75B39'
+          }}
+        >
+          Submit Another
+        </button>
+      </div>
+    );
+  }
+
+  // Privacy commitment phase
   if (isPrivacyMode && privacyStep === "commit") {
     return (
       <div style={{
         background: 'var(--dt-surface-raised)',
-        borderRadius: 'var(--dt-radius-xl)',
         border: '1px solid var(--dt-accent)',
+        borderRadius: 'var(--dt-radius-2xl)',
         padding: 'var(--dt-space-8)',
         textAlign: 'center',
-        boxShadow: '0 0 40px rgba(212,175,55,0.1)'
+        boxShadow: 'var(--dt-shadow-card)'
       }}>
         <div style={{ fontSize: 48, marginBottom: 'var(--dt-space-4)' }}>🔒</div>
         <h3 style={{
@@ -117,22 +174,19 @@ export function IntentForm() {
           fontSize: 'var(--dt-text-2xl)',
           fontWeight: 400,
           color: 'var(--dt-text-primary)',
-          marginBottom: 'var(--dt-space-2)',
-          margin: 0
+          margin: '0 0 var(--dt-space-2) 0'
         }}>Commitment Submitted</h3>
         <p style={{
           color: 'var(--dt-text-secondary)',
           fontSize: 'var(--dt-text-sm)',
-          margin: 0,
-          marginTop: 'var(--dt-space-2)',
-          marginBottom: 'var(--dt-space-6)'
+          margin: '0 0 var(--dt-space-6) 0'
         }}>
           Your contribution is private. Hashed commitment recorded on-chain.
         </p>
         
         {commitmentData && (
           <div style={{
-            background: 'var(--dt-surface-base)',
+            background: 'var(--dt-surface-overlay)',
             border: '1px solid var(--dt-border-default)',
             borderRadius: 'var(--dt-radius-lg)',
             padding: 'var(--dt-space-4)',
@@ -147,7 +201,7 @@ export function IntentForm() {
               <strong>Amount:</strong> {commitmentData.amount} cUSD
             </p>
             <p style={{ margin: '0 0 var(--dt-space-2) 0' }}>
-              <strong>Salt (saved locally):</strong> {commitmentData.salt}
+              <strong>Salt:</strong> {commitmentData.salt.slice(0, 16)}...
             </p>
             <p style={{ margin: 0 }}>
               <strong>Commitment:</strong> {commitmentData.commitment.slice(0, 20)}...
@@ -165,7 +219,14 @@ export function IntentForm() {
             color: 'var(--dt-text-primary)',
             fontWeight: 500,
             cursor: 'pointer',
-            transition: 'all 0.2s ease'
+            transition: 'all var(--dt-duration-fast) var(--dt-ease-out)',
+            minHeight: 44
+          }}
+          onMouseEnter={(e) => {
+            (e.currentTarget as HTMLButtonElement).style.background = 'rgba(45, 37, 32, 0.05)'
+          }}
+          onMouseLeave={(e) => {
+            (e.currentTarget as HTMLButtonElement).style.background = 'transparent'
           }}
         >
           Back
@@ -174,16 +235,16 @@ export function IntentForm() {
     );
   }
 
-  // Privacy mode: confirming/deposit phase
+  // Privacy confirming phase
   if (isPrivacyMode && privacyStep === "confirming") {
     return (
       <div style={{
         background: 'var(--dt-surface-raised)',
-        borderRadius: 'var(--dt-radius-xl)',
         border: '1px solid var(--dt-accent)',
+        borderRadius: 'var(--dt-radius-2xl)',
         padding: 'var(--dt-space-8)',
         textAlign: 'center',
-        boxShadow: '0 0 40px rgba(212,175,55,0.1)'
+        boxShadow: 'var(--dt-shadow-card)'
       }}>
         <div style={{
           width: 48,
@@ -203,49 +264,44 @@ export function IntentForm() {
           fontSize: 'var(--dt-text-2xl)',
           fontWeight: 400,
           color: 'var(--dt-text-primary)',
-          marginBottom: 'var(--dt-space-2)',
-          margin: 0
-        }}>Depositing to Nightfall</h3>
+          margin: '0 0 var(--dt-space-2) 0'
+        }}>Encrypting Contribution</h3>
         <p style={{
           color: 'var(--dt-text-secondary)',
           fontSize: 'var(--dt-text-sm)',
-          margin: 0,
-          marginTop: 'var(--dt-space-2)'
+          margin: 0
         }}>
-          Your contribution is being encrypted and sent to the privacy layer...
+          Your amount is being encrypted and recorded...
         </p>
       </div>
     );
   }
 
-  // Privacy mode: success
+  // Privacy success
   if (isPrivacyMode && privacyStep === "success") {
     return (
       <div style={{
         background: 'var(--dt-surface-raised)',
         border: '1px solid var(--dt-trust-community)',
-        borderRadius: 'var(--dt-radius-xl)',
+        borderRadius: 'var(--dt-radius-2xl)',
         padding: 'var(--dt-space-8)',
         textAlign: 'center',
-        boxShadow: '0 0 40px rgba(34,197,94,0.1)'
+        boxShadow: 'var(--dt-shadow-card)'
       }}>
-        <div style={{ fontSize: 48, marginBottom: 'var(--dt-space-4)' }}>✨</div>
+        <div style={{ fontSize: 48, marginBottom: 'var(--dt-space-4)' }}>🎉</div>
         <h3 style={{
           fontFamily: 'var(--dt-font-display)',
           fontSize: 'var(--dt-text-2xl)',
           fontWeight: 400,
           color: 'var(--dt-text-primary)',
-          marginBottom: 'var(--dt-space-2)',
-          margin: 0
-        }}>Contribution Recorded Privately</h3>
+          margin: '0 0 var(--dt-space-2) 0'
+        }}>Privacy Preserved</h3>
         <p style={{
           color: 'var(--dt-text-secondary)',
           fontSize: 'var(--dt-text-sm)',
-          margin: 0,
-          marginTop: 'var(--dt-space-2)',
-          marginBottom: 'var(--dt-space-4)'
+          margin: '0 0 var(--dt-space-4) 0'
         }}>
-          Your ${amount} cUSD has been privately recorded. Amount hidden on-chain.
+          Your ${amount} cUSD contribution has been privately recorded. Amount hidden on-chain.
         </p>
         
         {proofId && (
@@ -261,7 +317,7 @@ export function IntentForm() {
             wordBreak: 'break-all'
           }}>
             <p style={{ margin: '0 0 var(--dt-space-1) 0', color: 'var(--dt-text-secondary)' }}>
-              <strong>Nightfall Proof ID</strong>
+              <strong>Proof ID</strong>
             </p>
             {proofId.slice(0, 16)}...
           </div>
@@ -272,12 +328,19 @@ export function IntentForm() {
           style={{
             padding: 'var(--dt-space-3) var(--dt-space-6)',
             background: 'var(--dt-trust-community)',
-            color: '#FFFFFF',
+            color: '#FFF',
             border: 'none',
             borderRadius: 'var(--dt-radius-lg)',
             fontWeight: 600,
             cursor: 'pointer',
-            transition: 'all 0.2s ease'
+            transition: 'all var(--dt-duration-fast) var(--dt-ease-out)',
+            minHeight: 44
+          }}
+          onMouseEnter={(e) => {
+            (e.currentTarget as HTMLButtonElement).style.opacity = '0.9'
+          }}
+          onMouseLeave={(e) => {
+            (e.currentTarget as HTMLButtonElement).style.opacity = '1'
           }}
         >
           Done
@@ -286,294 +349,270 @@ export function IntentForm() {
     );
   }
 
-  // Standard form — either privacy off or input phase
-  if (isSuccess) {
-    return (
-      <div style={{
+  // Main conversational form
+  return (
+    <div style={{
+      display: 'flex',
+      flexDirection: 'column',
+      gap: 'var(--dt-space-8)'
+    }}>
+      {/* Conversational Heading */}
+      <div style={{ textAlign: 'center' }}>
+        <h2 style={{
+          fontFamily: 'var(--dt-font-display)',
+          fontSize: 'var(--dt-text-2xl)',
+          fontWeight: 400,
+          color: 'var(--dt-text-primary)',
+          margin: '0 0 var(--dt-space-2) 0'
+        }}>
+          How shall the circle manage its common wealth and spending limits?
+        </h2>
+        <p style={{
+          color: 'var(--dt-text-secondary)',
+          fontSize: 'var(--dt-text-sm)',
+          margin: 0
+        }}>
+          Tell us about your circle preferences
+        </p>
+      </div>
+
+      <form onSubmit={handleSubmit} style={{
         display: 'flex',
         flexDirection: 'column',
         gap: 'var(--dt-space-6)'
       }}>
-        <div style={{
-          background: 'var(--dt-surface-raised)',
-          border: '1px solid var(--dt-trust-community)',
-          borderRadius: 'var(--dt-radius-xl)',
-          padding: 'var(--dt-space-8)',
-          textAlign: 'center',
-          boxShadow: '0 0 40px rgba(34,197,94,0.1)'
-        }}>
-          <div style={{ fontSize: 48, marginBottom: 'var(--dt-space-4)' }}>✨</div>
-          <h3 style={{
-            fontFamily: 'var(--dt-font-display)',
-            fontSize: 'var(--dt-text-2xl)',
-            fontWeight: 400,
-            color: 'var(--dt-text-primary)',
-            marginBottom: 'var(--dt-space-2)',
-            margin: 0
-          }}>Intent Submitted</h3>
-          <p style={{
-            color: 'var(--dt-text-secondary)',
-            fontSize: 'var(--dt-text-sm)',
-            margin: 0,
-            marginTop: 'var(--dt-space-2)',
-            marginBottom: 'var(--dt-space-4)'
-          }}>
-            The agent is searching for your circle. You'll be matched within 24 hours.
-          </p>
-          {txHash && (
-            <a href={`https://sepolia.celoscan.io/tx/${txHash}`} target="_blank" rel="noopener noreferrer"
-              style={{
-                display: 'inline-block',
-                fontSize: 'var(--dt-text-xs)',
-                color: 'var(--dt-accent)',
-                textDecoration: 'underline'
-              }}>
-              View on CeloScan
-            </a>
-          )}
-        </div>
-
-        {/* x402 Priority Payment Option */}
+        {/* Financial Policy Card */}
         <div style={{
           background: 'var(--dt-surface-raised)',
           border: '1px solid var(--dt-border-default)',
-          borderRadius: 'var(--dt-radius-xl)',
+          borderRadius: 'var(--dt-radius-2xl)',
           padding: 'var(--dt-space-6)',
+          boxShadow: 'var(--dt-shadow-card)'
         }}>
-          <h4 style={{
+          <h3 style={{
             fontFamily: 'var(--dt-font-display)',
             fontSize: 'var(--dt-text-lg)',
             fontWeight: 400,
             color: 'var(--dt-text-primary)',
-            marginBottom: 'var(--dt-space-1)',
-            margin: 0
-          }}>Speed Up Your Match</h4>
-          <p style={{
-            color: 'var(--dt-text-secondary)',
-            fontSize: 'var(--dt-text-sm)',
-            margin: 0,
-            marginBottom: 'var(--dt-space-4)'
+            margin: '0 0 var(--dt-space-4) 0'
           }}>
-            Pay a small agent fee for priority matching — get results in hours instead of days.
-          </p>
-          <X402Payment 
-            intentId={0} // Intent ID would be extracted from transaction receipt in production
-            agentUrl={process.env.REACT_APP_AGENT_URL || "http://localhost:3002"}
-            endpoint="/api/match-intent"
-            onPaymentComplete={(receipt) => {
-              console.log("Priority payment confirmed", receipt);
-            }}
-            onPaymentError={(error) => {
-              console.error("Priority payment failed", error);
-            }}
-          />
-        </div>
-      </div>
-    );
-  }
+            Financial Policy
+          </h3>
 
-  return (
-    <div style={{
-      background: 'var(--dt-surface-raised)',
-      borderRadius: 'var(--dt-radius-xl)',
-      border: '1px solid var(--dt-border-default)',
-      padding: 'var(--dt-space-6)',
-      boxShadow: 'var(--dt-shadow-md)',
-      position: 'relative',
-      overflow: 'hidden'
-    }}>
-      {/* Paper noise layer on card */}
-      <div style={{
-        position: 'absolute', inset: 0, borderRadius: 'inherit',
-        backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.5' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E")`,
-        opacity: 0.06,
-        pointerEvents: 'none',
-        mixBlendMode: 'screen'
-      }} />
-
-      <div style={{ position: 'relative', zIndex: 1 }}>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 'var(--dt-space-4)' }}>
-          <div>
-            <h2 style={{
-              fontFamily: 'var(--dt-font-display)',
-              fontSize: 'var(--dt-text-2xl)',
-              fontWeight: 400,
-              color: 'var(--dt-text-primary)',
-              marginBottom: 'var(--dt-space-1)',
-              margin: 0
-            }}>Join a Savings Circle</h2>
-            <p style={{
-              color: 'var(--dt-text-muted)',
+          {/* Contribution Amount */}
+          <div style={{
+            marginBottom: 'var(--dt-space-5)'
+          }}>
+            <label style={{
+              display: 'block',
+              fontFamily: 'var(--dt-font-body)',
               fontSize: 'var(--dt-text-sm)',
-              marginBottom: 'var(--dt-space-1)',
-              margin: 0
+              fontWeight: 500,
+              color: 'var(--dt-text-primary)',
+              marginBottom: 'var(--dt-space-2)'
             }}>
-              State your intent — the agent finds your people.
-            </p>
-          </div>
-          <button
-            onClick={togglePrivacyMode}
-            style={{
-              background: 'none',
-              border: 'none',
-              cursor: 'pointer',
-              padding: 'var(--dt-space-2)',
-              marginLeft: 'auto'
-            }}
-            title="Toggle privacy mode"
-          >
-            <PrivacyBadge isPrivate={isPrivacyMode} />
-          </button>
-        </div>
+              Contribution Amount (cUSD)
+            </label>
+            <input
+              type="number"
+              value={amount}
+              onChange={(e) => setAmount(e.target.value)}
+              placeholder="10.00"
+              min="0"
+              step="0.01"
+              style={{
+                width: '100%',
+                padding: 'var(--dt-space-3) var(--dt-space-4)',
+                background: 'var(--dt-surface-overlay)',
+                border: '1px solid var(--dt-border-default)',
+                borderRadius: 'var(--dt-radius-lg)',
+                color: 'var(--dt-text-primary)',
+                fontFamily: 'var(--dt-font-mono)',
+                fontSize: 'var(--dt-text-base)',
+                boxSizing: 'border-box',
+                minHeight: 44,
+                transition: 'border-color var(--dt-duration-fast) var(--dt-ease-out)',
+                outline: 'none'
+              }}
 
-        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 'var(--dt-space-5)' }}>
-          {/* Amount input */}
-          <div>
-            <label style={{
-              display: 'block', fontSize: 'var(--dt-text-xs)', fontWeight: 500,
-              color: 'var(--dt-text-muted)', letterSpacing: 'var(--dt-tracking-widest)',
-              textTransform: 'uppercase', marginBottom: 'var(--dt-space-2)',
-              margin: 0
-            }}>Contribution per round</label>
-            <div style={{ position: 'relative' }}>
-              <span style={{
-                position: 'absolute', left: 'var(--dt-space-4)', top: '50%', transform: 'translateY(-50%)',
-                fontFamily: 'var(--dt-font-mono)', color: 'var(--dt-text-muted)', fontSize: 'var(--dt-text-lg)'
-              }}>$</span>
-              <input type="number" min="1" step="1" value={amount} onChange={(e) => setAmount(e.target.value)}
-                style={{
-                  width: '100%', paddingLeft: 'var(--dt-space-8)', paddingRight: 'var(--dt-space-4)',
-                  paddingTop: 'var(--dt-space-4)', paddingBottom: 'var(--dt-space-4)',
-                  background: 'var(--dt-surface-overlay)', border: '1px solid var(--dt-border-default)',
-                  borderRadius: 'var(--dt-radius-lg)', color: 'var(--dt-text-primary)',
-                  fontFamily: 'var(--dt-font-mono)', fontSize: 'var(--dt-text-xl)', fontWeight: 500,
-                  outline: 'none', boxSizing: 'border-box',
-                  transition: 'border-color 0.2s ease'
-                }}
-                onFocus={(e) => e.target.style.borderColor = 'var(--dt-accent)'}
-                onBlur={(e) => e.target.style.borderColor = 'var(--dt-border-default)'}
-                required />
-            </div>
-            <p style={{
-              fontSize: 'var(--dt-text-xs)', color: 'var(--dt-text-muted)', marginTop: 'var(--dt-space-1)',
-              margin: 0
-            }}>
-              Matched with members within 10%
-            </p>
+            />
           </div>
 
-          {/* Cycle duration buttons */}
-          <div>
+          {/* Cycle Duration */}
+          <div style={{
+            marginBottom: 'var(--dt-space-5)'
+          }}>
             <label style={{
-              display: 'block', fontSize: 'var(--dt-text-xs)', fontWeight: 500,
-              color: 'var(--dt-text-muted)', letterSpacing: 'var(--dt-tracking-widest)',
-              textTransform: 'uppercase', marginBottom: 'var(--dt-space-2)',
-              margin: 0
-            }}>Cycle</label>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 'var(--dt-space-2)' }}>
+              display: 'block',
+              fontFamily: 'var(--dt-font-body)',
+              fontSize: 'var(--dt-text-sm)',
+              fontWeight: 500,
+              color: 'var(--dt-text-primary)',
+              marginBottom: 'var(--dt-space-2)'
+            }}>
+              Payment Cycle
+            </label>
+            <select
+              value={cycleDuration}
+              onChange={(e) => setCycleDuration(e.target.value)}
+              style={{
+                width: '100%',
+                padding: 'var(--dt-space-3) var(--dt-space-4)',
+                background: 'var(--dt-surface-overlay)',
+                border: '1px solid var(--dt-border-default)',
+                borderRadius: 'var(--dt-radius-lg)',
+                color: 'var(--dt-text-primary)',
+                fontFamily: 'var(--dt-font-body)',
+                fontSize: 'var(--dt-text-base)',
+                cursor: 'pointer',
+                minHeight: 44,
+                boxSizing: 'border-box'
+              }}
+            >
               {CYCLE_OPTIONS.map((opt) => (
-                <button key={opt.value} type="button" onClick={() => setCycleDuration(opt.value)}
-                  style={{
-                    padding: 'var(--dt-space-3) var(--dt-space-2)',
-                    borderRadius: 'var(--dt-radius-md)',
-                    border: `1px solid ${cycleDuration === opt.value ? 'var(--dt-accent)' : 'var(--dt-border-default)'}`,
-                    background: cycleDuration === opt.value ? 'var(--dt-accent-muted)' : 'var(--dt-surface-overlay)',
-                    color: cycleDuration === opt.value ? 'var(--dt-accent)' : 'var(--dt-text-secondary)',
-                    fontWeight: 500, fontSize: 'var(--dt-text-sm)', cursor: 'pointer',
-                    transition: 'all 0.2s ease', minHeight: 44
-                  }}>
+                <option key={opt.value} value={opt.value}>
                   {opt.label}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {/* Preferred Circle Size */}
+          <div>
+            <label style={{
+              display: 'block',
+              fontFamily: 'var(--dt-font-body)',
+              fontSize: 'var(--dt-text-sm)',
+              fontWeight: 500,
+              color: 'var(--dt-text-primary)',
+              marginBottom: 'var(--dt-space-2)'
+            }}>
+              Preferred Circle Size
+            </label>
+            <div style={{
+              display: 'flex',
+              gap: 'var(--dt-space-2)',
+              flexWrap: 'wrap'
+            }}>
+              {[3, 5, 7, 10].map((size) => (
+                <button
+                  key={size}
+                  type="button"
+                  onClick={() => setPreferredSize(size)}
+                  style={{
+                    padding: 'var(--dt-space-2) var(--dt-space-4)',
+                    background: preferredSize === size ? 'var(--dt-accent)' : 'var(--dt-surface-overlay)',
+                    border: `1px solid ${preferredSize === size ? 'var(--dt-accent)' : 'var(--dt-border-default)'}`,
+                    borderRadius: 'var(--dt-radius-lg)',
+                    color: preferredSize === size ? '#FFF' : 'var(--dt-text-primary)',
+                    fontFamily: 'var(--dt-font-body)',
+                    fontWeight: 600,
+                    cursor: 'pointer',
+                    transition: 'all var(--dt-duration-fast) var(--dt-ease-out)',
+                    minHeight: 44,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center'
+                  }}
+                  onMouseEnter={(e) => {
+                    if (preferredSize !== size) {
+                      (e.currentTarget as HTMLButtonElement).style.borderColor = 'rgba(45, 37, 32, 0.15)'
+                    }
+                  }}
+                  onMouseLeave={(e) => {
+                    if (preferredSize !== size) {
+                      (e.currentTarget as HTMLButtonElement).style.borderColor = 'rgba(45, 37, 32, 0.08)'
+                    }
+                  }}
+                >
+                  {size} members
                 </button>
               ))}
             </div>
           </div>
+        </div>
 
-          {/* Circle size slider */}
-          <div>
-            <label style={{
-              display: 'block', fontSize: 'var(--dt-text-xs)', fontWeight: 500,
-              color: 'var(--dt-text-muted)', letterSpacing: 'var(--dt-tracking-widest)',
-              textTransform: 'uppercase', marginBottom: 'var(--dt-space-2)',
-              margin: 0
-            }}>
-              Preferred circle size: <span style={{ color: 'var(--dt-accent)', fontFamily: 'var(--dt-font-mono)' }}>{preferredSize} members</span>
-            </label>
-            <input type="range" min={5} max={20} value={preferredSize}
-              onChange={(e) => setPreferredSize(Number(e.target.value))}
-              style={{ width: '100%', height: 44, cursor: 'pointer' }} />
-            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 'var(--dt-text-xs)', color: 'var(--dt-text-muted)', marginTop: 'var(--dt-space-1)' }}>
-              <span>5 (smaller)</span><span>20 (larger)</span>
-            </div>
-          </div>
-
-          {/* Intent summary — document/contract style */}
-          <div style={{
-            background: 'var(--dt-surface-base)',
-            border: '1px solid var(--dt-border-strong)',
-            borderRadius: 'var(--dt-radius-lg)',
-            padding: 'var(--dt-space-4) var(--dt-space-5)',
-            marginBottom: 'var(--dt-space-2)',
-            position: 'relative'
-          }}>
-            {/* "INTENT" stamp label */}
-            <div style={{
-              position: 'absolute', top: -10, left: 'var(--dt-space-4)',
-              background: 'var(--dt-accent)', color: '#0A0804',
-              fontSize: 'var(--dt-text-xs)', fontWeight: 700,
-              padding: '2px var(--dt-space-3)', borderRadius: 'var(--dt-radius-full)',
-              letterSpacing: 'var(--dt-tracking-widest)', textTransform: 'uppercase'
-            }}>Intent</div>
-            <div style={{ marginTop: 'var(--dt-space-2)' }}>
-              <p style={{
-                fontFamily: 'var(--dt-font-mono)', fontSize: 'var(--dt-text-sm)',
-                color: 'var(--dt-text-secondary)', margin: 0
-              }}>
-                Contribute <span style={{ color: 'var(--dt-accent)', fontWeight: 600 }}>${amount} cUSD</span> per round
-                · <span style={{ color: 'var(--dt-text-primary)' }}>{CYCLE_OPTIONS.find(o => o.value === cycleDuration)?.label}</span>
-                · <span style={{ color: 'var(--dt-text-primary)' }}>{preferredSize} members</span>
-              </p>
-              <p style={{
-                fontFamily: 'var(--dt-font-display)', fontSize: 'var(--dt-text-xl)',
-                color: 'var(--dt-text-primary)', marginTop: 'var(--dt-space-2)', fontWeight: 400,
-                margin: 0
-              }}>
-                Total payout: <span style={{ color: 'var(--dt-trust-credit)' }}>${(Number(amount) * preferredSize).toFixed(0)} cUSD</span>
-              </p>
-            </div>
-          </div>
-
-          {error && (
-            <div style={{
-              background: 'rgba(239,68,68,0.08)',
-              border: '1px solid rgba(239,68,68,0.2)',
-              borderRadius: 'var(--dt-radius-md)',
-              padding: 'var(--dt-space-3) var(--dt-space-4)',
-              color: 'var(--dt-state-error)',
-              fontSize: 'var(--dt-text-sm)'
-            }}>
-              {error.message.slice(0, 120)}
-            </div>
-          )}
-
-          {/* CTA button — gold, prominent */}
-          <button type="submit" disabled={isPending || isConfirming || !isConnected}
+        {/* Privacy Toggle */}
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: 'var(--dt-space-3)',
+          padding: 'var(--dt-space-4)',
+          background: 'rgba(107, 125, 94, 0.05)',
+          border: '1px solid rgba(107, 125, 94, 0.2)',
+          borderRadius: 'var(--dt-radius-lg)'
+        }}>
+          <input
+            type="checkbox"
+            checked={isPrivacyMode}
+            onChange={togglePrivacyMode}
             style={{
-              width: '100%', padding: 'var(--dt-space-4) var(--dt-space-6)',
-              minHeight: 44,
-              background: isPending || isConfirming ? 'var(--dt-accent-muted)' : 'var(--dt-accent)',
-              color: isPending || isConfirming ? 'var(--dt-accent)' : '#0A0804',
-              border: '1px solid var(--dt-accent)',
-              borderRadius: 'var(--dt-radius-lg)',
-              fontWeight: 600, fontSize: 'var(--dt-text-base)',
-              cursor: isPending || isConfirming || !isConnected ? 'not-allowed' : 'pointer',
-              opacity: !isConnected ? 0.5 : 1,
-              transition: 'all 0.2s ease',
-              letterSpacing: 'var(--dt-tracking-wide)'
-            }}>
-            {isPending ? "Confirm in wallet..." : isConfirming ? "Submitting intent..." : !isConnected ? "Connect wallet first" : "✦ Submit Intent"}
-          </button>
-        </form>
-      </div>
+              cursor: 'pointer',
+              width: 20,
+              height: 20
+            }}
+          />
+          <label style={{
+            fontFamily: 'var(--dt-font-body)',
+            fontSize: 'var(--dt-text-sm)',
+            color: 'var(--dt-text-primary)',
+            cursor: 'pointer',
+            flex: 1,
+            margin: 0
+          }}>
+            🔒 Privacy Mode (hide contribution amount)
+          </label>
+        </div>
+
+        {/* Error Message */}
+        {error && (
+          <div style={{
+            background: 'rgba(255, 107, 107, 0.1)',
+            border: '1px solid rgba(255, 107, 107, 0.3)',
+            borderRadius: 'var(--dt-radius-md)',
+            padding: 'var(--dt-space-3) var(--dt-space-4)',
+            color: 'var(--dt-state-error)',
+            fontSize: 'var(--dt-text-sm)'
+          }}>
+            Error: {(error as any).message || 'Something went wrong'}
+          </div>
+        )}
+
+        {/* Submit Button */}
+        <button
+          type="submit"
+          disabled={isPending || isConfirming}
+          style={{
+            width: '100%',
+            padding: 'var(--dt-space-4)',
+            background: 'var(--dt-accent)',
+            border: 'none',
+            borderRadius: 'var(--dt-radius-lg)',
+            color: '#FFF',
+            fontFamily: 'var(--dt-font-body)',
+            fontSize: 'var(--dt-text-base)',
+            fontWeight: 600,
+            letterSpacing: 'var(--dt-tracking-wide)',
+            cursor: isPending || isConfirming ? 'not-allowed' : 'pointer',
+            opacity: isPending || isConfirming ? 0.6 : 1,
+            transition: 'all var(--dt-duration-fast) var(--dt-ease-out)',
+            minHeight: 44
+          }}
+          onMouseEnter={(e) => {
+            if (!isPending && !isConfirming) {
+              (e.currentTarget as HTMLButtonElement).style.background = '#E8704D'
+            }
+          }}
+          onMouseLeave={(e) => {
+            (e.currentTarget as HTMLButtonElement).style.background = '#C75B39'
+          }}
+        >
+          {isPending ? '⏳ Submitting...' : isConfirming ? '⏳ Confirming...' : '✓ UPDATE POLICY'}
+        </button>
+      </form>
+
+      {/* X402 Payment Integration */}
+      <X402Payment intentId={0} />
     </div>
   );
 }

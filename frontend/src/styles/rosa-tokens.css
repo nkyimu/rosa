@@ -26,22 +26,22 @@
    ============================================================ */
 
 :root {
-  /* Warm Obsidian — Neutral surfaces (ROSA dark mode) */
-  --primitive-obsidian-50:   #F5F0E8;  /* warm cream/parchment — lightest */
-  --primitive-obsidian-100:  #E8DFD0;  /* light cream */
-  --primitive-obsidian-200:  #C8BFA8;  /* warm sand */
-  --primitive-obsidian-300:  #B8B0A0;  /* muted warm tan */
-  --primitive-obsidian-400:  #7A7468;  /* dark tan */
+  /* Warm Obsidian — Neutral surfaces (ROSA dark mode) — Variant Redesign */
+  --primitive-obsidian-50:   #F5F0E8;  /* warm cream/parchment — lightest (VARIANT) */
+  --primitive-obsidian-100:  #EDE8DE;  /* slightly darker cards (VARIANT) */
+  --primitive-obsidian-200:  #E0D9CD;  /* light warm tan */
+  --primitive-obsidian-300:  #D0C7B5;  /* muted warm tan */
+  --primitive-obsidian-400:  #5C544D;  /* secondary text (VARIANT) */
   --primitive-obsidian-500:  #3E3E38;  /* charcoal overlay */
   --primitive-obsidian-600:  #353530;  /* surface raised */
-  --primitive-obsidian-700:  #2A2A24;  /* surface base */
+  --primitive-obsidian-700:  #2D2520;  /* deep brown — primary text (VARIANT) */
   --primitive-obsidian-800:  #1C1C18;  /* darker surface */
   --primitive-obsidian-900:  #0A0804;  /* warm black — page background */
 
   /* Trust Dimension Colors */
   --primitive-trust-blue:    #3B82F6;  /* Reliability — adjusted for dark bg */
   --primitive-trust-gold:    #D4AF37;  /* Credit — timeless, works on dark */
-  --primitive-trust-green:   #22C55E;  /* Community — Celo aligned, warm */
+  --primitive-trust-green:   #35D07F;  /* Community — Celo aligned (VARIANT) */
 
   /* State Colors */
   --primitive-state-error:   #FF6B6B;
@@ -49,9 +49,12 @@
   --primitive-state-success: #51CF66;
   --primitive-state-info:    #74C0FC;
 
-  /* Accent — Terracotta for dark mode */
-  --primitive-accent:        #C45C3B;
-  --primitive-accent-light:  #E67651;
+  /* Accent — Rust/Terracotta (VARIANT) */
+  --primitive-accent:        #C75B39;  /* rust accent primary (VARIANT) */
+  --primitive-accent-light:  #E67651;  /* lighter rust on hover */
+  
+  /* Accent Secondary — Olive Green (VARIANT) */
+  --primitive-accent-secondary: #6B7D5E;  /* olive green accent (VARIANT) */
 }
 
 /* ============================================================
@@ -62,47 +65,53 @@
 :root {
   /* ── Surfaces ── */
   /* Surface hierarchy: base → raised → overlay */
-  --dt-surface-base:         #0A0804;  /* Page background — warm black */
-  --dt-surface-raised:       #2A2A24;  /* Cards, panels — warm dark */
-  --dt-surface-overlay:      #353530;  /* Inputs, nested surfaces — lighter */
-  --dt-surface-glass:        rgba(42, 42, 36, 0.95);  /* Glass effect */
+  --dt-surface-base:         #F5F0E8;  /* Page background — warm cream (VARIANT) */
+  --dt-surface-raised:       #EDE8DE;  /* Cards, panels — slightly darker cream (VARIANT) */
+  --dt-surface-overlay:      #E0D9CD;  /* Inputs, nested surfaces — warm tan (VARIANT) */
+  --dt-surface-glass:        rgba(237, 232, 222, 0.95);  /* Glass effect */
 
   /* ── Text ── */
   /* Text hierarchy: primary → secondary → muted → inverse */
-  --dt-text-primary:         #F5F0E8;  /* Main text — warm cream */
-  --dt-text-secondary:       #B8B0A0;  /* Supporting text — warm tan */
-  --dt-text-muted:           #7A7468;  /* Labels, captions — dark tan */
-  --dt-text-inverse:         #0A0804;  /* Text on light/accent backgrounds */
+  --dt-text-primary:         #2D2520;  /* Main text — deep brown (VARIANT) */
+  --dt-text-secondary:       #5C544D;  /* Supporting text — secondary brown (VARIANT) */
+  --dt-text-muted:           #8B7E74;  /* Labels, captions — muted brown */
+  --dt-text-inverse:         #F5F0E8;  /* Text on dark/accent backgrounds */
 
   /* ── Borders ── */
   /* Border hierarchy: subtle → default → strong → accent */
-  --dt-border-subtle:        rgba(245, 240, 232, 0.04);  /* Very soft dividers */
-  --dt-border-default:       rgba(245, 240, 232, 0.08);  /* Standard separation */
-  --dt-border-strong:        rgba(245, 240, 232, 0.15);  /* Emphasized borders */
-  --dt-border-accent:        rgba(196, 92, 59, 0.30);    /* Accent-tinted borders */
+  --dt-border-subtle:        rgba(45, 37, 32, 0.04);  /* Very soft dividers */
+  --dt-border-default:       rgba(45, 37, 32, 0.08);  /* Standard separation */
+  --dt-border-strong:        rgba(45, 37, 32, 0.15);  /* Emphasized borders */
+  --dt-border-accent:        rgba(199, 91, 57, 0.30);    /* Rust accent-tinted borders */
 
   /* ── Accent ── */
-  /* Primary brand action color — terracotta */
-  --dt-accent:               #C45C3B;
-  --dt-accent-hover:         #E67651;  /* Lighter on hover */
-  --dt-accent-muted:         rgba(196, 92, 59, 0.15);    /* Soft background */
-  --dt-accent-strong:        rgba(196, 92, 59, 0.30);    /* Stronger tint */
+  /* Primary brand action color — rust (VARIANT) */
+  --dt-accent:               #C75B39;  /* Rust accent primary */
+  --dt-accent-hover:         #E8704D;  /* Lighter on hover */
+  --dt-accent-muted:         rgba(199, 91, 57, 0.12);    /* Soft background */
+  --dt-accent-strong:        rgba(199, 91, 57, 0.25);    /* Stronger tint */
+  
+  /* ── Accent Secondary ── */
+  /* Olive green accent (VARIANT) */
+  --dt-accent-secondary:     #6B7D5E;  /* Olive green */
+  --dt-accent-secondary-hover: #7B8D6E;
+  --dt-accent-secondary-muted: rgba(107, 125, 94, 0.12);
 
   /* ── Trust Dimensions ── */
   /* Three-dimensional trust system */
   --dt-trust-reliability:    #3B82F6;  /* Blue — on-time payments */
   --dt-trust-credit:         #D4AF37;  /* Gold — borrowing history */
-  --dt-trust-community:      #22C55E;  /* Green — circle membership */
+  --dt-trust-community:      #35D07F;  /* Green — circle membership (Celo) */
 
   /* Trust glows (for badges, highlights) */
   --dt-trust-reliability-glow: rgba(59, 130, 246, 0.15);
   --dt-trust-credit-glow:      rgba(212, 175, 55, 0.15);
-  --dt-trust-community-glow:   rgba(34, 197, 94, 0.15);
+  --dt-trust-community-glow:   rgba(53, 208, 127, 0.15);
 
   /* ── State Colors ── */
   --dt-state-error:          #FF6B6B;
   --dt-state-warning:        #FFA500;
-  --dt-state-success:        #51CF66;
+  --dt-state-success:        #35D07F;  /* Use Celo green for success */
   --dt-state-info:           #74C0FC;
 }
 
@@ -178,31 +187,31 @@
 
 /* ============================================================
    TIER 5: SHADOW SYSTEM
-   Depth through elevation via shadows. HEAVY for postcard aesthetic.
+   Depth through elevation via shadows. Light mode (VARIANT).
    ============================================================ */
 
 :root {
-  /* Standard shadows — layered for depth */
-  --dt-shadow-xs:  0 2px 4px rgba(0, 0, 0, 0.3);
-  --dt-shadow-sm:  0 4px 8px rgba(0, 0, 0, 0.35);
-  --dt-shadow-md:  0 8px 16px rgba(0, 0, 0, 0.4), 0 2px 4px rgba(0, 0, 0, 0.2);
-  --dt-shadow-lg:  0 12px 32px rgba(0, 0, 0, 0.45), 0 4px 8px rgba(0, 0, 0, 0.25);
-  --dt-shadow-xl:  0 20px 48px rgba(0, 0, 0, 0.5), 0 6px 16px rgba(0, 0, 0, 0.3);
+  /* Standard shadows — light mode, softer */
+  --dt-shadow-xs:  0 1px 2px rgba(45, 37, 32, 0.08);
+  --dt-shadow-sm:  0 2px 6px rgba(45, 37, 32, 0.12);
+  --dt-shadow-md:  0 4px 12px rgba(45, 37, 32, 0.15), 0 1px 3px rgba(45, 37, 32, 0.08);
+  --dt-shadow-lg:  0 8px 24px rgba(45, 37, 32, 0.18), 0 2px 6px rgba(45, 37, 32, 0.12);
+  --dt-shadow-xl:  0 12px 32px rgba(45, 37, 32, 0.2), 0 4px 12px rgba(45, 37, 32, 0.15);
 
-  /* Card shadows — floating postcard effect */
-  --dt-shadow-card:        0 8px 32px rgba(0, 0, 0, 0.4), 0 2px 8px rgba(0, 0, 0, 0.2);
-  --dt-shadow-card-hover:  0 12px 40px rgba(0, 0, 0, 0.45), 0 4px 12px rgba(0, 0, 0, 0.25);
-  --dt-shadow-input:       0 4px 12px rgba(0, 0, 0, 0.3);
-  --dt-shadow-button:      0 4px 12px rgba(0, 0, 0, 0.3);
+  /* Card shadows — floating postcard effect (light) */
+  --dt-shadow-card:        0 4px 16px rgba(45, 37, 32, 0.12), 0 1px 4px rgba(45, 37, 32, 0.08);
+  --dt-shadow-card-hover:  0 6px 24px rgba(45, 37, 32, 0.16), 0 2px 6px rgba(45, 37, 32, 0.12);
+  --dt-shadow-input:       0 2px 8px rgba(45, 37, 32, 0.08);
+  --dt-shadow-button:      0 2px 8px rgba(45, 37, 32, 0.1);
 
-  /* Glow shadows — for trust colors and accents */
-  --dt-shadow-glow-gold:        0 0 20px rgba(212, 175, 55, 0.25), 0 0 40px rgba(212, 175, 55, 0.1);
-  --dt-shadow-glow-blue:        0 0 20px rgba(59, 130, 246, 0.2), 0 0 40px rgba(59, 130, 246, 0.08);
-  --dt-shadow-glow-green:       0 0 20px rgba(34, 197, 94, 0.2), 0 0 40px rgba(34, 197, 94, 0.08);
-  --dt-shadow-glow-accent:      0 0 24px rgba(196, 92, 59, 0.25), 0 0 48px rgba(196, 92, 59, 0.12);
+  /* Glow shadows — for trust colors and accents (light mode) */
+  --dt-shadow-glow-gold:        0 0 16px rgba(212, 175, 55, 0.15), 0 0 32px rgba(212, 175, 55, 0.08);
+  --dt-shadow-glow-blue:        0 0 16px rgba(59, 130, 246, 0.12), 0 0 32px rgba(59, 130, 246, 0.06);
+  --dt-shadow-glow-green:       0 0 16px rgba(53, 208, 127, 0.12), 0 0 32px rgba(53, 208, 127, 0.06);
+  --dt-shadow-glow-accent:      0 0 20px rgba(199, 91, 57, 0.15), 0 0 40px rgba(199, 91, 57, 0.08);
 
   /* Active state glow */
-  --dt-shadow-active-card: 0 8px 32px rgba(196, 92, 59, 0.2), 0 0 0 2px rgba(196, 92, 59, 0.3);
+  --dt-shadow-active-card: 0 4px 16px rgba(199, 91, 57, 0.12), 0 0 0 2px rgba(199, 91, 57, 0.2);
 }
 
 /* ============================================================
@@ -291,7 +300,7 @@
   font-size: var(--dt-text-lg);
   font-weight: 500;
   line-height: var(--dt-leading-snug);
-  color: var(--dt-text-secondary);
+  color: var(--dt-text-primary);
 }
 
 .dt-body {
@@ -299,7 +308,7 @@
   font-size: var(--dt-text-base);
   font-weight: 400;
   line-height: var(--dt-leading-normal);
-  color: var(--dt-text-secondary);
+  color: var(--dt-text-primary);
 }
 
 .dt-body-sm {
@@ -436,7 +445,7 @@
 /* Primary — terracotta, for CTAs */
 .dt-btn--primary {
   background: var(--dt-accent);
-  color: var(--dt-text-inverse);
+  color: #FFF;
   border-color: var(--dt-accent);
 }
 
@@ -460,7 +469,7 @@
 }
 
 .dt-btn--secondary:hover:not(:disabled) {
-  background: rgba(245, 240, 232, 0.05);
+  background: rgba(45, 37, 32, 0.05);
   border-color: var(--dt-border-accent);
   transform: translateY(-2px);
 }
@@ -474,21 +483,21 @@
 
 .dt-btn--ghost:hover:not(:disabled) {
   color: var(--dt-text-primary);
-  background: rgba(245, 240, 232, 0.05);
-  border-color: rgba(245, 240, 232, 0.15);
+  background: rgba(45, 37, 32, 0.05);
+  border-color: rgba(45, 37, 32, 0.15);
 }
 
-/* Community — green */
+/* Community — green (Celo) */
 .dt-btn--community {
   background: var(--dt-trust-community);
-  color: var(--dt-text-inverse);
+  color: #FFF;
   border-color: var(--dt-trust-community);
   font-weight: 600;
 }
 
 .dt-btn--community:hover:not(:disabled) {
-  background: #1ea853;
-  box-shadow: 0 0 20px rgba(34, 197, 94, 0.2);
+  background: #2bb872;
+  box-shadow: 0 0 16px rgba(53, 208, 127, 0.2);
   transform: translateY(-2px);
 }
 
@@ -713,7 +722,7 @@
 }
 
 ::-webkit-scrollbar-track {
-  background: var(--dt-surface-base);
+  background: transparent;
 }
 
 ::-webkit-scrollbar-thumb {
@@ -728,5 +737,5 @@
 /* Selection */
 ::selection {
   background: var(--dt-accent);
-  color: var(--dt-text-inverse);
+  color: #FFF;
 }

@@ -1,5 +1,5 @@
 import { useAccount, useReadContract, useWriteContract, useWaitForTransactionReceipt } from 'wagmi'
-import { formatUnits, erc20Abi, maxUint256 } from 'viem'
+import { erc20Abi, maxUint256 } from 'viem'
 import { CONTRACT_ADDRESSES } from '../config/wagmi'
 import { SaveCircleABI } from '../abis/SaveCircle'
 import { getPrivacyMode } from '../utils/privacy'
@@ -7,24 +7,19 @@ import { PrivacyBadge } from './PrivacyBadge'
 import { AgentStatus } from './AgentStatus'
 import { useState } from 'react'
 
-const cUSDabi = erc20Abi
+interface ActivityEntry {
+  type: 'yield' | 'threshold' | 'endowment'
+  date: string
+  amount: string
+  isPositive: boolean
+}
 
 function CircleCard() {
   const { address, isConnected } = useAccount()
   const [isApproving, setIsApproving] = useState(false)
   const [showError, setShowError] = useState('')
   
-  // Check privacy mode
   const isPrivacyMode = getPrivacyMode(CONTRACT_ADDRESSES.demoCircle)
-
-  // Read circle data from DemoCircle
-  // Read circle state (for future use - monitoring circle lifecycle)
-  useReadContract({
-    address: CONTRACT_ADDRESSES.demoCircle,
-    abi: SaveCircleABI,
-    functionName: 'state',
-    query: { enabled: isConnected },
-  })
 
   const { data: memberCount } = useReadContract({
     address: CONTRACT_ADDRESSES.demoCircle,
@@ -40,12 +35,12 @@ function CircleCard() {
     query: { enabled: isConnected },
   })
 
-  const { data: roundDuration } = useReadContract({
-    address: CONTRACT_ADDRESSES.demoCircle,
-    abi: SaveCircleABI,
-    functionName: 'roundDuration',
-    query: { enabled: isConnected },
-  })
+  // const { data: roundDuration } = useReadContract({
+  //   address: CONTRACT_ADDRESSES.demoCircle,
+  //   abi: SaveCircleABI,
+  //   functionName: 'roundDuration',
+  //   query: { enabled: isConnected },
+  // })
 
   const { data: currentRound } = useReadContract({
     address: CONTRACT_ADDRESSES.demoCircle,
@@ -54,20 +49,20 @@ function CircleCard() {
     query: { enabled: isConnected },
   })
 
-  const { data: rotationIndex } = useReadContract({
-    address: CONTRACT_ADDRESSES.demoCircle,
-    abi: SaveCircleABI,
-    functionName: 'rotationIndex',
-    query: { enabled: isConnected },
-  })
+  // const { data: rotationIndex } = useReadContract({
+  //   address: CONTRACT_ADDRESSES.demoCircle,
+  //   abi: SaveCircleABI,
+  //   functionName: 'rotationIndex',
+  //   query: { enabled: isConnected },
+  // })
 
-  const { data: hasContributed } = useReadContract({
-    address: CONTRACT_ADDRESSES.demoCircle,
-    abi: SaveCircleABI,
-    functionName: 'hasClaimedThisRound',
-    args: address ? [address] : undefined,
-    query: { enabled: !!address },
-  })
+  // const { data: hasContributed } = useReadContract({
+  //   address: CONTRACT_ADDRESSES.demoCircle,
+  //   abi: SaveCircleABI,
+  //   functionName: 'hasClaimedThisRound',
+  //   args: address ? [address] : undefined,
+  //   query: { enabled: !!address },
+  // })
 
   const { data: isMember } = useReadContract({
     address: CONTRACT_ADDRESSES.demoCircle,
@@ -77,13 +72,11 @@ function CircleCard() {
     query: { enabled: !!address },
   })
 
-  // Contribute via write contract
   const { writeContract: doContribute, isPending: isContributing } = useWriteContract()
   const { isLoading: isConfirming } = useWaitForTransactionReceipt({
     hash: isContributing ? undefined : undefined,
   })
 
-  // cUSD approval
   const { writeContract: approveToken, isPending: isApprovingToken } = useWriteContract()
 
   async function handleContribute() {
@@ -91,18 +84,16 @@ function CircleCard() {
     setShowError('')
 
     try {
-      // Step 1: Approve cUSD
       setIsApproving(true)
       approveToken(
         {
           address: CONTRACT_ADDRESSES.cUSD,
-          abi: cUSDabi,
+          abi: erc20Abi,
           functionName: 'approve',
           args: [CONTRACT_ADDRESSES.demoCircle, maxUint256],
         },
         {
           onSuccess: () => {
-            // Step 2: After approval, contribute
             setTimeout(() => {
               doContribute({
                 address: CONTRACT_ADDRESSES.demoCircle,
@@ -130,10 +121,10 @@ function CircleCard() {
         background: 'var(--dt-surface-raised)',
         border: '1px dashed var(--dt-border-default)',
         borderRadius: 'var(--dt-radius-xl)',
-        padding: 'var(--dt-space-5)',
+        padding: 'var(--dt-space-8)',
         textAlign: 'center',
         color: 'var(--dt-text-muted)',
-        fontSize: 'var(--dt-text-sm)',
+        fontSize: 'var(--dt-text-base)',
       }}>
         {!isConnected ? 'Connect wallet to join a circle' : 'Submit an intent to get matched into a circle'}
       </div>
@@ -141,146 +132,269 @@ function CircleCard() {
   }
 
   const members = Number(memberCount ?? 0n)
-  const contribution = contributionAmount ? Number(formatUnits(contributionAmount, 18)) : 0
+  // const contribution = contributionAmount ? Number(formatUnits(contributionAmount, 18)) : 0
   const round = Number(currentRound ?? 0n)
-  const rotation = Number(rotationIndex ?? 0n)
-  const yourTurn = rotation === Number(address ? BigInt(address) % BigInt(members || 1) : 0)
+  // const rotation = Number(rotationIndex ?? 0n)
+  // const yourTurn = rotation === Number(address ? BigInt(address) % BigInt(members || 1) : 0)
 
-  const cycleSeconds = Number(roundDuration ?? 604800) // default 7 days
-  const cycleDays = Math.round(cycleSeconds / 86400)
-  const cycleLabel = cycleDays === 7 ? 'Weekly' : cycleDays === 14 ? 'Biweekly' : cycleDays === 30 ? 'Monthly' : `${cycleDays}d`
+  // Mock balance and APY for demo
+  const mockBalance = 2440.12
+  const mockAPY = 2.8
 
-  // Privacy mode: hide individual amounts
-  const displayContribution = isPrivacyMode ? 'Private' : `$${contribution.toFixed(2)}`
-  const mockContributedCount = isPrivacyMode ? Math.floor(Math.random() * members) + 1 : undefined
+  // Mock recent activity
+  const mockActivity: ActivityEntry[] = [
+    { type: 'yield', date: 'Today', amount: '+45.32', isPositive: true },
+    { type: 'threshold', date: '2 days ago', amount: '-10.00', isPositive: false },
+    { type: 'endowment', date: '1 week ago', amount: '-250.00', isPositive: false },
+  ]
+
+  // const displayContribution = isPrivacyMode ? 'Private' : `$${contribution.toFixed(2)}`
 
   return (
     <div style={{
-      background: yourTurn ? 'rgba(14,11,7,0.85)' : 'var(--dt-surface-raised)',
-      backdropFilter: yourTurn ? 'blur(24px) saturate(180%)' : 'none',
-      border: `1px solid ${yourTurn ? 'var(--dt-accent)' : 'var(--dt-border-default)'}`,
-      borderRadius: 'var(--dt-radius-xl)',
-      padding: 'var(--dt-space-5)',
-      boxShadow: yourTurn ? 'var(--dt-shadow-glow-gold)' : 'var(--dt-shadow-sm)',
-      transition: 'all 0.3s ease',
-      position: 'relative',
-      overflow: 'hidden'
+      display: 'flex',
+      flexDirection: 'column',
+      gap: 'var(--dt-space-6)'
     }}>
-      {/* Paper noise on card */}
+      {/* Variant Design: Financial Dashboard */}
+      
+      {/* Header with Circle Name */}
       <div style={{
-        position: 'absolute', inset: 0, pointerEvents: 'none', borderRadius: 'inherit',
-        backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.5' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E")`,
-        opacity: 0.08, mixBlendMode: 'screen'
-      }} />
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'flex-start',
+        marginBottom: 'var(--dt-space-2)'
+      }}>
+        <div>
+          <h2 style={{
+            fontFamily: 'var(--dt-font-display)',
+            fontSize: 'var(--dt-text-2xl)',
+            fontWeight: 400,
+            color: 'var(--dt-text-primary)',
+            margin: 0,
+            marginBottom: 'var(--dt-space-1)'
+          }}>Demo Circle</h2>
+          <p style={{
+            color: 'var(--dt-text-muted)',
+            fontSize: 'var(--dt-text-sm)',
+            margin: 0
+          }}>{members} members · Round {round}</p>
+        </div>
+        <PrivacyBadge isPrivate={isPrivacyMode} />
+      </div>
 
-      <div style={{ position: 'relative', zIndex: 1 }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 'var(--dt-space-3)' }}>
-          <div>
-            <h3 style={{
-              fontFamily: 'var(--dt-font-display)',
-              fontSize: 'var(--dt-text-xl)', fontWeight: 400,
-              color: 'var(--dt-text-primary)',
-              margin: 0
-            }}>Demo Circle</h3>
-            <p style={{
-              color: 'var(--dt-text-muted)', fontSize: 'var(--dt-text-xs)', marginTop: 'var(--dt-space-1)',
-              margin: 0
-            }}>
-              {members} members · {cycleLabel}
-            </p>
-          </div>
-          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 'var(--dt-space-2)' }}>
-            <PrivacyBadge isPrivate={isPrivacyMode} />
-            <span style={{
-              fontFamily: 'var(--dt-font-mono)',
-              color: 'var(--dt-trust-community)', fontWeight: 600,
-              fontSize: 'var(--dt-text-sm)'
-            }}>Live</span>
-          </div>
+      {/* Large Balance Display */}
+      <div style={{
+        background: 'var(--dt-surface-raised)',
+        border: '1px solid var(--dt-border-default)',
+        borderRadius: 'var(--dt-radius-2xl)',
+        padding: 'var(--dt-space-8)',
+        boxShadow: 'var(--dt-shadow-card)',
+        textAlign: 'center'
+      }}>
+        <p style={{
+          color: 'var(--dt-text-muted)',
+          fontSize: 'var(--dt-text-sm)',
+          margin: '0 0 var(--dt-space-3) 0'
+        }}>Your Balance</p>
+        
+        <div style={{
+          display: 'flex',
+          alignItems: 'baseline',
+          justifyContent: 'center',
+          gap: 'var(--dt-space-2)',
+          marginBottom: 'var(--dt-space-6)'
+        }}>
+          <span style={{
+            fontFamily: 'var(--dt-font-display)',
+            fontSize: 'var(--dt-text-4xl)',
+            fontWeight: 400,
+            color: 'var(--dt-text-primary)'
+          }}>
+            $
+          </span>
+          <span style={{
+            fontFamily: 'var(--dt-font-mono)',
+            fontSize: 'var(--dt-text-4xl)',
+            fontWeight: 500,
+            color: 'var(--dt-text-primary)'
+          }}>
+            {mockBalance.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+          </span>
         </div>
 
-        <p style={{
-          color: 'var(--dt-text-muted)', fontSize: 'var(--dt-text-xs)', marginBottom: 'var(--dt-space-4)',
-          margin: 0,
-          marginTop: 'var(--dt-space-1)'
+        {/* APY Indicator Pill */}
+        <div style={{
+          display: 'inline-flex',
+          alignItems: 'center',
+          gap: 'var(--dt-space-2)',
+          padding: 'var(--dt-space-2) var(--dt-space-4)',
+          background: 'rgba(53, 208, 127, 0.1)',
+          border: '1px solid var(--dt-trust-community)',
+          borderRadius: 'var(--dt-radius-full)',
+          color: 'var(--dt-trust-community)',
+          fontFamily: 'var(--dt-font-body)',
+          fontWeight: 600,
+          fontSize: 'var(--dt-text-sm)'
         }}>
-          Round {round} · {displayContribution}/cycle
-        </p>
-
-        {/* Privacy mode: show aggregate instead of individual amounts */}
-        {isPrivacyMode && (
-          <div style={{
-            background: 'var(--dt-accent-muted)',
-            border: '1px solid var(--dt-border-accent)',
-            borderRadius: 'var(--dt-radius-lg)',
-            padding: 'var(--dt-space-3) var(--dt-space-4)',
-            marginBottom: 'var(--dt-space-4)',
-            fontSize: 'var(--dt-text-sm)',
-            color: 'var(--dt-accent)'
-          }}>
-            <p style={{ margin: 0, fontWeight: 500 }}>
-              🔒 {mockContributedCount} of {members} members have contributed this round
-            </p>
-            <p style={{ margin: '4px 0 0 0', fontSize: 'var(--dt-text-xs)', opacity: 0.8 }}>
-              Payout processed privately via Nightfall
-            </p>
-          </div>
-        )}
-
-        {showError && (
-          <div style={{
-            background: 'rgba(239,68,68,0.08)',
-            border: '1px solid rgba(239,68,68,0.2)',
-            borderRadius: 'var(--dt-radius-md)',
-            padding: 'var(--dt-space-2) var(--dt-space-3)',
-            color: 'var(--dt-state-error)',
-            fontSize: 'var(--dt-text-xs)',
-            marginBottom: 'var(--dt-space-3)'
-          }}>
-            {showError}
-          </div>
-        )}
-
-        {/* Actions */}
-        <div style={{ display: 'flex', gap: 'var(--dt-space-2)', minHeight: 44 }}>
-          {!hasContributed && (
-            <button onClick={handleContribute} disabled={isApproving || isApprovingToken || isContributing || isConfirming}
-              style={{
-                flex: 1, padding: 'var(--dt-space-3) var(--dt-space-4)', borderRadius: 'var(--dt-radius-lg)',
-                background: 'var(--dt-trust-community)', color: '#0A0804',
-                fontWeight: 600, fontSize: 'var(--dt-text-sm)', border: 'none', cursor: 'pointer',
-                opacity: isApproving || isApprovingToken || isContributing ? 0.6 : 1,
-                transition: 'all 0.2s ease', minHeight: 44
-              }}>
-              {isApproving ? 'Approving...' : isContributing || isConfirming ? 'Contributing...' : `Contribute ${displayContribution}`}
-            </button>
-          )}
-          {yourTurn && (
-            <button style={{
-              flex: 1, padding: 'var(--dt-space-3) var(--dt-space-4)', borderRadius: 'var(--dt-radius-lg)',
-              background: 'var(--dt-accent)', color: '#0A0804',
-              fontWeight: 700, fontSize: 'var(--dt-text-sm)', border: 'none', cursor: 'pointer',
-              boxShadow: 'var(--dt-shadow-glow-gold)',
-              letterSpacing: 'var(--dt-tracking-wide)',
-              transition: 'all 0.2s ease',
-              animation: 'dt-glow-pulse 2.5s ease-in-out infinite',
-              minHeight: 44
-            }}>
-              ✦ Your Turn to Claim
-            </button>
-          )}
-          {hasContributed && !yourTurn && (
-            <div style={{
-              flex: 1, textAlign: 'center', padding: 'var(--dt-space-3)',
-              color: 'var(--dt-trust-community)', fontSize: 'var(--dt-text-sm)',
-              fontFamily: 'var(--dt-font-mono)', display: 'flex',
-              alignItems: 'center', justifyContent: 'center'
-            }}>
-              ✓ Contributed · Waiting
-            </div>
-          )}
+          <span>↗️</span>
+          <span>+{mockAPY}% APY • Staked in Pool</span>
         </div>
       </div>
+
+      {/* Deposit / Withdraw Buttons */}
+      <div style={{
+        display: 'grid',
+        gridTemplateColumns: '1fr 1fr',
+        gap: 'var(--dt-space-3)'
+      }}>
+        <button
+          onClick={handleContribute}
+          disabled={isApproving || isApprovingToken || isContributing || isConfirming}
+          style={{
+            padding: 'var(--dt-space-4)',
+            background: 'var(--dt-accent)',
+            border: 'none',
+            borderRadius: 'var(--dt-radius-lg)',
+            color: '#FFF',
+            fontFamily: 'var(--dt-font-body)',
+            fontWeight: 600,
+            fontSize: 'var(--dt-text-sm)',
+            cursor: isApproving || isApprovingToken || isContributing ? 'not-allowed' : 'pointer',
+            opacity: isApproving || isApprovingToken || isContributing ? 0.6 : 1,
+            transition: 'all var(--dt-duration-fast) var(--dt-ease-out)',
+            minHeight: 44
+          }}
+          onMouseEnter={(e) => {
+            if (!isApproving && !isApprovingToken && !isContributing) {
+              (e.currentTarget as HTMLButtonElement).style.background = '#E8704D'
+            }
+          }}
+          onMouseLeave={(e) => {
+            (e.currentTarget as HTMLButtonElement).style.background = '#C75B39'
+          }}
+        >
+          {isApproving ? '⏳ Approving...' : isContributing || isConfirming ? '⏳ Contributing...' : '📥 Deposit'}
+        </button>
+
+        <button
+          style={{
+            padding: 'var(--dt-space-4)',
+            background: 'transparent',
+            border: '1px solid var(--dt-border-default)',
+            borderRadius: 'var(--dt-radius-lg)',
+            color: 'var(--dt-text-primary)',
+            fontFamily: 'var(--dt-font-body)',
+            fontWeight: 600,
+            fontSize: 'var(--dt-text-sm)',
+            cursor: 'pointer',
+            transition: 'all var(--dt-duration-fast) var(--dt-ease-out)',
+            minHeight: 44
+          }}
+
+        >
+          📤 Withdraw
+        </button>
+      </div>
+
+      {/* Error Message */}
+      {showError && (
+        <div style={{
+          background: 'rgba(255, 107, 107, 0.1)',
+          border: '1px solid rgba(255, 107, 107, 0.3)',
+          borderRadius: 'var(--dt-radius-md)',
+          padding: 'var(--dt-space-3) var(--dt-space-4)',
+          color: 'var(--dt-state-error)',
+          fontSize: 'var(--dt-text-sm)',
+        }}>
+          {showError}
+        </div>
+      )}
+
+      {/* Recent Activity Section */}
+      <div>
+        <h3 style={{
+          fontFamily: 'var(--dt-font-display)',
+          fontSize: 'var(--dt-text-lg)',
+          fontWeight: 400,
+          color: 'var(--dt-text-primary)',
+          margin: '0 0 var(--dt-space-4) 0'
+        }}>Recent Activity</h3>
+        
+        <div style={{
+          display: 'flex',
+          flexDirection: 'column',
+          gap: 'var(--dt-space-3)'
+        }}>
+          {mockActivity.map((entry, idx) => (
+            <div
+              key={idx}
+              style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                padding: 'var(--dt-space-4)',
+                background: 'var(--dt-surface-raised)',
+                border: '1px solid var(--dt-border-default)',
+                borderRadius: 'var(--dt-radius-lg)',
+                transition: 'all var(--dt-duration-fast) var(--dt-ease-out)'
+              }}
+
+            >
+              <div style={{
+                display: 'flex',
+                flexDirection: 'column',
+                gap: 'var(--dt-space-1)'
+              }}>
+                <span style={{
+                  fontFamily: 'var(--dt-font-body)',
+                  fontSize: 'var(--dt-text-sm)',
+                  fontWeight: 500,
+                  color: 'var(--dt-text-primary)'
+                }}>
+                  {entry.type === 'yield' && '📈 Yield Distribution'}
+                  {entry.type === 'threshold' && '⚡ Threshold Entry Fee'}
+                  {entry.type === 'endowment' && '🏛️ Endowment Stake'}
+                </span>
+                <span style={{
+                  fontFamily: 'var(--dt-font-body)',
+                  fontSize: 'var(--dt-text-xs)',
+                  color: 'var(--dt-text-muted)'
+                }}>
+                  {entry.date}
+                </span>
+              </div>
+              <span style={{
+                fontFamily: 'var(--dt-font-mono)',
+                fontSize: 'var(--dt-text-sm)',
+                fontWeight: 600,
+                color: entry.isPositive ? 'var(--dt-trust-community)' : 'var(--dt-state-error)'
+              }}>
+                {entry.amount}
+              </span>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Contribution Status */}
+      {isPrivacyMode && (
+        <div style={{
+          background: 'rgba(53, 208, 127, 0.1)',
+          border: '1px solid var(--dt-trust-community)',
+          borderRadius: 'var(--dt-radius-md)',
+          padding: 'var(--dt-space-4)',
+          fontSize: 'var(--dt-text-sm)',
+          color: 'var(--dt-trust-community)'
+        }}>
+          <p style={{ margin: 0, fontWeight: 500 }}>
+            🔒 Privacy mode enabled — amounts hidden
+          </p>
+        </div>
+      )}
+
+      {/* Agent Status */}
+      <AgentStatus />
     </div>
   )
 }
@@ -298,26 +412,5 @@ export function CircleDashboard() {
     )
   }
 
-  return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--dt-space-4)' }}>
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-        <h2 style={{
-          fontFamily: 'var(--dt-font-display)',
-          fontSize: 'var(--dt-text-xl)',
-          fontWeight: 400,
-          color: 'var(--dt-text-primary)',
-          margin: 0
-        }}>My Circles</h2>
-        <span style={{
-          fontSize: 'var(--dt-text-xs)', color: 'var(--dt-text-muted)',
-          fontWeight: 500, letterSpacing: 'var(--dt-tracking-wide)'
-        }}>1 LIVE</span>
-      </div>
-
-      <CircleCard />
-
-      {/* Agent Status Component */}
-      <AgentStatus />
-    </div>
-  )
+  return <CircleCard />
 }

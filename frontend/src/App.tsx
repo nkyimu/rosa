@@ -5,6 +5,7 @@ import { formatUnits } from "viem";
 import { MiniPayDetector } from "./components/MiniPayDetector";
 import { IntentForm }       from "./components/IntentForm";
 import { CircleDashboard }  from "./components/CircleDashboard";
+import { TransactionReceipt } from "./components/TransactionReceipt";
 import { TrustPanel }       from "./components/TrustPanel";
 import { CreditPanel }      from "./components/CreditPanel";
 import { BarterMarketplace } from "./components/BarterMarketplace";
@@ -12,7 +13,7 @@ import { AgentChat }        from "./components/AgentChat";
 import { ActivityFeed }     from "./components/ActivityFeed";
 import { checkMiniPay, CONTRACT_ADDRESSES, celoSepolia }     from "./config/wagmi";
 
-type Tab = "intent" | "circles" | "credit" | "agent" | "trust";
+type Tab = "intent" | "circles" | "credit" | "agent" | "trust" | "receipt";
 
 const TABS: { id: Tab; label: string; icon: string }[] = [
   { id: "intent",  label: "Save",    icon: "🔒" },
@@ -20,6 +21,7 @@ const TABS: { id: Tab; label: string; icon: string }[] = [
   { id: "agent",   label: "ROSA",    icon: "🤖" },
   { id: "credit",  label: "Credit",  icon: "💳" },
   { id: "trust",   label: "Trust",   icon: "🛡️" },
+  { id: "receipt", label: "Receipt", icon: "📋" },
 ];
 
 function ConnectButton() {
@@ -33,7 +35,7 @@ function ConnectButton() {
         background: 'var(--dt-accent)',
         border: 'none',
         borderRadius: 'var(--dt-radius-sm)',
-        color: 'var(--dt-text-primary)',
+        color: '#FFF',
         fontSize: '11px',
         fontWeight: 600,
         letterSpacing: '0.08em',
@@ -294,6 +296,15 @@ export default function App() {
             <TrustPanel />
             <BarterMarketplace />
           </div>
+        )}
+        {activeTab === "receipt" && (
+          <TransactionReceipt
+            amount="500.00"
+            currency="USDC"
+            status="finalized"
+            description="Endorsed to Threshold"
+            onClose={() => setActiveTab("circles")}
+          />
         )}
       </main>
 
