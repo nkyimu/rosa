@@ -28,7 +28,7 @@ export function AgentChat() {
       id: "0",
       role: "agent",
       content:
-        "👋 I'm ROSA — I manage private savings circles on Celo.\n\nTell me what you want to save and I'll handle the rest: finding compatible members, deploying the circle, enforcing contributions, and rotating payouts. Your contribution amounts stay private.\n\nTry: **\"Save 100 cUSD weekly with 5 people\"**",
+        "👋 I'm ROSA — I manage private savings circles on Celo.\n\nTell me what you want to save and I'll handle the rest: finding compatible members, deploying the circle, enforcing contributions, and rotating payouts. Your contribution amounts stay private.\n\nTry: \"Save 100 cUSD weekly with 5 people\"",
       reasoning: [],
     },
   ]);

@@ -63,7 +63,7 @@ export function AgentDashboard(_props?: AgentDashboardProps) {
         fontFamily: "'SF Mono', 'Roboto Mono', 'Courier New', Courier, monospace",
         display: 'flex',
         flexDirection: 'column',
-        minHeight: '100vh',
+        minHeight: 'auto',
         overflow: 'hidden',
       }}>
         {/* Header */}
@@ -260,8 +260,8 @@ export function AgentDashboard(_props?: AgentDashboardProps) {
         {/* Action Area */}
         <div style={{
           padding: '0 24px',
-          marginTop: 'auto',
-          marginBottom: '48px',
+          marginTop: '32px',
+          marginBottom: '24px',
         }}>
           {/* Effort Text */}
           <div style={{
