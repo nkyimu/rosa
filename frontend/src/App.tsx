@@ -3,25 +3,19 @@ import { useAccount, useConnect, useDisconnect, useBalance } from "wagmi";
 import { injected } from "wagmi/connectors";
 import { formatUnits } from "viem";
 import { MiniPayDetector } from "./components/MiniPayDetector";
-import { IntentForm }       from "./components/IntentForm";
 import { CircleDashboard }  from "./components/CircleDashboard";
-import { TransactionReceipt } from "./components/TransactionReceipt";
 import { TrustPanel }       from "./components/TrustPanel";
-import { CreditPanel }      from "./components/CreditPanel";
 import { BarterMarketplace } from "./components/BarterMarketplace";
 import { AgentChat }        from "./components/AgentChat";
 import { ActivityFeed }     from "./components/ActivityFeed";
 import { checkMiniPay, CONTRACT_ADDRESSES, celoSepolia }     from "./config/wagmi";
 
-type Tab = "intent" | "circles" | "credit" | "agent" | "trust" | "receipt";
+type Tab = "agent" | "circles" | "trust";
 
 const TABS: { id: Tab; label: string; icon: string }[] = [
-  { id: "intent",  label: "Save",    icon: "🔒" },
+  { id: "agent",   label: "ROSA",    icon: "💬" },
   { id: "circles", label: "Circles", icon: "🔄" },
-  { id: "agent",   label: "ROSA",    icon: "🤖" },
-  { id: "credit",  label: "Credit",  icon: "💳" },
   { id: "trust",   label: "Trust",   icon: "🛡️" },
-  { id: "receipt", label: "Receipt", icon: "📋" },
 ];
 
 function ConnectButton() {
@@ -114,7 +108,7 @@ function WalletStatus() {
 }
 
 export default function App() {
-  const [activeTab, setActiveTab] = useState<Tab>("intent");
+  const [activeTab, setActiveTab] = useState<Tab>("agent");
 
   return (
     <div style={{ minHeight: '100vh', background: 'var(--dt-surface-base)' }}>
@@ -221,58 +215,7 @@ export default function App() {
         boxSizing: 'border-box',
         width: '100%'
       }}>
-        {activeTab === "intent" && (
-          <MiniPayDetector connectButton={
-            <div style={{
-              textAlign: 'center',
-              padding: 'var(--dt-space-8) var(--dt-space-4)',
-              background: 'var(--dt-surface-raised)',
-              borderRadius: '16px',
-              boxShadow: 'var(--dt-shadow-md)',
-              marginTop: 'var(--dt-space-4)',
-            }}>
-              <div style={{
-                width: 48, height: 48, borderRadius: '50%',
-                background: 'var(--dt-accent-muted)',
-                border: '1px solid var(--dt-accent)',
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                margin: '0 auto var(--dt-space-4)',
-              }}>
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--dt-accent)" strokeWidth="1.5">
-                  <circle cx="12" cy="12" r="9"/>
-                  <path d="M12 6v6l4 2"/>
-                </svg>
-              </div>
-              <h3 style={{
-                fontFamily: 'var(--dt-font-display)',
-                fontSize: '20px',
-                fontWeight: 400,
-                color: '#F5F0E8',
-                margin: '0 0 8px 0',
-              }}>Your circle, your rules</h3>
-              <p style={{
-                color: '#B8B0A0',
-                fontSize: '13px',
-                lineHeight: '1.6',
-                margin: '0 0 8px 0',
-                padding: '0 12px',
-              }}>ROSA runs your savings circle so no one has to. Private contributions, automated payouts, on-chain trust — all managed by an autonomous agent.</p>
-              <p style={{
-                color: '#7A7468',
-                fontSize: '11px',
-                lineHeight: '1.5',
-                margin: '0 0 20px 0',
-                padding: '0 16px',
-                fontStyle: 'italic',
-              }}>No coordinator chasing payments. No one sees your balance.</p>
-              <ConnectButton />
-            </div>
-          }>
-            <IntentForm />
-          </MiniPayDetector>
-        )}
         {activeTab === "circles" && <CircleDashboard />}
-        {activeTab === "credit" && <CreditPanel />}
         {activeTab === "agent" && (
           <div className="agent-layout" style={{
             display: 'flex',
@@ -285,8 +228,8 @@ export default function App() {
             <div style={{ flex: 1, minHeight: 0, overflow: 'auto' }}>
               <AgentChat />
             </div>
-            {/* Activity feed — compact on mobile, max 200px */}
-            <div style={{ maxHeight: 200, overflow: 'auto', flexShrink: 0 }}>
+            {/* Activity feed — compact on mobile */}
+            <div style={{ maxHeight: 180, overflow: 'auto', flexShrink: 0, borderTop: '1px solid var(--dt-border-default)', paddingTop: 'var(--dt-space-2)' }}>
               <ActivityFeed />
             </div>
           </div>
@@ -296,15 +239,6 @@ export default function App() {
             <TrustPanel />
             <BarterMarketplace />
           </div>
-        )}
-        {activeTab === "receipt" && (
-          <TransactionReceipt
-            amount="500.00"
-            currency="USDC"
-            status="finalized"
-            description="Endorsed to Threshold"
-            onClose={() => setActiveTab("circles")}
-          />
         )}
       </main>
 

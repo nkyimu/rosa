@@ -34,7 +34,7 @@ export function AgentChat() {
   ]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [expandedReasoningId, setExpandedReasoningId] = useState<string | null>(null);
+  // Reasoning UI removed — debug info shouldn't show to users
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -222,86 +222,6 @@ export function AgentChat() {
               {/* Agent message extras */}
               {msg.role === "agent" && (
                 <>
-                  {/* Confidence badge — inline */}
-                  {msg.confidence !== undefined && (
-                    <div
-                      style={{
-                        display: "inline-flex",
-                        alignItems: "center",
-                        gap: 4,
-                        fontSize: "var(--dt-text-xs)",
-                        color: "var(--dt-text-muted)",
-                      }}
-                    >
-                      <span
-                        style={{
-                          width: 4,
-                          height: 4,
-                          borderRadius: "50%",
-                          background:
-                            msg.confidence > 0.8
-                              ? "#10B981"
-                              : msg.confidence > 0.5
-                                ? "#F59E0B"
-                                : "#EF4444",
-                          flexShrink: 0
-                        }}
-                      />
-                      {(msg.confidence * 100).toFixed(0)}%
-                    </div>
-                  )}
-
-                  {/* Reasoning accordion */}
-                  {msg.reasoning && msg.reasoning.length > 0 && (
-                    <div
-                      style={{
-                        marginTop: "var(--dt-space-1)",
-                      }}
-                    >
-                      <button
-                        onClick={() =>
-                          setExpandedReasoningId(
-                            expandedReasoningId === msg.id ? null : msg.id
-                          )
-                        }
-                        style={{
-                          background: "none",
-                          border: "none",
-                          color: "var(--dt-accent)",
-                          cursor: "pointer",
-                          fontSize: "var(--dt-text-xs)",
-                          padding: 0,
-                          fontWeight: 500,
-                          textDecoration: "underline",
-                        }}
-                      >
-                        {expandedReasoningId === msg.id ? "Hide" : "Show"} reasoning (
-                        {msg.reasoning.length})
-                      </button>
-
-                      {expandedReasoningId === msg.id && (
-                        <div
-                          style={{
-                            marginTop: "var(--dt-space-2)",
-                            padding: "var(--dt-space-2)",
-                            background: "rgba(0,0,0,0.02)",
-                            borderRadius: "var(--dt-radius-md)",
-                            borderLeft: "2px solid var(--dt-accent)",
-                            fontFamily: "var(--dt-font-mono)",
-                            fontSize: "var(--dt-text-xs)",
-                            color: "var(--dt-text-secondary)",
-                            lineHeight: "var(--dt-leading-relaxed)",
-                          }}
-                        >
-                          {msg.reasoning.map((r, i) => (
-                            <div key={i} style={{ marginBottom: "var(--dt-space-1)" }}>
-                              <span style={{ color: "var(--dt-accent)" }}>→</span> {r}
-                            </div>
-                          ))}
-                        </div>
-                      )}
-                    </div>
-                  )}
 
                   {/* Submit Intent Button */}
                   {msg.suggestedAction === "submitIntent" && (
