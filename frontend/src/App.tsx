@@ -4,6 +4,7 @@ import { injected } from "wagmi/connectors";
 import { formatUnits } from "viem";
 import { MiniPayDetector } from "./components/MiniPayDetector";
 import { CircleDashboard }  from "./components/CircleDashboard";
+import { AgentDashboard }   from "./components/AgentDashboard";
 import { TrustPanel }       from "./components/TrustPanel";
 import { BarterMarketplace } from "./components/BarterMarketplace";
 import { AgentChat }        from "./components/AgentChat";
@@ -217,19 +218,12 @@ export default function App() {
       }}>
         {activeTab === "circles" && <CircleDashboard />}
         {activeTab === "agent" && (
-          <div className="agent-layout" style={{
-            display: 'flex',
-            flexDirection: 'column',
-            gap: 'var(--dt-space-3)',
-            height: 'calc(100vh - 200px)',
-            overflow: 'hidden',
-          }}>
-            {/* Chat — takes priority, fills available space */}
-            <div style={{ flex: 1, minHeight: 0, overflow: 'auto' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0' }}>
+            <AgentDashboard />
+            <div style={{ padding: '16px 0' }}>
               <AgentChat />
             </div>
-            {/* Activity feed — compact on mobile */}
-            <div style={{ maxHeight: 180, overflow: 'auto', flexShrink: 0, borderTop: '1px solid var(--dt-border-default)', paddingTop: 'var(--dt-space-2)' }}>
+            <div style={{ maxHeight: 180, overflow: 'auto', borderTop: '1px solid var(--dt-border-default)', padding: '8px 0' }}>
               <ActivityFeed />
             </div>
           </div>
