@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useAccount, useConnect, useDisconnect, useBalance } from "wagmi";
 import { injected } from "wagmi/connectors";
 import { formatUnits } from "viem";
@@ -111,16 +111,27 @@ function WalletStatus() {
 
 export default function App() {
   const [activeTab, setActiveTab] = useState<Tab>("agent");
+  const [joinAddress, setJoinAddress] = useState<string | null>(() => {
+    const m = window.location.hash.match(/^#\/join\/(.+)$/);
+    return m ? m[1] : null;
+  });
+
+  useEffect(() => {
+    const onHash = () => {
+      const m = window.location.hash.match(/^#\/join\/(.+)$/);
+      setJoinAddress(m ? m[1] : null);
+    };
+    window.addEventListener('hashchange', onHash);
+    return () => window.removeEventListener('hashchange', onHash);
+  }, []);
 
   // Check for join invite link
-  const joinMatch = window.location.hash.match(/^#\/join\/(.+)$/);
-  if (joinMatch) {
-    const circleAddress = joinMatch[1];
+  if (joinAddress) {
     return <JoinCircle 
-      circleAddress={circleAddress} 
+      circleAddress={joinAddress} 
       onBack={() => { 
         window.location.hash = ''; 
-        window.location.reload(); 
+        setJoinAddress(null);
       }} 
     />;
   }
