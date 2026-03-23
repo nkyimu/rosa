@@ -51,6 +51,23 @@
 - Full ROSCA lifecycle: contribute → rotation → payout
 - ERC-8004 agent registration on AgentRegistry
 
+### Phase 5: Variant Design Export & Venice Privacy (Mar 21-22)
+**Human**: "You should be using the Variant export skill — doesn't it have instructions for that?"
+
+**Agent**: Found variant-design-export skill. Extracted 17 design UUIDs from two Variant chats, downloaded via `/design/{uuid}.html` endpoint, cleaned tracking attributes (`vid`), identified 6 key screens:
+- Financial Dashboard ($2,440.12 balance, Cormorant Garamond serif)
+- Agent Powered ROSCA (rust card, jagged tear edge, "AUTHORIZE PAYOUT")
+- Transaction Receipt (scalloped receipt card)
+- Confirm Stake (500 USDC form)
+- Financial Policy (governance config)
+- Audit Trail (verification log)
+
+Sub-agent converted HTML to pixel-faithful React components using actual Variant CSS (not hand-coded approximations).
+
+**Agent (Empa)**: Integrated Venice AI private inference into the matcher — TEE models for private cognition, privacy attestation logging for audit trails. Ran 3-agent comprehensive audit. Softened README claims where implementation was aspirational (TEE attestation stub, Nightfall ZK roadmap).
+
+**Key regression avoided**: REG-012 (browser timeouts blocking hackathon work). Did risky browser exports upfront, pivoted immediately to file-based React conversion. No browser dependency on critical path.
+
 ## Tools & Skills Used
 - **Foundry**: Contract development, testing (197 tests), deployment
 - **viem/wagmi**: Blockchain interaction, wallet connection
