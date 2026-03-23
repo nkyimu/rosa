@@ -245,23 +245,20 @@ export default function App() {
           <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
             <CircleDashboard />
             <AgentDashboard />
+            <div style={{ borderTop: '1px solid var(--dt-border-default)', paddingTop: '16px' }}>
+              <ActivityFeed />
+            </div>
           </div>
         )}
         {activeTab === "agent" && (
-          <div className="agent-layout" style={{
+          <div style={{
             display: 'flex',
             flexDirection: 'column',
-            gap: '0',
-            height: 'calc(100vh - 200px)',
+            height: 'calc(100vh - 160px)',
             overflow: 'hidden',
           }}>
-            {/* Chat — takes priority, fills available space */}
-            <div style={{ flex: 1, minHeight: 0, overflow: 'auto' }}>
+            <div style={{ flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column' }}>
               <AgentChat />
-            </div>
-            {/* Activity feed — compact on mobile */}
-            <div style={{ maxHeight: 180, overflow: 'auto', flexShrink: 0, borderTop: '1px solid var(--dt-border-default)', paddingTop: '8px' }}>
-              <ActivityFeed />
             </div>
           </div>
         )}
