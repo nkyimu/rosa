@@ -17,9 +17,15 @@ interface ChatMessage {
   reasoning?: string[];
   confidence?: number;
   suggestedAction?: "submitIntent" | "viewCircles" | "viewStatus";
+  timestamp?: number;
 }
 
 const AGENT_API_URL = "";
+const WARM_CREAM = "#f5f4ef";
+const WARM_BORDER = "#e4e2db";
+const RUST = "#c85a3f";
+const MUTED_TEXT = "#8c8981";
+const USER_BG = "#ffffff";
 
 export function AgentChat() {
   const { address, isConnected } = useAccount();
@@ -28,8 +34,9 @@ export function AgentChat() {
       id: "0",
       role: "agent",
       content:
-        "👋 I'm ROSA — I manage private savings circles on Celo.\n\nTell me what you want to save and I'll handle the rest: finding compatible members, deploying the circle, enforcing contributions, and rotating payouts. Your contribution amounts stay private.\n\nTry: \"Save 100 cUSD weekly with 5 people\"",
+        "I'm ROSA — I manage private savings circles on Celo.\n\nTell me what you want to save and I'll handle the rest: finding compatible members, deploying the circle, enforcing contributions, and rotating payouts. Your contribution amounts stay private.\n\nTry: \"Save 100 cUSD weekly with 5 people\"",
       reasoning: [],
+      timestamp: Date.now(),
     },
   ]);
   const [input, setInput] = useState("");
@@ -55,6 +62,7 @@ export function AgentChat() {
       id: String(Date.now()),
       role: "user",
       content: input,
+      timestamp: Date.now(),
     };
 
     setMessages((prev) => [...prev, userMessage]);
@@ -82,6 +90,7 @@ export function AgentChat() {
         reasoning: data.reasoning,
         confidence: data.confidence,
         suggestedAction: data.suggestedAction,
+        timestamp: Date.now(),
       };
 
       setMessages((prev) => [...prev, agentMessage]);
@@ -95,6 +104,7 @@ export function AgentChat() {
           role: "agent",
           content: "Sorry, I couldn't process that. Make sure the agent is running on port 3002.",
           reasoning: [],
+          timestamp: Date.now(),
         },
       ]);
     } finally {
@@ -140,27 +150,40 @@ export function AgentChat() {
     }
   };
 
+  const formatTime = (timestamp?: number) => {
+    if (!timestamp) return "";
+    const date = new Date(timestamp);
+    return date.toLocaleTimeString("en-US", {
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: true,
+    });
+  };
+
   return (
     <div
       style={{
         display: "flex",
         flexDirection: "column",
         height: "100%",
-        background: "var(--dt-surface-base)",
-        borderRadius: "var(--dt-radius-lg)",
+        background: WARM_CREAM,
         overflow: "hidden",
-        border: "1px solid var(--dt-border-default)",
+        fontFamily: "'Inter', sans-serif",
       }}
     >
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital@0;1&family=Inter:wght@400;500;600&display=swap');
+      `}</style>
+
       {/* Messages Container */}
       <div
         style={{
           flex: 1,
           overflowY: "auto",
-          padding: "var(--dt-space-3)",
+          padding: "32px 24px",
           display: "flex",
           flexDirection: "column",
-          gap: "var(--dt-space-2)",
+          gap: "24px",
         }}
       >
         {messages.map((msg) => (
@@ -169,88 +192,142 @@ export function AgentChat() {
             style={{
               display: "flex",
               justifyContent: msg.role === "user" ? "flex-end" : "flex-start",
-              gap: "var(--dt-space-1)",
-              alignItems: 'flex-end'
+              alignItems: "flex-start",
+              gap: "12px",
             }}
           >
+            {/* Agent indicator (small rust square) */}
             {msg.role === "agent" && (
               <div
                 style={{
-                  width: 28,
-                  height: 28,
-                  borderRadius: "50%",
-                  background: "rgba(212, 175, 55, 0.1)",
-                  border: "1px solid rgba(212, 175, 55, 0.3)",
                   display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  flexShrink: 0,
-                  fontSize: 14,
-                  marginTop: 4
+                  flexDirection: "column",
+                  alignItems: "flex-start",
+                  gap: "4px",
                 }}
               >
-                🤖
+                <div
+                  style={{
+                    width: 8,
+                    height: 8,
+                    background: RUST,
+                    borderRadius: "1px",
+                    flexShrink: 0,
+                    marginTop: "4px",
+                  }}
+                />
               </div>
             )}
 
             <div
               style={{
-                maxWidth: "85%",
+                maxWidth: msg.role === "user" ? "75%" : "80%",
                 display: "flex",
                 flexDirection: "column",
-                gap: "var(--dt-space-1)",
+                gap: "8px",
+                alignItems: msg.role === "user" ? "flex-end" : "flex-start",
               }}
             >
-              {/* Message bubble */}
-              <div
-                style={{
-                  padding: "var(--dt-space-2) var(--dt-space-3)",
-                  borderRadius: "var(--dt-radius-md)",
-                  background: msg.role === "user" ? "#FFFFFF" : "#F5F2ED",
-                  border: `1px solid ${msg.role === "user" ? "rgba(0,0,0,0.08)" : "rgba(212,175,55,0.2)"}`,
-                  color: "var(--dt-text-primary)",
-                  fontSize: "var(--dt-text-sm)",
-                  lineHeight: "var(--dt-leading-relaxed)",
-                  whiteSpace: "pre-wrap",
-                  wordBreak: "break-word",
-                  overflowWrap: "break-word"
-                }}
-              >
-                {msg.content}
-              </div>
+              {/* Agent label */}
+              {msg.role === "agent" && (
+                <div
+                  style={{
+                    fontSize: "12px",
+                    fontWeight: 600,
+                    color: MUTED_TEXT,
+                    fontFamily: "'Inter', sans-serif",
+                    textTransform: "uppercase",
+                    letterSpacing: "0.5px",
+                    marginBottom: "4px",
+                  }}
+                >
+                  ROSA
+                </div>
+              )}
+
+              {/* Message content */}
+              {msg.role === "agent" ? (
+                <div
+                  style={{
+                    fontFamily: "'Cormorant Garamond', serif",
+                    fontSize: "16px",
+                    fontStyle: "italic",
+                    color: "#2c2c2c",
+                    lineHeight: "1.6",
+                    whiteSpace: "pre-wrap",
+                    wordBreak: "break-word",
+                    overflowWrap: "break-word",
+                    paddingBottom: "12px",
+                    borderBottom: `1px solid ${WARM_BORDER}`,
+                  }}
+                >
+                  {msg.content}
+                </div>
+              ) : (
+                <div
+                  style={{
+                    padding: "12px 16px",
+                    background: USER_BG,
+                    border: `1px solid ${WARM_BORDER}`,
+                    borderRadius: "8px",
+                    fontFamily: "'Inter', sans-serif",
+                    fontSize: "14px",
+                    color: "#2c2c2c",
+                    lineHeight: "1.5",
+                    whiteSpace: "pre-wrap",
+                    wordBreak: "break-word",
+                    overflowWrap: "break-word",
+                  }}
+                >
+                  {msg.content}
+                </div>
+              )}
+
+              {/* Timestamp */}
+              {msg.timestamp && (
+                <div
+                  style={{
+                    fontSize: "11px",
+                    color: MUTED_TEXT,
+                    fontFamily: "'Inter', sans-serif",
+                    marginTop: "2px",
+                  }}
+                >
+                  {formatTime(msg.timestamp)}
+                </div>
+              )}
 
               {/* Agent message extras */}
               {msg.role === "agent" && (
                 <>
-
                   {/* Submit Intent Button */}
                   {msg.suggestedAction === "submitIntent" && (
                     <button
                       onClick={() => handleSubmitIntent(msg)}
                       disabled={!isConnected}
                       style={{
-                        padding: "var(--dt-space-2) var(--dt-space-3)",
-                        background: isConnected ? "var(--dt-accent)" : "var(--dt-border-default)",
-                        color: isConnected ? "#0A0A0A" : "var(--dt-text-muted)",
+                        marginTop: "8px",
+                        padding: "10px 16px",
+                        background: isConnected ? RUST : WARM_BORDER,
+                        color: isConnected ? "#ffffff" : MUTED_TEXT,
                         border: "none",
-                        borderRadius: "var(--dt-radius-md)",
+                        borderRadius: "4px",
                         cursor: isConnected ? "pointer" : "not-allowed",
-                        fontSize: "var(--dt-text-sm)",
-                        fontWeight: 600,
-                        minHeight: 44,
+                        fontSize: "13px",
+                        fontWeight: 500,
+                        fontFamily: "'Inter', sans-serif",
                         transition: "all 0.2s ease",
                         opacity: isConnected ? 1 : 0.6,
                       }}
                       onMouseEnter={(e) => {
                         if (isConnected) {
                           (e.target as HTMLButtonElement).style.background =
-                            "var(--dt-accent-hover)";
+                            "#a84a32";
                         }
                       }}
                       onMouseLeave={(e) => {
                         if (isConnected) {
-                          (e.target as HTMLButtonElement).style.background =
-                            "var(--dt-accent)";
+                          (e.target as HTMLButtonElement).style.background = RUST;
                         }
                       }}
                     >
@@ -268,41 +345,56 @@ export function AgentChat() {
             style={{
               display: "flex",
               justifyContent: "flex-start",
-              gap: "var(--dt-space-1)",
-              alignItems: "flex-end"
+              alignItems: "flex-start",
+              gap: "12px",
             }}
           >
             <div
               style={{
-                width: 28,
-                height: 28,
-                borderRadius: "50%",
-                background: "rgba(212, 175, 55, 0.1)",
-                border: "1px solid rgba(212, 175, 55, 0.3)",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
+                width: 8,
+                height: 8,
+                background: RUST,
+                borderRadius: "1px",
                 flexShrink: 0,
-                fontSize: 14,
-                marginTop: 4
+                marginTop: "4px",
               }}
-            >
-              🤖
-            </div>
+            />
             <div
               style={{
-                padding: "var(--dt-space-2) var(--dt-space-3)",
-                borderRadius: "var(--dt-radius-md)",
-                background: "#F5F2ED",
-                border: "1px solid rgba(212,175,55,0.2)",
                 display: "flex",
-                alignItems: "center",
-                gap: "var(--dt-space-1)",
+                flexDirection: "column",
+                gap: "8px",
               }}
             >
-              <span style={{ animation: "pulse 1.5s infinite", fontSize: 12 }}>●</span>
-              <style>{`@keyframes pulse { 0%, 100% { opacity: 0.3; } 50% { opacity: 1; } }`}</style>
-              <span style={{ fontSize: "var(--dt-text-sm)" }}>Thinking...</span>
+              <div
+                style={{
+                  fontSize: "12px",
+                  fontWeight: 600,
+                  color: MUTED_TEXT,
+                  fontFamily: "'Inter', sans-serif",
+                  textTransform: "uppercase",
+                  letterSpacing: "0.5px",
+                }}
+              >
+                ROSA
+              </div>
+              <div
+                style={{
+                  fontFamily: "'Cormorant Garamond', serif",
+                  fontSize: "16px",
+                  fontStyle: "italic",
+                  color: "#2c2c2c",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "8px",
+                  paddingBottom: "12px",
+                  borderBottom: `1px solid ${WARM_BORDER}`,
+                }}
+              >
+                <span style={{ animation: "pulse 1.5s infinite" }}>●</span>
+                <style>{`@keyframes pulse { 0%, 100% { opacity: 0.3; } 50% { opacity: 1; } }`}</style>
+                Thinking...
+              </div>
             </div>
           </div>
         )}
@@ -313,83 +405,145 @@ export function AgentChat() {
       {/* Input area */}
       <div
         style={{
-          borderTop: "1px solid var(--dt-border-default)",
-          padding: "var(--dt-space-3)",
-          background: "var(--dt-surface-base)",
-          boxSizing: "border-box"
+          borderTop: `1px solid ${WARM_BORDER}`,
+          padding: "16px 24px 24px",
+          background: "#ffffff",
+          boxSizing: "border-box",
+          position: "relative",
         }}
       >
         {!isConnected && (
           <div
             style={{
-              marginBottom: "var(--dt-space-2)",
-              fontSize: "var(--dt-text-xs)",
-              color: "var(--dt-text-muted)",
-              lineHeight: "var(--dt-leading-relaxed)"
+              marginBottom: "12px",
+              fontSize: "12px",
+              color: MUTED_TEXT,
+              fontFamily: "'Inter', sans-serif",
+              padding: "8px 12px",
+              background: WARM_CREAM,
+              borderRadius: "16px",
+              display: "inline-block",
+              lineHeight: "1.4",
             }}
           >
-            ℹ Sign in to start saving
+            Sign in to start saving
           </div>
         )}
+
         <div
           style={{
             display: "flex",
-            gap: "var(--dt-space-2)",
+            gap: "8px",
+            alignItems: "center",
           }}
         >
+          {/* Left icon buttons */}
+          <button
+            style={{
+              width: 36,
+              height: 36,
+              borderRadius: "4px",
+              border: "none",
+              background: "transparent",
+              cursor: "pointer",
+              color: MUTED_TEXT,
+              fontSize: "18px",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              transition: "background 0.2s ease",
+            }}
+            onMouseEnter={(e) => {
+              (e.target as HTMLButtonElement).style.background = WARM_CREAM;
+            }}
+            onMouseLeave={(e) => {
+              (e.target as HTMLButtonElement).style.background = "transparent";
+            }}
+            title="Add attachment"
+          >
+            +
+          </button>
+
+          <button
+            style={{
+              width: 36,
+              height: 36,
+              borderRadius: "4px",
+              border: "none",
+              background: "transparent",
+              cursor: "pointer",
+              color: MUTED_TEXT,
+              fontSize: "18px",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              transition: "background 0.2s ease",
+            }}
+            onMouseEnter={(e) => {
+              (e.target as HTMLButtonElement).style.background = WARM_CREAM;
+            }}
+            onMouseLeave={(e) => {
+              (e.target as HTMLButtonElement).style.background = "transparent";
+            }}
+            title="Mention"
+          >
+            @
+          </button>
+
+          {/* Text input */}
           <input
             ref={inputRef}
             type="text"
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={handleKeyDown}
-            placeholder="e.g., 'Save 50 cUSD/month for 6 months'"
+            placeholder="What would you like to save?"
             style={{
               flex: 1,
-              padding: "var(--dt-space-2) var(--dt-space-3)",
-              border: "1px solid var(--dt-border-default)",
-              borderRadius: "var(--dt-radius-md)",
-              fontSize: "16px",
-              fontFamily: "var(--dt-font-body)",
-              color: "var(--dt-text-primary)",
-              background: "var(--dt-surface-overlay)",
-              minHeight: 44,
-              boxSizing: "border-box"
+              padding: "10px 12px",
+              border: "none",
+              background: "transparent",
+              fontSize: "15px",
+              fontFamily: "'Cormorant Garamond', serif",
+              fontStyle: "italic",
+              color: "#2c2c2c",
+              outline: "none",
+              minHeight: 20,
+              boxSizing: "border-box",
             }}
           />
+
+          {/* Send button */}
           <button
             onClick={handleSendMessage}
             disabled={!input.trim() || isLoading}
             style={{
-              padding: 0,
-              background:
-                input.trim() ? "var(--dt-accent)" : "var(--dt-border-default)",
-              color: input.trim() ? "#0A0A0A" : "var(--dt-text-muted)",
+              width: 36,
+              height: 36,
+              borderRadius: "50%",
               border: "none",
-              borderRadius: "var(--dt-radius-md)",
+              background: input.trim() && !isLoading ? RUST : WARM_BORDER,
+              color: input.trim() && !isLoading ? "#ffffff" : MUTED_TEXT,
               cursor: input.trim() && !isLoading ? "pointer" : "not-allowed",
               fontSize: "18px",
               fontWeight: 600,
-              minHeight: 44,
-              minWidth: 44,
               transition: "all 0.2s ease",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
-              flexShrink: 0
+              flexShrink: 0,
             }}
             onMouseEnter={(e) => {
-              if (input.trim()) {
-                (e.target as HTMLButtonElement).style.background =
-                  "var(--dt-accent-hover)";
+              if (input.trim() && !isLoading) {
+                (e.target as HTMLButtonElement).style.background = "#a84a32";
               }
             }}
             onMouseLeave={(e) => {
-              if (input.trim()) {
-                (e.target as HTMLButtonElement).style.background =
-                  "var(--dt-accent)";
+              if (input.trim() && !isLoading) {
+                (e.target as HTMLButtonElement).style.background = RUST;
               }
             }}
+            title="Send message"
           >
             →
           </button>
