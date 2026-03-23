@@ -137,112 +137,41 @@ export default function App() {
   }
 
   return (
-    <div style={{ minHeight: '100vh', background: 'var(--dt-surface-base)' }}>
-      {/* Header */}
-      <header style={{
-        position: 'sticky',
-        top: 0,
-        zIndex: 20,
-        background: 'var(--dt-surface-raised)',
-        borderBottom: '1px solid var(--dt-border-default)',
-        boxShadow: 'var(--dt-shadow-sm)',
-        width: '100%',
-        boxSizing: 'border-box',
-        paddingTop: 'env(safe-area-inset-top)'
-      }}>
-        <div style={{
-          maxWidth: 480,
-          margin: '0 auto',
-          padding: 'var(--dt-space-2) var(--dt-space-3)',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          boxSizing: 'border-box',
-          width: '100%',
-          gap: '8px',
-          minHeight: 48,
-          overflow: 'visible'
-        }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--dt-space-2)', minWidth: 0 }}>
-            {/* Logo icon */}
-            <div style={{
-              width: 32, height: 32, borderRadius: '50%',
-              background: 'var(--dt-accent-muted)',
-              border: '1px solid var(--dt-accent)',
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              flexShrink: 0
-            }}>
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--dt-accent)" strokeWidth="1.5">
-                <circle cx="12" cy="12" r="9"/>
-                <path d="M12 6v6l4 2"/>
-              </svg>
-            </div>
-            <div style={{ minWidth: 0, flex: 1 }}>
-              <h1 style={{
-                fontFamily: 'var(--dt-font-display)',
-                fontSize: 'var(--dt-text-base)',
-                fontWeight: 400,
-                color: 'var(--dt-text-primary)',
-                lineHeight: 'var(--dt-leading-tight)',
-                margin: 0,
-                whiteSpace: 'nowrap'
-              }}>ROSA</h1>
-              <p style={{
-                fontSize: 'var(--dt-text-xs)',
-                color: 'var(--dt-text-secondary)',
-                letterSpacing: 'var(--dt-tracking-wide)',
-                margin: 0,
-                lineHeight: '1.0',
-                whiteSpace: 'nowrap',
-                textOverflow: 'ellipsis',
-                overflow: 'hidden'
-              }}>Private savings circles</p>
-            </div>
-          </div>
-          <MiniPayDetector connectButton={<ConnectButton />}>
-            <WalletStatus />
-          </MiniPayDetector>
-        </div>
-      </header>
-
-      {/* Testnet banner */}
-      <div style={{
-        maxWidth: 480,
-        margin: '0 auto',
-        padding: '0 var(--dt-space-3)',
-        paddingTop: 'var(--dt-space-2)',
-        paddingBottom: 'var(--dt-space-2)',
-        boxSizing: 'border-box',
-        width: '100%'
-      }}>
-        <div style={{
-          background: 'var(--dt-accent-muted)',
-          border: '1px solid var(--dt-accent)',
-          borderRadius: 'var(--dt-radius-md)',
-          padding: 'var(--dt-space-2) var(--dt-space-3)',
-          fontSize: 'var(--dt-text-xs)',
-          color: 'var(--dt-accent-hover)',
-          display: 'flex', alignItems: 'center', gap: 'var(--dt-space-2)',
-          flexWrap: 'nowrap'
-        }}>
-          <span style={{ flexShrink: 0 }}>◆</span>
-          <span><strong>Celo Sepolia testnet</strong> — no real funds</span>
-        </div>
-      </div>
+    <div style={{ minHeight: '100vh', background: activeTab === 'agent' ? '#f5f4ef' : 'var(--dt-surface-base)' }}>
 
       {/* Main content */}
       <main style={{
         maxWidth: 480,
         margin: '0 auto',
-        padding: 'var(--dt-space-3)',
-        paddingBottom: 'calc(80px + env(safe-area-inset-bottom))',
+        padding: activeTab === 'agent' ? '0' : 'var(--dt-space-3)',
+        paddingTop: activeTab === 'agent' ? '0' : 'var(--dt-space-3)',
+        paddingBottom: 'calc(64px + env(safe-area-inset-bottom))',
         position: 'relative',
         zIndex: 1,
         boxSizing: 'border-box',
-        width: '100%'
+        width: '100%',
+        height: activeTab === 'agent' ? 'calc(100vh - 64px)' : 'auto',
       }}>
         {activeTab === "circles" && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+            {/* Wallet + testnet — only on Circles */}
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '8px' }}>
+              <div style={{
+                background: 'var(--dt-accent-muted)',
+                border: '1px solid var(--dt-accent)',
+                borderRadius: 'var(--dt-radius-md)',
+                padding: '6px 12px',
+                fontSize: 'var(--dt-text-xs)',
+                color: 'var(--dt-accent-hover)',
+                display: 'flex', alignItems: 'center', gap: '6px',
+              }}>
+                <span>◆</span>
+                <span>Celo Sepolia</span>
+              </div>
+              <MiniPayDetector connectButton={<ConnectButton />}>
+                <WalletStatus />
+              </MiniPayDetector>
+            </div>
             <CircleDashboard />
             <AgentDashboard />
             <div style={{ borderTop: '1px solid var(--dt-border-default)', paddingTop: '16px' }}>
@@ -254,12 +183,10 @@ export default function App() {
           <div style={{
             display: 'flex',
             flexDirection: 'column',
-            height: 'calc(100vh - 160px)',
+            height: '100%',
             overflow: 'hidden',
           }}>
-            <div style={{ flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column' }}>
-              <AgentChat />
-            </div>
+            <AgentChat />
           </div>
         )}
         {activeTab === "trust" && (
@@ -270,16 +197,15 @@ export default function App() {
         )}
       </main>
 
-      {/* Bottom navigation — 44px+ touch targets */}
+      {/* Bottom navigation — minimal, modern */}
       <nav style={{
         position: 'fixed',
         bottom: 0,
         left: 0,
         right: 0,
         zIndex: 20,
-        background: 'var(--dt-surface-raised)',
-        borderTop: '1px solid var(--dt-border-default)',
-        boxShadow: '0 -4px 24px rgba(0,0,0,0.4)',
+        background: activeTab === 'agent' ? '#ffffff' : 'var(--dt-surface-raised)',
+        borderTop: `1px solid ${activeTab === 'agent' ? '#e4e2db' : 'var(--dt-border-default)'}`,
         width: '100%',
         boxSizing: 'border-box',
         paddingBottom: 'env(safe-area-inset-bottom)'
@@ -296,21 +222,20 @@ export default function App() {
             <button key={tab.id} onClick={() => setActiveTab(tab.id)}
               style={{
                 flex: 1, 
-                padding: '8px 2px 6px',
-                minHeight: 52,
-                display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 2,
-                borderTop: isActive ? '2px solid var(--dt-accent)' : '2px solid transparent',
-                borderLeft: 'none', borderRight: 'none', borderBottom: 'none',
-                color: isActive ? 'var(--dt-accent)' : 'var(--dt-text-muted)',
+                padding: '10px 2px 8px',
+                minHeight: 44,
+                display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 4,
+                border: 'none',
+                color: isActive ? '#c85a3f' : '#8c8981',
                 background: 'none', cursor: 'pointer',
-                transition: 'all 0.2s ease',
-                fontFamily: 'var(--dt-font-mono, monospace)',
-                fontSize: '9px',
-                fontWeight: 500,
-                letterSpacing: '0.12em',
+                transition: 'color 0.2s ease',
+                fontFamily: "'Inter', sans-serif",
+                fontSize: '10px',
+                fontWeight: isActive ? 600 : 400,
+                letterSpacing: '0.08em',
                 textTransform: 'uppercase',
               }}>
-              <span style={{ fontSize: 18, lineHeight: 1 }}>{tab.icon}</span>
+              <span style={{ fontSize: 16, lineHeight: 1 }}>{tab.icon}</span>
               <span style={{ whiteSpace: 'nowrap' }}>{tab.label}</span>
             </button>
             );

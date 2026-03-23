@@ -180,7 +180,7 @@ export function AgentChat() {
         style={{
           flex: 1,
           overflowY: "auto",
-          padding: "32px 24px",
+          padding: "calc(env(safe-area-inset-top, 0px) + 48px) 24px 24px",
           display: "flex",
           flexDirection: "column",
           gap: "24px",
