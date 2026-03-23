@@ -29,16 +29,7 @@ const USER_BG = "#ffffff";
 
 export function AgentChat() {
   const { address, isConnected } = useAccount();
-  const [messages, setMessages] = useState<ChatMessage[]>([
-    {
-      id: "0",
-      role: "agent",
-      content:
-        "I'm ROSA — I manage private savings circles on Celo.\n\nTell me what you want to save and I'll handle the rest: finding compatible members, deploying the circle, enforcing contributions, and rotating payouts. Your contribution amounts stay private.\n\nTry: \"Save 100 cUSD weekly with 5 people\"",
-      reasoning: [],
-      timestamp: Date.now(),
-    },
-  ]);
+  const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   // Reasoning UI removed — debug info shouldn't show to users
@@ -55,13 +46,14 @@ export function AgentChat() {
     inputRef.current?.focus();
   }, []);
 
-  const handleSendMessage = async () => {
-    if (!input.trim() || isLoading) return;
+  const handleSendMessage = async (directText?: string) => {
+    const text = directText || input;
+    if (!text.trim() || isLoading) return;
 
     const userMessage: ChatMessage = {
       id: String(Date.now()),
       role: "user",
-      content: input,
+      content: text,
       timestamp: Date.now(),
     };
 
@@ -73,7 +65,7 @@ export function AgentChat() {
       const response = await fetch(`${AGENT_API_URL}/api/chat`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message: input }),
+        body: JSON.stringify({ message: text }),
       });
 
       if (!response.ok) {
@@ -180,12 +172,109 @@ export function AgentChat() {
         style={{
           flex: 1,
           overflowY: "auto",
-          padding: "calc(env(safe-area-inset-top, 0px) + 48px) 24px 24px",
+          padding: "calc(env(safe-area-inset-top, 0px) + 16px) 24px 24px",
           display: "flex",
           flexDirection: "column",
           gap: "24px",
         }}
       >
+        {/* Empty state — onboarding */}
+        {messages.length === 0 && (
+          <div style={{
+            flex: 1,
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'center',
+            alignItems: 'center',
+            gap: '24px',
+            padding: '0 8px',
+          }}>
+            {/* Title */}
+            <div style={{ textAlign: 'center' }}>
+              <div style={{
+                fontFamily: "'Cormorant Garamond', serif",
+                fontSize: '36px',
+                fontWeight: 400,
+                color: '#22211f',
+                marginBottom: '8px',
+              }}>
+                ROSA
+              </div>
+              <div style={{
+                fontFamily: "'Inter', sans-serif",
+                fontSize: '13px',
+                color: MUTED_TEXT,
+                lineHeight: '1.5',
+                whiteSpace: 'nowrap',
+              }}>
+                Private savings circles, managed by AI
+              </div>
+            </div>
+
+            {/* Suggestion pills */}
+            <div style={{
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '8px',
+              width: '100%',
+              maxWidth: '320px',
+            }}>
+              {[
+                { text: "Save $50 weekly with 5 friends", icon: "💰" },
+                { text: "How do savings circles work?", icon: "✦" },
+                { text: "Start a circle for my team", icon: "👥" },
+                { text: "Show me an example", icon: "→" },
+              ].map((suggestion, i) => (
+                <button
+                  key={i}
+                  onClick={() => handleSendMessage(suggestion.text)}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '12px',
+                    padding: '12px 16px',
+                    background: '#ffffff',
+                    border: `1px solid ${WARM_BORDER}`,
+                    borderRadius: '12px',
+                    cursor: 'pointer',
+                    fontFamily: "'Inter', sans-serif",
+                    fontSize: '14px',
+                    color: '#22211f',
+                    textAlign: 'left',
+                    transition: 'all 0.15s ease',
+                    lineHeight: '1.4',
+                  }}
+                  onMouseEnter={(e) => {
+                    (e.target as HTMLButtonElement).style.borderColor = RUST;
+                    (e.target as HTMLButtonElement).style.background = '#faf8f5';
+                  }}
+                  onMouseLeave={(e) => {
+                    (e.target as HTMLButtonElement).style.borderColor = WARM_BORDER;
+                    (e.target as HTMLButtonElement).style.background = '#ffffff';
+                  }}
+                >
+                  <span style={{ fontSize: '16px', flexShrink: 0, opacity: 0.7 }}>{suggestion.icon}</span>
+                  <span>{suggestion.text}</span>
+                </button>
+              ))}
+            </div>
+
+            {!isConnected && (
+              <div style={{
+                fontSize: '12px',
+                color: MUTED_TEXT,
+                fontFamily: "'Inter', sans-serif",
+                padding: '6px 14px',
+                background: '#ffffff',
+                borderRadius: '16px',
+                border: `1px solid ${WARM_BORDER}`,
+              }}>
+                Sign in to start saving
+              </div>
+            )}
+          </div>
+        )}
+
         {messages.map((msg) => (
           <div
             key={msg.id}
@@ -412,23 +501,7 @@ export function AgentChat() {
           position: "relative",
         }}
       >
-        {!isConnected && (
-          <div
-            style={{
-              marginBottom: "12px",
-              fontSize: "12px",
-              color: MUTED_TEXT,
-              fontFamily: "'Inter', sans-serif",
-              padding: "8px 12px",
-              background: WARM_CREAM,
-              borderRadius: "16px",
-              display: "inline-block",
-              lineHeight: "1.4",
-            }}
-          >
-            Sign in to start saving
-          </div>
-        )}
+        {/* Sign in pill removed — now in empty state */}
 
         <div
           style={{
@@ -515,7 +588,7 @@ export function AgentChat() {
 
           {/* Send button */}
           <button
-            onClick={handleSendMessage}
+            onClick={() => handleSendMessage()}
             disabled={!input.trim() || isLoading}
             style={{
               width: 36,
