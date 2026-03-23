@@ -43,7 +43,7 @@ function ConnectButton() {
         flexShrink: 0,
       }}
     >
-      {isPending ? "..." : "Connect Wallet"}
+      {isPending ? "..." : "Sign In"}
     </button>
   );
 }

@@ -284,7 +284,7 @@ export function JoinCircle({ circleAddress, onBack }: JoinCircleProps) {
                   alignItems: 'center',
                   gap: '4px',
                 }}>
-                  <span>◆</span> Chain
+                  <span>◆</span> Network
                 </div>
                 <div style={{
                   fontFamily: "'Cormorant Garamond', Georgia, serif",
@@ -385,8 +385,8 @@ export function JoinCircle({ circleAddress, onBack }: JoinCircleProps) {
               lineHeight: 1.6,
               color: '#22211f',
             }}>
-              <li>Connect your wallet</li>
-              <li>Approve cUSD spending</li>
+              <li>Sign in</li>
+              <li>Approve your contribution</li>
               <li>ROSA handles contributions, payouts, and trust</li>
             </ol>
           </div>
@@ -421,7 +421,7 @@ export function JoinCircle({ circleAddress, onBack }: JoinCircleProps) {
               (e.currentTarget as HTMLButtonElement).style.background = '#c85a3f'
             }}
           >
-            {!isConnected ? 'Connect Wallet to Join' : 'JOIN THIS CIRCLE'}
+            {!isConnected ? 'Sign In to Join' : 'JOIN THIS CIRCLE'}
           </button>
 
           {/* Alert feedback */}
@@ -462,7 +462,7 @@ export function JoinCircle({ circleAddress, onBack }: JoinCircleProps) {
               lineHeight: 1.5,
               marginBottom: '20px',
             }}>
-              Autonomous agent on Celo Sepolia testnet
+              Managed by ROSA — automated savings agent
             </div>
           </div>
 

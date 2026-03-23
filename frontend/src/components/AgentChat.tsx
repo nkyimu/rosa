@@ -328,7 +328,7 @@ export function AgentChat() {
               lineHeight: "var(--dt-leading-relaxed)"
             }}
           >
-            ℹ Connect wallet to submit intents on-chain
+            ℹ Sign in to start saving
           </div>
         )}
         <div
