@@ -56,7 +56,7 @@ No coordinator. No manual tracking. No leaked financial data.
 │  │  - NL → tx   │  │  - Private payouts│  │
 │  └─────────────┘  └───────────────────┘  │
 │  ┌────────────────────────────────────┐  │
-│  │  x402 Payment Server (12 endpoints)│  │
+│  │  x402 Payment Server (13 endpoints)│  │
 │  └────────────────────────────────────┘  │
 └─────────────────┬────────────────────────┘
                   │ Celo Sepolia JSON-RPC
@@ -98,7 +98,7 @@ The matcher uses **Venice AI's private inference API** to reason about group com
 - ✓ All inferences are ephemeral — zero data retention
 - ✓ Member identities are NOT sent (only anonymized intent indices)
 - ✓ Contribution amounts are sent as sanitized numbers (no member mapping)
-- ✓ TEE models (e2ee-*) run in Trusted Execution Environments with hardware attestation
+- ✓ TEE models (e2ee-*) leverage Venice's Trusted Execution Environment infrastructure
 
 **Why This Matters:**
 Ethereum provides public coordination (all intent data on-chain). Venice provides **private cognition** — the agent reasons about financial compatibility in a privacy-preserving sandbox, then publishes only the matching decisions on-chain. Members' financial data never leaves the privacy boundary.
@@ -113,8 +113,8 @@ VENICE_MODEL=e2ee-glm-4-7-flash-p  # TEE model for max privacy credibility
 **Privacy Attestation:**
 Every Venice inference is logged to `logs/privacy-attestation-{timestamp}.json`:
 - What data was analyzed (anonymized)
-- Which model was used and if it's a TEE model
-- Venice's zero-retention guarantee verified
+- Which model was used and whether it's a TEE model
+- Venice's zero-retention guarantee (per Venice's infrastructure policy)
 - Timestamp of each inference call
 
 Run `generatePrivacyReport()` to generate an audit-ready attestation:
@@ -123,13 +123,15 @@ import { generatePrivacyReport } from "./src/privacy-attestation.js";
 console.log(generatePrivacyReport());
 ```
 
+> **Note:** TEE attestation currently relies on Venice's infrastructure guarantees. On-chain verification of TEE proofs is on the roadmap — see [Privacy Roadmap](#privacy-roadmap).
+
 ---
 
-#### Layer 2 — Contract Privacy (Nightfall ZK)
+#### Layer 2 — Contract Privacy (Nightfall ZK) — *Roadmap*
 
 Standard ROSCA contracts reveal everything: who contributed, how much, when they claimed. On-chain transparency becomes a liability when members don't want their savings behavior public.
 
-ROSA's Nightfall integration adds commit-reveal privacy:
+ROSA's architecture includes a commit-reveal privacy layer designed for Nightfall ZK integration:
 
 1. Member generates a commitment (hash of amount + secret salt)
 2. Commitment is posted on-chain — amount stays hidden
@@ -137,6 +139,8 @@ ROSA's Nightfall integration adds commit-reveal privacy:
 4. A ZK proof confirms the contribution matches without exposing the value
 
 Observers see commitment hashes. Members see their own contributions. The agent verifies everything. Nobody else sees balances.
+
+> **Current status:** The commit-reveal data structure and privacy interfaces are implemented. Full Nightfall ZK proof generation requires a Nightfall client — integration is designed but not yet deployed. The privacy architecture is ready for plugging in Nightfall (or any ZK commitment scheme) without contract changes.
 
 ---
 
@@ -156,7 +160,18 @@ If an adversary gained access to every on-chain log, they would see:
 - Rotation order
 - But NOT: amounts, member-to-amount mappings, or financial behavior
 
-This is the baseline. Nightfall + Venice together achieve **private coordination without sacrificing auditability.**
+This is the baseline. Venice provides private cognition today. Nightfall ZK (when integrated) will add on-chain contribution privacy — **private coordination without sacrificing auditability.**
+
+<a id="privacy-roadmap"></a>
+#### Privacy Roadmap
+
+| Layer | Status | Next Step |
+|-------|--------|-----------|
+| Venice Private Inference | ✅ Implemented | TEE attestation on-chain verification |
+| Privacy Attestation Logging | ✅ Implemented | Publish attestation reports to IPFS |
+| Commit-Reveal Data Structures | ✅ Designed | Wire to Nightfall ZK client |
+| Nightfall ZK Proofs | 🔜 Architecture ready | Deploy Nightfall client, generate proofs |
+| On-chain TEE Verification | 🔜 Planned | Verify Venice TEE proofs in contract |
 
 ### Trust Tiers
 
@@ -242,7 +257,7 @@ ROSA sits at the intersection of multiple themes:
 
 - [Bun](https://bun.sh) (or Node.js 20+)
 - [Foundry](https://getfoundry.sh) (`forge`, `cast`)
-- Docker (optional, for Nightfall client)
+- Docker (optional, for future Nightfall ZK client)
 
 ### Run the Agent
 
