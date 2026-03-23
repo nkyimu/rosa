@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useAccount, useConnect } from 'wagmi'
 import { injected } from 'wagmi/connectors'
+import { MemberAvatar } from './MemberAvatar'
 
 interface JoinCircleProps {
   circleAddress?: string
@@ -42,11 +43,26 @@ function shortenAddress(addr: string): string {
   return `${addr.slice(0, 6)}...${addr.slice(-5)}`
 }
 
+function saveAlias(address: string, alias: string): void {
+  if (typeof window === 'undefined') return
+  const aliases = JSON.parse(localStorage.getItem('memberAliases') || '{}')
+  if (alias.trim()) {
+    aliases[address.toLowerCase()] = alias.trim()
+  } else {
+    delete aliases[address.toLowerCase()]
+  }
+  localStorage.setItem('memberAliases', JSON.stringify(aliases))
+}
+
 export function JoinCircle({ circleAddress, onBack }: JoinCircleProps) {
   const { isConnected } = useAccount()
   const { connect, isPending: isConnecting } = useConnect()
   const [copyFeedback, setCopyFeedback] = useState(false)
   const [joiningAlert, setJoiningAlert] = useState(false)
+  const [aliases, setAliases] = useState<{ [key: string]: string }>(() => {
+    if (typeof window === 'undefined') return {}
+    return JSON.parse(localStorage.getItem('memberAliases') || '{}')
+  })
 
   const circle = circleAddress ? DEMO_CIRCLE : DEMO_CIRCLE
 
@@ -320,33 +336,79 @@ export function JoinCircle({ circleAddress, onBack }: JoinCircleProps) {
               border: '1px solid #eceae3',
               marginBottom: '12px',
             }}>
-              {circle.members.map((member, idx) => (
-                <div
-                  key={idx}
-                  style={{
-                    background: '#ffffff',
-                    padding: '16px 20px',
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    alignItems: 'center',
-                    fontSize: '12px',
-                    fontFamily: "'Inter', -apple-system, sans-serif",
-                  }}
-                >
-                  <span style={{ color: '#22211f' }}>
-                    {shortenAddress(member.address)}
-                  </span>
-                  {member.isCreator && (
-                    <span style={{
-                      fontSize: '11px',
-                      color: '#c85a3f',
-                      fontWeight: 600,
-                    }}>
-                      ★ Creator
-                    </span>
-                  )}
-                </div>
-              ))}
+              {circle.members.map((member, idx) => {
+                const memberKey = member.address.toLowerCase()
+                const alias = aliases[memberKey]
+                
+                return (
+                  <div
+                    key={idx}
+                    style={{
+                      background: '#ffffff',
+                      padding: '16px 20px',
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      alignItems: 'center',
+                      gap: '12px',
+                      fontSize: '12px',
+                      fontFamily: "'Inter', -apple-system, sans-serif",
+                    }}
+                  >
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flex: 1 }}>
+                      <MemberAvatar address={member.address} size={32} />
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', flex: 1 }}>
+                        <input
+                          type="text"
+                          value={alias || ''}
+                          onChange={(e) => {
+                            const newAlias = e.target.value
+                            saveAlias(member.address, newAlias)
+                            setAliases((prev) => ({
+                              ...prev,
+                              [memberKey]: newAlias,
+                            }))
+                          }}
+                          placeholder={shortenAddress(member.address)}
+                          style={{
+                            border: '1px solid #e4e2db',
+                            borderRadius: '4px',
+                            padding: '6px 8px',
+                            fontSize: '12px',
+                            fontFamily: "'Inter', -apple-system, sans-serif",
+                            color: '#22211f',
+                            background: '#ffffff',
+                            outline: 'none',
+                            transition: 'border-color 0.2s ease',
+                          }}
+                          onFocus={(e) => {
+                            e.currentTarget.style.borderColor = '#c85a3f'
+                          }}
+                          onBlur={(e) => {
+                            e.currentTarget.style.borderColor = '#e4e2db'
+                          }}
+                        />
+                        <span style={{
+                          fontSize: '10px',
+                          color: '#8c8981',
+                          letterSpacing: '0.5px',
+                        }}>
+                          {shortenAddress(member.address)}
+                        </span>
+                      </div>
+                    </div>
+                    {member.isCreator && (
+                      <span style={{
+                        fontSize: '11px',
+                        color: '#c85a3f',
+                        fontWeight: 600,
+                        whiteSpace: 'nowrap',
+                      }}>
+                        ★ Creator
+                      </span>
+                    )}
+                  </div>
+                )
+              })}
             </div>
             <div style={{
               fontSize: '12px',
