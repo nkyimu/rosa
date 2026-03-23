@@ -9,6 +9,7 @@ import { TrustPanel }       from "./components/TrustPanel";
 import { BarterMarketplace } from "./components/BarterMarketplace";
 import { AgentChat }        from "./components/AgentChat";
 import { ActivityFeed }     from "./components/ActivityFeed";
+import { JoinCircle }       from "./components/JoinCircle";
 import { checkMiniPay, CONTRACT_ADDRESSES, celoSepolia }     from "./config/wagmi";
 
 type Tab = "agent" | "circles" | "trust";
@@ -110,6 +111,19 @@ function WalletStatus() {
 
 export default function App() {
   const [activeTab, setActiveTab] = useState<Tab>("agent");
+
+  // Check for join invite link
+  const joinMatch = window.location.hash.match(/^#\/join\/(.+)$/);
+  if (joinMatch) {
+    const circleAddress = joinMatch[1];
+    return <JoinCircle 
+      circleAddress={circleAddress} 
+      onBack={() => { 
+        window.location.hash = ''; 
+        window.location.reload(); 
+      }} 
+    />;
+  }
 
   return (
     <div style={{ minHeight: '100vh', background: 'var(--dt-surface-base)' }}>

@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { useAccount, useBalance } from 'wagmi'
 import { formatUnits } from 'viem'
 import { CONTRACT_ADDRESSES, celoSepolia } from '../config/wagmi'
@@ -22,8 +23,11 @@ const STYLE = `
   }
 `
 
+const DEMO_CIRCLE_ADDRESS = '0xF9Cc36a52ff067A92180D48d782bf9684A87A12A';
+
 export function CircleDashboard(_props?: CircleDashboardProps) {
   const { address, isConnected } = useAccount()
+  const [copyFeedback, setCopyFeedback] = useState(false)
 
   // Fetch cUSD balance
   const { data: cUSDBalance } = useBalance({
@@ -39,6 +43,14 @@ export function CircleDashboard(_props?: CircleDashboardProps) {
         maximumFractionDigits: 2 
       })
     : '—.——'
+
+  const handleShareCircle = () => {
+    const inviteUrl = `${window.location.origin}/#/join/${DEMO_CIRCLE_ADDRESS}`
+    navigator.clipboard.writeText(inviteUrl).then(() => {
+      setCopyFeedback(true)
+      setTimeout(() => setCopyFeedback(false), 2000)
+    })
+  }
 
   // Activity list with tx hash references
   const activityItems = [
@@ -254,16 +266,25 @@ export function CircleDashboard(_props?: CircleDashboardProps) {
           alignItems: 'center',
         }}>
           <span>Recent Activity</span>
-          <span style={{
-            fontFamily: "'Inter', -apple-system, sans-serif",
-            fontSize: '9px',
-            fontStyle: 'normal',
-            letterSpacing: '1.5px',
-            color: '#8c8981',
-            textTransform: 'uppercase',
-          }}>
-            View All
-          </span>
+          <button
+            onClick={handleShareCircle}
+            style={{
+              background: 'none',
+              border: 'none',
+              fontFamily: "'Inter', -apple-system, sans-serif",
+              fontSize: '9px',
+              fontStyle: 'normal',
+              letterSpacing: '1.5px',
+              color: copyFeedback ? '#4a7c59' : '#8c8981',
+              textTransform: 'uppercase',
+              cursor: 'pointer',
+              padding: '4px 8px',
+              transition: 'color 0.2s ease',
+            }}
+            title="Copy invite link to clipboard"
+          >
+            {copyFeedback ? '✓ COPIED' : 'Share Invite'}
+          </button>
         </div>
 
         {/* Activity List */}
